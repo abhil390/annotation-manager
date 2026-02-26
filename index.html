@@ -340,6 +340,8 @@ tr:hover td{background:var(--sur2);}
 .rp-manager{background:var(--blue-l);color:var(--blue);}
 .rp-reviewer{background:var(--yel-l);color:var(--yellow);}
 .rp-employee{background:var(--green-l);color:var(--green);}
+.rp-stakeholder{background:var(--pur-l);color:var(--purple);}
+.rp-stakeholder{background:var(--pur-l);color:var(--purple);}
 
 /* ═══ USERS TABLE ═══ */
 .users-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;}
@@ -349,6 +351,47 @@ tr:hover td{background:var(--sur2);}
 .user-card-info strong{font-size:.88rem;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .user-card-info span{font-size:.72rem;color:var(--tx2);display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .user-card-actions{display:flex;gap:4px;flex-shrink:0;}
+
+/* ═══ ACTIVITY LOG ═══ */
+.actlog{display:flex;flex-direction:column;gap:0;}
+.actlog-entry{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--brd);position:relative;}
+.actlog-entry:last-child{border-bottom:none;}
+.act-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.act-dot.create{background:var(--green);}
+.act-dot.edit{background:var(--blue);}
+.act-dot.delete{background:var(--red);}
+.act-dot.assign{background:var(--purple);}
+.act-dot.status{background:var(--yellow);}
+.act-dot.comment{background:var(--tx3);}
+.act-body{flex:1;min-width:0;}
+.act-msg{font-size:.79rem;color:var(--tx);line-height:1.4;}
+.act-msg strong{font-weight:600;color:var(--tx);}
+.act-meta{font-size:.66rem;color:var(--tx3);margin-top:2px;display:flex;gap:8px;}
+.act-proj{font-size:.66rem;color:var(--blue);background:var(--blue-l);padding:1px 6px;border-radius:4px;}
+.actlog-empty{text-align:center;padding:30px;color:var(--tx3);font-size:.82rem;}
+
+/* ═══ STAKEHOLDER VIEW ═══ */
+.sh-dashboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+.sh-stat{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:18px;text-align:center;box-shadow:var(--sh-sm);}
+.sh-stat-icon{font-size:1.6rem;margin-bottom:8px;}
+.sh-stat-val{font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:700;line-height:1;}
+.sh-stat-lbl{font-size:.72rem;color:var(--tx2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;}
+.sh-proj-table{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-sm);}
+.sh-proj-table table{width:100%;border-collapse:collapse;}
+.sh-proj-table th{background:var(--sur2);padding:10px 14px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);text-align:left;border-bottom:1px solid var(--brd);}
+.sh-proj-table td{padding:10px 14px;font-size:.82rem;border-bottom:1px solid var(--brd);vertical-align:middle;}
+.sh-proj-table tr:last-child td{border-bottom:none;}
+.sh-proj-table tr:nth-child(even) td{background:var(--sur2);}
+.sh-badge{padding:3px 8px;border-radius:var(--rp);font-size:.64rem;font-weight:700;text-transform:uppercase;}
+
+/* ═══ VISIBILITY CONFIG ═══ */
+.vis-config-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.vis-role-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:18px;box-shadow:var(--sh-sm);}
+.vis-role-title{font-size:.88rem;font-weight:700;margin-bottom:3px;display:flex;align-items:center;gap:7px;}
+.vis-role-sub{font-size:.72rem;color:var(--tx2);margin-bottom:14px;}
+.vis-toggle-list{display:flex;flex-direction:column;gap:7px;}
+.vis-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--sur2);border-radius:var(--rsm);}
+.vis-toggle-lbl{font-size:.78rem;color:var(--tx);}
 
 /* ═══ MIGRATION ALERT ═══ */
 .migbanner{background:#1e1b4b;border:1px solid #6366f1;border-radius:var(--r);padding:16px 20px;margin-bottom:18px;}
@@ -384,10 +427,11 @@ tr:hover td{background:var(--sur2);}
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
-      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub">admin@camcom.ai / admin123</span></button>
-      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub">manager@camcom.ai / mgr123</span></button>
-      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub">reviewer@camcom.ai / rev123</span></button>
+      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5f3e3b3236311f3c3e323c3032713e36">[email&#160;protected]</a> / admin123</span></button>
+      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9af7fbf4fbfdffe8daf9fbf7f9f5f7b4fbf3">[email&#160;protected]</a> / mgr123</span></button>
+      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cbb9aebda2aebcaeb98ba8aaa6a8a4a6e5aaa2">[email&#160;protected]</a> / rev123</span></button>
       <button class="dbtn" onclick="quickLogin('employee')"><span class="dname">🟢 Employee</span><span class="dsub">My assigned projects only</span></button>
+      <button class="dbtn" onclick="quickLogin('stakeholder')" style="grid-column:1/-1;"><span class="dname">🟣 Stakeholder</span><span class="dsub">Executive / investor view — admin configures what they see</span></button>
     </div>
   </div>
 </div>
@@ -421,7 +465,10 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
   <div class="nav-divider"></div>
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
+  <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
   <button class="nav-btn" data-page="users" id="nav-users" style="display:none" onclick="switchPage('users')"><i class="fas fa-user-shield"></i> Manage Users</button>
+  <button class="nav-btn" data-page="actlog" id="nav-actlog" style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
+  <button class="nav-btn" data-page="stakeholder" id="nav-stakeholder" style="display:none" onclick="switchPage('stakeholder')"><i class="fas fa-eye"></i> My Dashboard</button>
   <div class="sidebar-foot">
     <div class="user-chip" id="userChip">
       <div class="user-av" id="userAv" style="background:var(--red)">?</div>
@@ -570,10 +617,50 @@ tr:hover td{background:var(--sur2);}
     <strong><i class="fas fa-shield-alt"></i> Role Permissions:</strong>
     &nbsp;👑 <strong>Admin</strong> — full access &nbsp;|&nbsp;
     🔵 <strong>Manager</strong> — create, edit, assign &nbsp;|&nbsp;
-    🟡 <strong>Reviewer</strong> — read-only, sees all projects &nbsp;|&nbsp;
-    🟢 <strong>Employee</strong> — sees only assigned projects
+    🟡 <strong>Reviewer</strong> — read-only, all projects &nbsp;|&nbsp;
+    🟢 <strong>Employee</strong> — assigned projects only, read-only &nbsp;|&nbsp;
+    🟣 <strong>Stakeholder</strong> — admin-configured summary view
   </div>
   <div class="users-grid" id="usersGrid"></div>
+</div>
+
+<!-- STAKEHOLDER DASHBOARD -->
+<div class="page" id="page-stakeholder">
+  <div class="topbar">
+    <h1 class="pg-title"><i class="fas fa-chart-line" style="color:var(--purple)"></i> Executive Dashboard</h1>
+    <div style="font-size:.78rem;color:var(--tx3);display:flex;align-items:center;gap:6px;">
+      <i class="fas fa-lock" style="font-size:.7rem;"></i> View-only &nbsp;·&nbsp; Last updated: <span id="sh-lastUpdated">—</span>
+    </div>
+  </div>
+  <div id="shDashboard"></div>
+</div>
+
+<!-- ACCESS CONTROL (Admin only) -->
+<div class="page" id="page-access">
+  <div class="topbar"><h1 class="pg-title"><i class="fas fa-shield-alt" style="color:var(--red)"></i> Access Control</h1></div>
+  <p style="font-size:.82rem;color:var(--tx2);margin-bottom:20px;">Configure who sees what. Changes apply immediately when users navigate to those pages.</p>
+  <div id="visConfigGrid" class="vis-config-grid"></div>
+</div>
+
+<!-- ACTIVITY LOG (Admin + configurable for Manager/Reviewer) -->
+<div class="page" id="page-actlog">
+  <div class="topbar">
+    <h1 class="pg-title"><i class="fas fa-history" style="color:var(--red)"></i> Activity Log</h1>
+    <div class="topbar-r">
+      <select class="fsel" id="actFilter" onchange="renderActivityLog()">
+        <option value="all">All Actions</option>
+        <option value="create">Creates</option>
+        <option value="edit">Edits</option>
+        <option value="assign">Assignments</option>
+        <option value="status">Status Changes</option>
+        <option value="delete">Deletes</option>
+        <option value="comment">Comments</option>
+      </select>
+      <select class="fsel" id="actProjFilter" onchange="renderActivityLog()"><option value="">All Projects</option></select>
+      <button class="btn btn-ghost btn-sm" onclick="if(confirm('Clear all activity logs?')){actLog=[];saveActLog();renderActivityLog();}"><i class="fas fa-trash"></i> Clear Log</button>
+    </div>
+  </div>
+  <div id="actLogContainer"><div class="actlog-empty"><i class="fas fa-history" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>No activity recorded yet.</div></div>
 </div>
 
 </main>
@@ -630,7 +717,7 @@ tr:hover td{background:var(--sur2);}
   </div>
 </div></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ═══════════════════════
 // SUPABASE
 // ═══════════════════════
@@ -688,35 +775,352 @@ let employees=[
 // RBAC — ROLES & PERMISSIONS
 // ══════════════════════════════════
 const ROLES={
-  admin:   {label:'Admin',   icon:'👑', pill:'rp-admin',   color:'#dc2626',
+  admin:      {label:'Admin',      icon:'👑', pill:'rp-admin',       color:'#dc2626',
     canCreate:true, canEdit:true, canDelete:true, canAssign:true,
-    canManageUsers:true, canManageFeatures:true, seeAll:true},
-  manager: {label:'Manager', icon:'🔵', pill:'rp-manager', color:'#2563eb',
+    canManageUsers:true, canManageFeatures:true, seeAll:true, canViewLog:true, isStakeholder:false},
+  manager:    {label:'Manager',    icon:'🔵', pill:'rp-manager',     color:'#2563eb',
     canCreate:true, canEdit:true, canDelete:false, canAssign:true,
-    canManageUsers:false, canManageFeatures:false, seeAll:true},
-  reviewer:{label:'Reviewer',icon:'🟡', pill:'rp-reviewer',color:'#d97706',
+    canManageUsers:false, canManageFeatures:false, seeAll:true, canViewLog:true, isStakeholder:false},
+  reviewer:   {label:'Reviewer',   icon:'🟡', pill:'rp-reviewer',   color:'#d97706',
     canCreate:false, canEdit:false, canDelete:false, canAssign:false,
-    canManageUsers:false, canManageFeatures:false, seeAll:true},
-  employee:{label:'Employee',icon:'🟢', pill:'rp-employee',color:'#16a34a',
+    canManageUsers:false, canManageFeatures:false, seeAll:true, canViewLog:false, isStakeholder:false},
+  employee:   {label:'Employee',   icon:'🟢', pill:'rp-employee',   color:'#16a34a',
     canCreate:false, canEdit:false, canDelete:false, canAssign:false,
-    canManageUsers:false, canManageFeatures:false, seeAll:false},
+    canManageUsers:false, canManageFeatures:false, seeAll:false, canViewLog:false, isStakeholder:false},
+  stakeholder:{label:'Stakeholder',icon:'🟣', pill:'rp-stakeholder',color:'#7c3aed',
+    canCreate:false, canEdit:false, canDelete:false, canAssign:false,
+    canManageUsers:false, canManageFeatures:false, seeAll:false, canViewLog:false, isStakeholder:true},
 };
-function can(perm){return !!(currentUser && ROLES[currentUser.role]?.[perm]);}
+function can(perm){
+  if(!currentUser)return false;
+  // Check dynamic overrides first (admin-configurable)
+  const dyn=visConfig.roleCaps?.[currentUser.role]?.[perm];
+  if(dyn!==undefined)return !!dyn;
+  return !!(ROLES[currentUser.role]?.[perm]);
+}
 function visibleProjects(){
   if(!currentUser) return [];
   if(can('seeAll')) return projects;
+  if(currentUser.role==='stakeholder') return projects; // all but filtered display
   return projects.filter(p=>(p.assignedEmployees||[]).includes(currentUser.empId));
+}
+
+// ══════════════════════════════════
+// VISIBILITY CONFIG (Admin-controlled)
+// ══════════════════════════════════
+// What each role can see / do — admin can override
+let visConfig={
+  // Activity log visibility per role
+  actLogVisible:{admin:true, manager:true, reviewer:false, employee:false, stakeholder:false},
+  // Stakeholder dashboard — which fields to show
+  stakeholderFields:{
+    totalProjects:true, totalImages:true, annotatedPct:true, reviewedPct:true,
+    highPriorityCount:true, onTrackCount:true,
+    projectTable:true, projectName:true, projectPriority:true, projectStatus:true,
+    projectAnnotatedPct:true, projectReviewedPct:true, projectDeadline:true,
+    projectAssignedBy:false,   // sensitive — hidden by default
+    projectEmployeeCount:false, // sensitive — hidden by default
+    projectNotes:false,         // sensitive — hidden by default
+    analyticsCharts:false,      // show charts? off by default
+  },
+  // Admin can toggle which role can view activity log
+  // (beyond defaults above)
+  roleCaps:{} // { manager: { canViewLog: true/false }, ... }
+};
+
+function loadVisConfig(){try{const s=localStorage.getItem('cc_vis');if(s)Object.assign(visConfig,JSON.parse(s));}catch(e){}}
+function saveVisConfig(){try{localStorage.setItem('cc_vis',JSON.stringify(visConfig));}catch(e){}}
+
+// ══════════════════════════════════
+// ACTIVITY LOG
+// ══════════════════════════════════
+let actLog=[]; // [{id, ts, type, user, projId, projName, msg}]
+// types: create, edit, assign, status, delete, comment
+
+function loadActLog(){try{const s=localStorage.getItem('cc_actlog');if(s)actLog=JSON.parse(s);}catch(e){}}
+function saveActLog(){try{localStorage.setItem('cc_actlog',JSON.stringify(actLog.slice(0,500)));}catch(e){}}
+
+function logActivity(type, projId, projName, msg){
+  if(!currentUser)return;
+  actLog.unshift({
+    id:'al_'+Date.now(),
+    ts:new Date().toISOString(),
+    type, // create|edit|assign|status|delete|comment
+    user:currentUser.name,
+    userRole:currentUser.role,
+    projId, projName:projName||'Unknown',
+    msg
+  });
+  saveActLog();
+  // update badge
+  const nb=document.getElementById('nb-act');
+  if(nb)nb.textContent=actLog.length;
+}
+
+function canSeeLog(){
+  if(!currentUser)return false;
+  // Admin always sees it
+  if(currentUser.role==='admin')return true;
+  // Check the configurable setting
+  return !!(visConfig.actLogVisible?.[currentUser.role]);
+}
+
+function renderActivityLog(){
+  const filter=(document.getElementById('actFilter')?.value)||'all';
+  const projFilter=(document.getElementById('actProjFilter')?.value)||'';
+  let list=[...actLog];
+  if(filter!=='all')list=list.filter(e=>e.type===filter);
+  if(projFilter)list=list.filter(e=>e.projId===projFilter);
+
+  // Populate project filter dropdown
+  const projSel=document.getElementById('actProjFilter');
+  if(projSel&&projSel.options.length<2){
+    const seen=new Set();
+    actLog.forEach(e=>{if(!seen.has(e.projId)){seen.add(e.projId);projSel.add(new Option(e.projName,e.projId));}});
+  }
+
+  const TYPE_INFO={
+    create:{dot:'create',icon:'fa-plus-circle',color:'var(--green)'},
+    edit:{dot:'edit',icon:'fa-pen',color:'var(--blue)'},
+    assign:{dot:'assign',icon:'fa-user-plus',color:'var(--purple)'},
+    status:{dot:'status',icon:'fa-exchange-alt',color:'var(--yellow)'},
+    delete:{dot:'delete',icon:'fa-trash',color:'var(--red)'},
+    comment:{dot:'comment',icon:'fa-comment',color:'var(--tx3)'},
+  };
+
+  if(!list.length){
+    document.getElementById('actLogContainer').innerHTML=`<div class="actlog-empty"><i class="fas fa-history" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>${filter==='all'?'No activity recorded yet.':'No entries match this filter.'}</div>`;
+    return;
+  }
+
+  document.getElementById('actLogContainer').innerHTML=`<div class="actlog">${list.map(e=>{
+    const ti=TYPE_INFO[e.type]||{dot:'edit',icon:'fa-circle',color:'var(--tx3)'};
+    const dt=new Date(e.ts);
+    const relTime=formatRelTime(dt);
+    return`<div class="actlog-entry">
+      <div class="act-dot ${ti.dot}" style="margin-top:6px;"></div>
+      <div class="act-body">
+        <div class="act-msg"><i class="fas ${ti.icon}" style="color:${ti.color};font-size:.72rem;"></i> ${esc(e.msg)}</div>
+        <div class="act-meta">
+          <span><i class="fas fa-user" style="font-size:.58rem;"></i> ${esc(e.user)}</span>
+          <span class="role-pill ${ROLES[e.userRole]?.pill||'rp-reviewer'}" style="font-size:.58rem;padding:1px 5px;">${ROLES[e.userRole]?.icon||''} ${ROLES[e.userRole]?.label||e.userRole}</span>
+          <span class="act-proj"><i class="fas fa-folder" style="font-size:.58rem;"></i> ${esc(e.projName)}</span>
+          <span title="${dt.toLocaleString()}">${relTime}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+
+  const nb=document.getElementById('nb-act');if(nb)nb.textContent=actLog.length;
+}
+
+function formatRelTime(dt){
+  const diff=Math.floor((Date.now()-dt.getTime())/1000);
+  if(diff<60)return 'just now';
+  if(diff<3600)return Math.floor(diff/60)+'m ago';
+  if(diff<86400)return Math.floor(diff/3600)+'h ago';
+  if(diff<604800)return Math.floor(diff/86400)+'d ago';
+  return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+}
+
+// ══════════════════════════════════
+// STAKEHOLDER DASHBOARD RENDERER
+// ══════════════════════════════════
+function renderStakeholderDashboard(){
+  const sf=visConfig.stakeholderFields;
+  const tI=projects.reduce((s,p)=>s+(+p.total||0),0);
+  const tA=projects.reduce((s,p)=>s+(+p.annotated||0),0);
+  const tR=projects.reduce((s,p)=>s+(+p.reviewed||0),0);
+  const highPri=projects.filter(p=>p.priority==='high').length;
+  const onTrack=projects.filter(p=>{
+    const dl=dlMeta(p.deadline);
+    return dl&&dl.diff>=0;
+  }).length;
+
+  // Update last-updated time
+  const lu=document.getElementById('sh-lastUpdated');
+  if(lu)lu.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  // Build stat cards
+  const stats=[];
+  if(sf.totalProjects)stats.push({icon:'📁',val:projects.length,lbl:'Total Projects',color:'var(--red)'});
+  if(sf.totalImages)stats.push({icon:'🖼️',val:tI.toLocaleString(),lbl:'Total Images',color:'var(--blue)'});
+  if(sf.annotatedPct)stats.push({icon:'✅',val:pct(tA,tI)+'%',lbl:'Annotated',color:'var(--green)'});
+  if(sf.reviewedPct)stats.push({icon:'👁️',val:pct(tR,tI)+'%',lbl:'Reviewed',color:'var(--purple)'});
+  if(sf.highPriorityCount)stats.push({icon:'🔥',val:highPri,lbl:'High Priority',color:'var(--red)'});
+  if(sf.onTrackCount)stats.push({icon:'📅',val:onTrack,lbl:'On Track',color:'var(--green)'});
+
+  const statsHtml=stats.length?`<div class="sh-dashboard">${stats.map(s=>`
+    <div class="sh-stat">
+      <div class="sh-stat-icon">${s.icon}</div>
+      <div class="sh-stat-val" style="color:${s.color};">${s.val}</div>
+      <div class="sh-stat-lbl">${s.lbl}</div>
+    </div>`).join('')}</div>`:'';
+
+  // Build project table
+  let tableHtml='';
+  if(sf.projectTable){
+    const showCols=[];
+    if(sf.projectName)showCols.push('Project Name');
+    if(sf.projectPriority)showCols.push('Priority');
+    if(sf.projectStatus)showCols.push('Status');
+    if(sf.projectAnnotatedPct)showCols.push('Annotated');
+    if(sf.projectReviewedPct)showCols.push('Reviewed');
+    if(sf.projectDeadline)showCols.push('Deadline');
+    if(sf.projectAssignedBy)showCols.push('Assigned By');
+    if(sf.projectEmployeeCount)showCols.push('Team Size');
+
+    if(showCols.length){
+      const priColors={high:'#dc2626',medium:'#d97706',low:'#16a34a'};
+      const statusLabels={todo:'📋 To Do',inprog:'⚡ In Progress',review:'🔍 Review',done:'✅ Done'};
+      const rows=projects.map(p=>{
+        const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+        const dl=dlMeta(p.deadline);
+        const cells=[];
+        if(sf.projectName)cells.push(`<td><strong>${esc(p.name)}</strong></td>`);
+        if(sf.projectPriority)cells.push(`<td><span class="sh-badge" style="background:${priColors[p.priority]}22;color:${priColors[p.priority]};">${p.priority.toUpperCase()}</span></td>`);
+        if(sf.projectStatus)cells.push(`<td><span style="font-size:.76rem;">${statusLabels[p.kanbanStatus||'todo']}</span></td>`);
+        if(sf.projectAnnotatedPct)cells.push(`<td><div style="display:flex;align-items:center;gap:7px;"><div class="pbar" style="width:60px;flex-shrink:0;"><div class="pf pf-a" style="width:${pct(A,T)}%"></div></div><span style="font-size:.78rem;font-weight:600;">${pct(A,T)}%</span></div></td>`);
+        if(sf.projectReviewedPct)cells.push(`<td><div style="display:flex;align-items:center;gap:7px;"><div class="pbar" style="width:60px;flex-shrink:0;"><div class="pf pf-r" style="width:${pct(R,T)}%"></div></div><span style="font-size:.78rem;font-weight:600;">${pct(R,T)}%</span></div></td>`);
+        if(sf.projectDeadline)cells.push(`<td style="font-size:.78rem;${dl&&dl.diff<0?'color:#dc2626;font-weight:600;':''}">${dl?dl.label+''+( dl.diff<0?' ⚠':''):'—'}</td>`);
+        if(sf.projectAssignedBy)cells.push(`<td style="font-size:.78rem;color:var(--tx2);">${esc(p.assignedby||'—')}</td>`);
+        if(sf.projectEmployeeCount)cells.push(`<td style="font-size:.78rem;">${(p.assignedEmployees||[]).length} people</td>`);
+        return`<tr>${cells.join('')}</tr>`;
+      }).join('');
+      tableHtml=`<div class="sh-proj-table">
+        <table><thead><tr>${showCols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+        <tbody>${rows}</tbody></table></div>`;
+    }
+  }
+
+  // Charts if enabled
+  let chartsHtml='';
+  if(sf.analyticsCharts){
+    chartsHtml=`<div class="charts-grid" style="margin-top:20px;">
+      <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-pie" style="color:var(--red)"></i> Annotation Progress</div><div class="chart-wrap"><canvas id="shProgChart"></canvas></div></div>
+      <div class="chart-card"><div class="chart-title"><i class="fas fa-chart-bar" style="color:var(--blue)"></i> Status Overview</div><div class="chart-wrap"><canvas id="shStatusChart"></canvas></div></div>
+    </div>`;
+  }
+
+  const empty=!stats.length&&!sf.projectTable&&!sf.analyticsCharts;
+  document.getElementById('shDashboard').innerHTML=empty
+    ?`<div class="empty-st"><i class="fas fa-eye-slash" style="font-size:2rem;display:block;margin-bottom:10px;"></i><p>No data is currently configured for your dashboard.<br><small>Contact an administrator to enable dashboard fields.</small></p></div>`
+    :statsHtml+tableHtml+chartsHtml;
+
+  // Render stakeholder charts if needed
+  if(sf.analyticsCharts){
+    setTimeout(()=>{
+      destroyChart('shProg');
+      const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+      const tx=isDark?'#8b949e':'#475569';
+      const shPc=document.getElementById('shProgChart');
+      if(shPc)chartInstances.shProg=new Chart(shPc,{type:'bar',data:{labels:projects.map(p=>p.name.substr(0,12)),datasets:[{label:'Annotated %',data:projects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:projects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tx,font:{size:10}}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx}}}}});
+      destroyChart('shStatus');
+      const statCounts={todo:0,inprog:0,review:0,done:0};
+      projects.forEach(p=>{statCounts[p.kanbanStatus||'todo']++;});
+      const shSc=document.getElementById('shStatusChart');
+      if(shSc)chartInstances.shStatus=new Chart(shSc,{type:'doughnut',data:{labels:['To Do','In Progress','Review','Done'],datasets:[{data:[statCounts.todo,statCounts.inprog,statCounts.review,statCounts.done],backgroundColor:['#94a3b8','#3b82f6','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:tx,font:{size:10}}}}}});
+    },50);
+  }
+}
+
+// ══════════════════════════════════
+// ACCESS CONTROL RENDERER (Admin)
+// ══════════════════════════════════
+function renderAccessControl(){
+  const sf=visConfig.stakeholderFields;
+  const alv=visConfig.actLogVisible;
+
+  const ACTLOG_ROLES=[
+    {key:'manager',   label:'Manager',   icon:'🔵'},
+    {key:'reviewer',  label:'Reviewer',  icon:'🟡'},
+    {key:'employee',  label:'Employee',  icon:'🟢'},
+  ];
+
+  const SH_FIELDS=[
+    {key:'totalProjects',    label:'Total Projects Count',  group:'Summary Cards'},
+    {key:'totalImages',      label:'Total Image Count',      group:'Summary Cards'},
+    {key:'annotatedPct',     label:'Annotation %',           group:'Summary Cards'},
+    {key:'reviewedPct',      label:'Review %',               group:'Summary Cards'},
+    {key:'highPriorityCount',label:'High Priority Count',    group:'Summary Cards'},
+    {key:'onTrackCount',     label:'Projects On Track',      group:'Summary Cards'},
+    {key:'projectTable',     label:'Show Project Table',     group:'Project Table'},
+    {key:'projectName',      label:'Project Name',           group:'Project Table'},
+    {key:'projectPriority',  label:'Priority Level',         group:'Project Table'},
+    {key:'projectStatus',    label:'Kanban Status',          group:'Project Table'},
+    {key:'projectAnnotatedPct',label:'Annotation %',         group:'Project Table'},
+    {key:'projectReviewedPct',label:'Review %',              group:'Project Table'},
+    {key:'projectDeadline',  label:'Deadline Date',          group:'Project Table'},
+    {key:'projectAssignedBy',label:'Assigned By (sensitive)',group:'Project Table'},
+    {key:'projectEmployeeCount',label:'Employee Count',      group:'Project Table'},
+    {key:'projectNotes',     label:'Notes (sensitive)',      group:'Project Table'},
+    {key:'analyticsCharts',  label:'Charts & Analytics',    group:'Summary Cards'},
+  ];
+
+  const groups={};
+  SH_FIELDS.forEach(f=>{if(!groups[f.group])groups[f.group]=[];groups[f.group].push(f);});
+
+  document.getElementById('visConfigGrid').innerHTML=`
+    <!-- Activity Log Access Card -->
+    <div class="vis-role-card">
+      <div class="vis-role-title"><i class="fas fa-history" style="color:var(--blue)"></i> Activity Log — Who Can View?</div>
+      <div class="vis-role-sub">Admin always has full access. Toggle access for other roles below.</div>
+      <div class="vis-toggle-list">
+        ${ACTLOG_ROLES.map(r=>`
+        <div class="vis-toggle-row">
+          <span class="vis-toggle-lbl">${r.icon} ${r.label}</span>
+          <label class="toggle-sw"><input type="checkbox" ${alv[r.key]?'checked':''} onchange="toggleActLogAccess('${r.key}',this.checked)"><span class="toggle-sl"></span></label>
+        </div>`).join('')}
+        <div class="vis-toggle-row" style="opacity:.45;pointer-events:none;">
+          <span class="vis-toggle-lbl">👑 Admin</span>
+          <label class="toggle-sw"><input type="checkbox" checked disabled><span class="toggle-sl"></span></label>
+        </div>
+        <div class="vis-toggle-row" style="opacity:.45;pointer-events:none;">
+          <span class="vis-toggle-lbl">🟢 Employee</span>
+          <label class="toggle-sw"><input type="checkbox" disabled><span class="toggle-sl"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stakeholder Fields Card -->
+    <div class="vis-role-card">
+      <div class="vis-role-title"><i class="fas fa-eye" style="color:var(--purple)"></i> Stakeholder Dashboard — Visible Fields</div>
+      <div class="vis-role-sub">Control exactly what data stakeholders (investors, executives) can see.</div>
+      <div class="vis-toggle-list">
+        ${Object.entries(groups).map(([grp,fields])=>`
+          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);padding:8px 10px 4px;margin-top:4px;">${grp}</div>
+          ${fields.map(f=>`
+          <div class="vis-toggle-row">
+            <span class="vis-toggle-lbl">${f.label}</span>
+            <label class="toggle-sw"><input type="checkbox" ${sf[f.key]?'checked':''} onchange="toggleStakeholderField('${f.key}',this.checked)"><span class="toggle-sl"></span></label>
+          </div>`).join('')}
+        `).join('')}
+      </div>
+    </div>`;
+}
+
+function toggleActLogAccess(role, val){
+  visConfig.actLogVisible[role]=val;
+  saveVisConfig();
+  applyRoleToUI(); // re-apply nav visibility
+  toast(`Activity Log ${val?'visible to':'hidden from'} ${role}s`,'ok');
+}
+function toggleStakeholderField(key, val){
+  visConfig.stakeholderFields[key]=val;
+  saveVisConfig();
+  toast(`Stakeholder field "${key}" ${val?'enabled':'disabled'}`,'ok');
 }
 
 // Default users (persisted in localStorage so Admin can add more)
 const DEFAULT_USERS=[
-  {id:'u1',name:'CamCom Admin',  email:'admin@camcom.ai',    pwd:'admin123', role:'admin',   empId:null},
-  {id:'u2',name:'Priya Manager', email:'manager@camcom.ai',  pwd:'mgr123',   role:'manager', empId:null},
-  {id:'u3',name:'Ravi Reviewer', email:'reviewer@camcom.ai', pwd:'rev123',   role:'reviewer',empId:null},
+  {id:'u1',name:'CamCom Admin',  email:'admin@camcom.ai',    pwd:'admin123', role:'admin',       empId:null},
+  {id:'u2',name:'Priya Manager', email:'manager@camcom.ai',  pwd:'mgr123',   role:'manager',     empId:null},
+  {id:'u3',name:'Ravi Reviewer', email:'reviewer@camcom.ai', pwd:'rev123',   role:'reviewer',    empId:null},
+  {id:'u8',name:'Investor View', email:'stakeholder@camcom.ai',pwd:'stake123',role:'stakeholder',empId:null},
   // Employee demo accounts linked to real emp records
-  {id:'u4',name:'Ramyashree V R',      email:'ramyashree@camcom.ai',      pwd:'emp123',role:'employee',empId:'e1'},
-  {id:'u5',name:'Akshay Phatale',      email:'akshay.phatale@camcom.ai',  pwd:'emp123',role:'employee',empId:'e9'},
-  {id:'u6',name:'Sneha B V',           email:'sneha.bv@camcom.ai',        pwd:'emp123',role:'employee',empId:'e20'},
+  {id:'u4',name:'Ramyashree V R',      email:'ramyashree@camcom.ai',       pwd:'emp123',role:'employee',empId:'e1'},
+  {id:'u5',name:'Akshay Phatale',      email:'akshay.phatale@camcom.ai',   pwd:'emp123',role:'employee',empId:'e9'},
+  {id:'u6',name:'Sneha B V',           email:'sneha.bv@camcom.ai',         pwd:'emp123',role:'employee',empId:'e20'},
   {id:'u7',name:'Siddharth Anandan',   email:'siddharth.anandan@camcom.ai',pwd:'emp123',role:'employee',empId:'e25'},
 ];
 let appUsers=[...DEFAULT_USERS];
@@ -754,6 +1158,7 @@ function startSession(user){
 }
 function tryRestoreSession(){
   loadUsersLocal();
+  loadActivityLogs();
   try{
     const s=localStorage.getItem('cc_sess');
     if(s){const sess=JSON.parse(s);const u=appUsers.find(x=>x.id===sess.id);
@@ -1128,14 +1533,18 @@ async function addAsgn(projId,empId){
   if((p.assignedEmployees||[]).includes(empId)){toast('Already assigned','info');return;}
   if(!p.assignedEmployees)p.assignedEmployees=[];
   p.assignedEmployees.push(empId);
-  toast(`${getEmp(empId).name} assigned ✓`,'ok');
+  const empName=getEmp(empId).name;
+  toast(`${empName} assigned ✓`,'ok');
+  logActivity(projId,'assign',`${empName} assigned to this project`);
   if(openProjId===projId)renderDPBody(p);
   renderProjects();await saveProjDB(p);
 }
 async function rmAsgn(projId,empId){
   const p=projects.find(x=>x.id===projId);if(!p)return;
+  const empName=getEmp(empId).name;
   p.assignedEmployees=(p.assignedEmployees||[]).filter(id=>id!==empId);
   toast('Removed','info');
+  logActivity(projId,'assign',`${empName} removed from this project`);
   if(openProjId===projId)renderDPBody(p);
   renderProjects();await saveProjDB(p);
 }
@@ -1144,11 +1553,7 @@ async function dpField(id,field,val){
   p[field]=Math.max(0,parseInt(val)||0);
   if(openProjId===id)renderDPBody(p);
   renderProjects();await saveProjDB(p);
-}
-async function dpUpd(id,field,val){
-  const p=projects.find(x=>x.id===id);if(!p)return;
-  p[field]=val;renderProjects();await saveProjDB(p);
-  if(field==='kanbanStatus'&&openProjId===id)renderDPBody(p);
+  logActivity(id,'edit',`${field==='total'?'Total images':field==='annotated'?'Annotated count':'Reviewed count'} updated to ${p[field]}`);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
 
@@ -1173,7 +1578,10 @@ function rmDoc(projId,idx){if(!projDocs[projId])return;projDocs[projId].splice(i
 // ═══════════════════════
 async function deleteProj(id){
   if(!confirm('Delete this project?'))return;
+  const p=projects.find(x=>x.id===id);
+  const pName=p?p.name:'project';
   projects=projects.filter(p=>p.id!==id);delete projDocs[id];saveDocsLocal();
+  delete activityLogs[id]; saveActivityLogs();
   closeDP();toast('Deleted','info');renderProjects();await delProjDB(id);
 }
 
@@ -1212,8 +1620,8 @@ async function saveProject(){
     kanbanStatus:document.getElementById('np-status').value,
     hasTarget:ht,dailyTarget:ht?(parseInt(document.getElementById('np-target').value)||null):null};
   let proj;
-  if(editProjId){const idx=projects.findIndex(p=>p.id===editProjId);if(idx>-1){Object.assign(projects[idx],data);proj=projects[idx];toast('Updated ✓','ok');}}
-  else{proj={id:uid(),assignedEmployees:[],comments:'',...data};projects.push(proj);toast('Created ✓','ok');}
+  if(editProjId){const idx=projects.findIndex(p=>p.id===editProjId);if(idx>-1){Object.assign(projects[idx],data);proj=projects[idx];toast('Updated ✓','ok');logActivity(proj.id,'edit',`Project details updated`);}}
+  else{proj={id:uid(),assignedEmployees:[],comments:'',...data};projects.push(proj);toast('Created ✓','ok');logActivity(proj.id,'create',`Project "${proj.name}" created`);}
   closeProjModal();renderProjects();if(proj)await saveProjDB(proj);
   if(openProjId===proj?.id){const p2=projects.find(x=>x.id===openProjId);if(p2)renderDPBody(p2);}
 }
@@ -1611,6 +2019,200 @@ function deleteUser(id){
 }
 
 // ══════════════════════════════════
+// ACTIVITY LOG
+// ══════════════════════════════════
+// In-memory activity log (keyed by projectId). In a real app this would be in Supabase.
+let activityLogs = {}; // { projId: [{type, msg, who, ts}] }
+
+function logActivity(projId, type, msg){
+  if(!activityLogs[projId]) activityLogs[projId]=[];
+  const who = currentUser ? currentUser.name : 'System';
+  activityLogs[projId].unshift({type, msg, who, ts: Date.now()});
+  // Keep max 50 entries per project
+  if(activityLogs[projId].length > 50) activityLogs[projId] = activityLogs[projId].slice(0,50);
+  saveActivityLogs();
+  // Refresh log in open panel
+  const el = document.getElementById(`actlog-${projId}`);
+  if(el) el.innerHTML = renderActivityLog(projId);
+}
+function saveActivityLogs(){ try{localStorage.setItem('cc_actlogs', JSON.stringify(activityLogs));}catch(e){} }
+function loadActivityLogs(){ try{const s=localStorage.getItem('cc_actlogs');if(s)activityLogs=JSON.parse(s);}catch(e){} }
+
+const ACT_ICONS={ create:'fa-plus', edit:'fa-pen', assign:'fa-user-plus', status:'fa-exchange-alt', delete:'fa-trash', comment:'fa-comment' };
+const ACT_COLORS={ create:'act-create', edit:'act-edit', assign:'act-assign', status:'act-status', delete:'act-delete', comment:'act-comment' };
+
+function renderActivityLog(projId){
+  const log = activityLogs[projId]||[];
+  if(!log.length) return '<div class="actlog-empty"><i class="fas fa-history"></i> No activity recorded yet.</div>';
+  return log.map(e=>{
+    const dt = new Date(e.ts);
+    const ago = fmtAgo(e.ts);
+    return`<div class="actlog-entry">
+      <div class="act-icon ${ACT_COLORS[e.type]||'act-edit'}"><i class="fas ${ACT_ICONS[e.type]||'fa-circle'}"></i></div>
+      <div class="act-body">
+        <div class="act-msg">${esc(e.msg)}</div>
+        <div class="act-footer">
+          <span class="act-time">${ago} · ${dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
+          <span class="act-who"><i class="fas fa-user" style="font-size:.55rem;"></i> ${esc(e.who)}</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function fmtAgo(ts){
+  const s=Math.floor((Date.now()-ts)/1000);
+  if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
+}
+
+// Hook activity logging into save functions
+const _origDpUpd = dpUpd;
+async function dpUpd(id, field, val){
+  const p=projects.find(x=>x.id===id);if(!p)return;
+  const oldVal=p[field];
+  p[field]=val; renderProjects(); await saveProjDB(p);
+  if(field==='kanbanStatus') logActivity(id,'status',`Status changed to "${{todo:'To Do',inprog:'In Progress',review:'Review',done:'Completed'}[val]||val}"`);
+  else if(field==='priority') logActivity(id,'edit',`Priority changed to ${val}`);
+  else if(field==='assignedby') logActivity(id,'edit',`Assigned By set to "${val}"`);
+  if(field==='kanbanStatus'&&openProjId===id)renderDPBody(p);
+}
+
+// ══════════════════════════════════
+// STAKEHOLDER DASHBOARD
+// ══════════════════════════════════
+function renderStakeholder(){
+  const sc = accessConfig.stakeholder;
+  const allProj = projects; // stakeholders see all projects (but limited fields)
+  const tI = allProj.reduce((s,p)=>s+(+p.total||0),0);
+  const tA = allProj.reduce((s,p)=>s+(+p.annotated||0),0);
+  const tR = allProj.reduce((s,p)=>s+(+p.reviewed||0),0);
+  const done = allProj.filter(p=>p.kanbanStatus==='done').length;
+
+  const logoSVG=`<svg viewBox="36 37 397 397" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;border-radius:5px;"><rect fill="#df1e26" x="36.8" y="37.3" width="395.7" height="395.7"/><path fill="#fff" d="M139,216.4c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.7c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.8,4.2-4.2,9.1-7.6,14.7-10,5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2-.7,1.5-1.9,2.3-3.4,2.7-1.5.4-2.9.2-4.3-.5-2.6-1.6-5.5-2.7-8.4-3.5s-6-1.2-9.3-1.2c-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5.8,1.4,1.1,2.7.7,4.2s-1.2,2.6-2.5,3.6c-7.6,4.4-15.9,6.8-24.9,6.8"/></svg>`;
+
+  // Build KPI strip
+  const kpis=[];
+  if(sc.totalImages) kpis.push({val:tI.toLocaleString(), lbl:'Total Images'});
+  if(sc.annotationProgress) kpis.push({val:pct(tA,tI)+'%', lbl:'Annotated'});
+  if(sc.reviewProgress) kpis.push({val:pct(tR,tI)+'%', lbl:'Reviewed'});
+  kpis.push({val:allProj.length, lbl:'Projects'});
+  if(sc.kanbanStatus) kpis.push({val:done, lbl:'Completed'});
+
+  // Build project cards
+  const projCards = allProj.map(p=>{
+    const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+    const dl=dlMeta(p.deadline);
+    const chips=[];
+    if(sc.priority) chips.push(`<span class="sh-chip"><span class="badge b${(p.priority||'m')[0]}">${{high:'🔥 High',medium:'⚡ Medium',low:'🌿 Low'}[p.priority]||'—'}</span></span>`);
+    if(sc.kanbanStatus) chips.push(`<span class="sh-chip"><i class="fas fa-circle" style="color:${{todo:'var(--tx3)',inprog:'var(--blue)',review:'var(--yellow)',done:'var(--green)'}[p.kanbanStatus||'todo']}"></i> ${{todo:'To Do',inprog:'In Progress',review:'Review',done:'Completed'}[p.kanbanStatus||'todo']}</span>`);
+    if(sc.deadline&&dl) chips.push(`<span class="sh-chip"><i class="fas fa-calendar-alt"></i> ${dl.label}</span>`);
+    if(sc.assignedBy&&p.assignedby) chips.push(`<span class="sh-chip"><i class="fas fa-user-tie"></i> ${esc(p.assignedby)}</span>`);
+    if(sc.employeeCount) chips.push(`<span class="sh-chip"><i class="fas fa-users"></i> ${(p.assignedEmployees||[]).length} employees</span>`);
+    if(sc.employeeNames&&(p.assignedEmployees||[]).length) chips.push(`<span class="sh-chip"><i class="fas fa-id-badge"></i> ${(p.assignedEmployees||[]).map(id=>getEmp(id).name).join(', ')}</span>`);
+    return`<div class="sh-proj-card">
+      <div class="sh-proj-name">${esc(p.name)}</div>
+      ${sc.annotationProgress?`<div class="sh-prog-row"><div class="sh-prog-labels"><span>Annotation</span><span style="font-weight:700;">${pct(A,T)}%</span></div><div class="sh-bar"><div class="sh-bar-fill" style="width:${pct(A,T)}%;background:var(--blue);"></div></div></div>`:''}
+      ${sc.reviewProgress?`<div class="sh-prog-row"><div class="sh-prog-labels"><span>Review</span><span style="font-weight:700;">${pct(R,T)}%</span></div><div class="sh-bar"><div class="sh-bar-fill" style="width:${pct(R,T)}%;background:var(--green);"></div></div></div>`:''}
+      ${sc.notes&&p.notes?`<div style="font-size:.76rem;color:var(--tx2);margin-top:8px;padding-top:8px;border-top:1px solid var(--brd);">${esc(p.notes)}</div>`:''}
+      ${chips.length?`<div class="sh-chips">${chips.join('')}</div>`:''}
+    </div>`;
+  }).join('');
+
+  document.getElementById('shView').innerHTML=`
+    <div class="sh-header">
+      <div class="sh-brand">${logoSVG}<div class="sh-brand-txt"><strong>CamCom Annotation Tracker</strong><span>Stakeholder Summary — ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</span></div></div>
+      <div class="sh-kpis">${kpis.map(k=>`<div class="sh-kpi"><span class="sh-kpi-val">${k.val}</span><span class="sh-kpi-lbl">${k.lbl}</span></div>`).join('')}</div>
+    </div>
+    <div class="sh-section-title"><i class="fas fa-folder-open" style="color:var(--red)"></i> Project Overview</div>
+    ${allProj.length?`<div class="sh-proj-grid">${projCards}</div>`:'<div class="actlog-empty"><i class="fas fa-folder-open"></i> No projects available.</div>'}
+    <p style="font-size:.68rem;color:var(--tx3);margin-top:8px;"><i class="fas fa-lock"></i> This view is configured by your Admin. Some information may be intentionally hidden.</p>`;
+}
+
+// ══════════════════════════════════
+// ACCESS CONTROL ADMIN PAGE
+// ══════════════════════════════════
+function renderAccessControl(){
+  // ── Activity Log Visibility ──
+  const actRoles=[
+    {key:'manager',   label:'Manager',   icon:'🔵', desc:'Managers can see all project activity logs'},
+    {key:'reviewer',  label:'Reviewer',  icon:'🟡', desc:'Reviewers can see project activity logs (read-only)'},
+  ];
+  document.getElementById('accActLog').innerHTML=actRoles.map(r=>`
+    <div class="acc-row">
+      <div class="acc-row-lbl"><strong>${r.icon} ${r.label}</strong><span>${r.desc}</span></div>
+      <label class="toggle-sw"><input type="checkbox" ${accessConfig.activityLog[r.key]?'checked':''} onchange="toggleAccess('activityLog','${r.key}',this.checked)"><span class="toggle-sl"></span></label>
+    </div>`).join('');
+
+  // ── Stakeholder Visible Fields ──
+  const shFields=[
+    {key:'priority',          label:'Priority',            desc:'High / Medium / Low badge'},
+    {key:'deadline',          label:'Deadline Date',       desc:'Project deadline'},
+    {key:'annotationProgress',label:'Annotation Progress', desc:'% of images annotated'},
+    {key:'reviewProgress',    label:'Review Progress',     desc:'% of images reviewed'},
+    {key:'kanbanStatus',      label:'Kanban Status',       desc:'To Do / In Progress / Review / Done'},
+    {key:'totalImages',       label:'Total Image Count',   desc:'How many images in the project'},
+    {key:'assignedBy',        label:'Assigned By',         desc:'Manager who assigned the project'},
+    {key:'employeeCount',     label:'Employee Count',      desc:'Number of employees assigned (no names)'},
+    {key:'employeeNames',     label:'Employee Names',      desc:'⚠ Shows individual employee names'},
+    {key:'notes',             label:'Project Notes',       desc:'⚠ Internal notes field'},
+    {key:'comments',          label:'Comments',            desc:'⚠ Internal comments'},
+  ];
+  document.getElementById('accStakeholder').innerHTML=shFields.map(f=>{
+    const isSensitive=f.key==='employeeNames'||f.key==='notes'||f.key==='comments';
+    const isLocked=f.key==='projectName'; // always on
+    return`<div class="acc-row">
+      <div class="acc-row-lbl">
+        <strong>${f.label}${isSensitive?' <span style="color:var(--yellow);font-size:.65rem;">Sensitive</span>':''}</strong>
+        <span>${f.desc}</span>
+      </div>
+      <label class="toggle-sw"${isLocked?' title="Always visible"':''}>
+        <input type="checkbox" ${accessConfig.stakeholder[f.key]?'checked':''} ${isLocked?'disabled':''} onchange="toggleAccess('stakeholder','${f.key}',this.checked)">
+        <span class="toggle-sl"></span>
+      </label>
+    </div>`;
+  }).join('');
+
+  // ── Role Capabilities ──
+  const capDefs=[
+    {key:'canCreate',  label:'Create Projects', desc:'Can create new projects'},
+    {key:'canEdit',    label:'Edit Projects',   desc:'Can edit project fields'},
+    {key:'canDelete',  label:'Delete Projects', desc:'Can delete projects'},
+    {key:'canAssign',  label:'Assign Employees',desc:'Can assign/unassign employees'},
+    {key:'canExport',  label:'Export Data',     desc:'Can export CSV / PDF reports'},
+    {key:'canViewAnalytics',label:'View Analytics',desc:'Can access the Analytics page'},
+  ];
+  const roleRows=['manager','reviewer'].map(role=>{
+    const roleInfo=ROLES[role];
+    return`<div style="margin-bottom:12px;">
+      <div style="font-size:.8rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
+        <span class="role-pill ${roleInfo.pill}">${roleInfo.icon} ${roleInfo.label}</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;">
+        ${capDefs.map(c=>{
+          const isOn=accessConfig.roleCaps[role]?.[c.key]??false;
+          return`<span class="acc-chip ${isOn?'on':''}" onclick="toggleRoleCap('${role}','${c.key}',${!isOn})" title="${c.desc}">
+            <i class="fas ${isOn?'fa-check':'fa-times'}" style="font-size:.6rem;"></i> ${c.label}
+          </span>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('accRoleCaps').innerHTML=roleRows;
+}
+
+function toggleAccess(section, key, val){
+  accessConfig[section][key]=val;
+  saveAccessConfig();
+  toast(`Updated: ${key} → ${val?'on':'off'}`, 'ok');
+}
+function toggleRoleCap(role, cap, val){
+  accessConfig.roleCaps[role][cap]=val;
+  saveAccessConfig();
+  renderAccessControl();
+  toast(`${ROLES[role].label}: ${cap} → ${val?'enabled':'disabled'}`, 'ok');
+}
+
+// ══════════════════════════════════
 // THEME
 // ══════════════════════════════════
 function toggleTheme(){
@@ -1642,15 +2244,4 @@ tryRestoreSession();
       </select>
     </div>
     <div class="ff full" id="empLinkWrap" style="display:none;">
-      <label>Link to Employee Record <span style="font-weight:400;color:var(--tx3);">(required for employees — sets which projects they see)</span></label>
-      <select id="fu-empId"><option value="">— Select employee —</option></select>
-    </div>
-  </div>
-  <div class="modal-foot">
-    <button class="btn btn-ghost" onclick="closeUserModal()">Cancel</button>
-    <button class="btn btn-red" onclick="saveUser()"><i class="fas fa-save"></i> Save User</button>
-  </div>
-</div></div>
-
-</body>
-</html>
+      <label>Link to Employee Record <spa
