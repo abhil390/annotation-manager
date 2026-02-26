@@ -3,215 +3,289 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AnnotateHQ · Project Manager</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>CamCom Annotation Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --bg:#f0f4f9; --surface:#fff; --surface2:#f7fafd; --border:#dde5f0;
-  --text:#0d1f33; --text2:#4a6080; --text3:#8098b4;
-  --accent:#2563eb; --accent-light:#eff4ff;
-  --green:#16a34a; --green-light:#dcfce7;
-  --yellow:#d97706; --yellow-light:#fef3c7;
-  --red:#dc2626; --red-light:#fee2e2;
-  --purple:#7c3aed; --purple-light:#ede9fe;
-  --shadow:0 4px 20px rgba(13,31,51,.07); --shadow-sm:0 2px 8px rgba(13,31,51,.05);
-  --r:16px; --rsm:10px; --rpill:100px;
+  --bg:#f2f5f9;--surface:#fff;--surface2:#f7f9fc;--border:#e2e8f0;
+  --text:#0f172a;--text2:#475569;--text3:#94a3b8;
+  --red:#df1e26;--red-dark:#b91c1c;--red-light:#fff1f2;--red-mid:#fecdd3;
+  --accent:#2563eb;--accent-light:#eff6ff;
+  --green:#16a34a;--green-light:#f0fdf4;
+  --yellow:#d97706;--yellow-light:#fffbeb;
+  --purple:#7c3aed;--purple-light:#f5f3ff;
+  --shadow:0 4px 24px rgba(15,23,42,.08);--shadow-sm:0 1px 6px rgba(15,23,42,.06);--shadow-lg:0 20px 60px rgba(15,23,42,.18);
+  --r:14px;--rsm:9px;--rpill:999px;
 }
 [data-theme="dark"] {
-  --bg:#0d1117; --surface:#161b22; --surface2:#21262d; --border:#30363d;
-  --text:#e6edf3; --text2:#8b949e; --text3:#484f58;
-  --accent:#58a6ff; --accent-light:#1f2b3e;
-  --green-light:#0d2a1a; --yellow-light:#2a1f0d;
-  --red-light:#2a0d0d; --purple-light:#1e1430;
-  --shadow:0 4px 20px rgba(0,0,0,.3); --shadow-sm:0 2px 8px rgba(0,0,0,.2);
+  --bg:#0d1117;--surface:#161b22;--surface2:#21262d;--border:#30363d;
+  --text:#f0f6fc;--text2:#8b949e;--text3:#484f58;
+  --red-light:#2a0d0f;--red-mid:#450a0a;--accent-light:#1e2d40;
+  --green-light:#0a1f0e;--yellow-light:#1f1400;--purple-light:#1a1130;
+  --shadow:0 4px 24px rgba(0,0,0,.4);--shadow-sm:0 1px 6px rgba(0,0,0,.3);--shadow-lg:0 20px 60px rgba(0,0,0,.6);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;transition:background .3s,color .3s;}
-h1,h2,h3{font-family:'Space Grotesk',sans-serif;}
-a{color:inherit;text-decoration:none;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;}
 
-/* LAYOUT */
+/* ── SIDEBAR ── */
 .layout{display:flex;min-height:100vh;}
-.sidebar{width:250px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto;}
-.sidebar-logo{padding:22px 20px 14px;border-bottom:1px solid var(--border);}
-.sidebar-logo h2{font-size:1.15rem;color:var(--accent);display:flex;align-items:center;gap:8px;}
-.sidebar-logo span{font-size:.68rem;color:var(--text3);display:block;margin-top:2px;padding-left:26px;}
-.nav-sec{padding:12px 14px 5px;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);}
-.nav-item{display:flex;align-items:center;gap:10px;padding:9px 14px;margin:2px 8px;border-radius:var(--rsm);cursor:pointer;font-size:.86rem;font-weight:500;color:var(--text2);border:none;background:none;width:calc(100% - 16px);text-align:left;transition:all .15s;}
-.nav-item:hover{background:var(--surface2);color:var(--text);}
-.nav-item.active{background:var(--accent-light);color:var(--accent);}
-.nav-item i{width:16px;text-align:center;font-size:.82rem;}
-.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:.62rem;padding:1px 7px;border-radius:20px;font-weight:700;}
-.sidebar-bottom{margin-top:auto;padding:14px;border-top:1px solid var(--border);}
-.theme-btn{display:flex;align-items:center;gap:8px;font-size:.82rem;color:var(--text2);cursor:pointer;padding:8px 10px;border-radius:var(--rsm);background:none;border:none;width:100%;font-family:'DM Sans',sans-serif;}
+.sidebar{width:256px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto;}
+.logo-wrap{padding:20px 18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.logo-img{width:44px;height:44px;object-fit:contain;border-radius:6px;}
+.logo-text{display:flex;flex-direction:column;}
+.logo-text strong{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:var(--red);line-height:1.1;}
+.logo-text span{font-size:.65rem;color:var(--text3);font-weight:400;margin-top:2px;}
+.nav-grp{padding:10px 10px 4px;font-size:.6rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--text3);}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:9px 12px;margin:1px 6px;border-radius:var(--rsm);cursor:pointer;font-size:.84rem;font-weight:500;color:var(--text2);border:none;background:none;width:calc(100% - 12px);text-align:left;transition:all .15s;font-family:'Inter',sans-serif;}
+.nav-btn:hover{background:var(--surface2);color:var(--text);}
+.nav-btn.active{background:var(--red-light);color:var(--red);}
+.nav-btn i{width:15px;text-align:center;font-size:.8rem;}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:.6rem;padding:1px 6px;border-radius:20px;font-weight:700;}
+.sidebar-foot{margin-top:auto;padding:12px;border-top:1px solid var(--border);}
+.theme-btn{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text2);cursor:pointer;padding:7px 10px;border-radius:var(--rsm);background:none;border:none;width:100%;font-family:'Inter',sans-serif;}
 .theme-btn:hover{background:var(--surface2);}
-.main{margin-left:250px;flex:1;padding:24px 28px;max-width:calc(100% - 250px);}
-.page{display:none;} .page.active{display:block;}
 
-/* TOPBAR */
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;gap:14px;flex-wrap:wrap;}
-.page-title{font-size:1.55rem;font-weight:700;}
-.topbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
-.search-box{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rpill);padding:8px 16px;min-width:210px;}
-.search-box input{border:none;background:none;outline:none;color:var(--text);font-family:inherit;font-size:.86rem;width:100%;}
-.search-box i{color:var(--text3);}
+/* ── MAIN ── */
+.main{margin-left:256px;flex:1;padding:24px 26px;max-width:calc(100% - 256px);}
+.page{display:none;}.page.active{display:block;}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:var(--rpill);font-size:.84rem;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .15s;font-family:'DM Sans',sans-serif;}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:hover{background:#1d4ed8;}
+/* ── TOPBAR ── */
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:12px;flex-wrap:wrap;}
+.page-title{font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:700;}
+.topbar-r{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.sbox{display:flex;align-items:center;gap:7px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rpill);padding:7px 14px;min-width:200px;}
+.sbox input{border:none;background:none;outline:none;color:var(--text);font-family:inherit;font-size:.84rem;width:100%;}
+.sbox i{color:var(--text3);font-size:.82rem;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:var(--rpill);font-size:.82rem;font-weight:600;cursor:pointer;border:1px solid transparent;transition:all .15s;font-family:'Inter',sans-serif;}
+.btn-red{background:var(--red);color:#fff;border-color:var(--red);}
+.btn-red:hover{background:var(--red-dark);}
 .btn-ghost{background:var(--surface);color:var(--text2);border-color:var(--border);}
 .btn-ghost:hover{background:var(--surface2);color:var(--text);}
-.btn-danger{background:var(--red-light);color:var(--red);}
-.btn-danger:hover{background:var(--red);color:#fff;}
 .btn-green{background:var(--green-light);color:var(--green);border-color:var(--green);}
 .btn-green:hover{background:var(--green);color:#fff;}
-.icon-btn{width:30px;height:30px;border-radius:8px;border:none;background:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:all .15s;}
-.icon-btn:hover{background:var(--surface2);color:var(--text);}
-.icon-btn.del:hover{background:var(--red-light);color:var(--red);}
+.btn-sm{padding:5px 12px;font-size:.76rem;}
+.iBtn{width:28px;height:28px;border-radius:7px;border:none;background:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;font-size:.76rem;transition:all .15s;}
+.iBtn:hover{background:var(--surface2);color:var(--text);}
+.iBtn.del:hover{background:var(--red-light);color:var(--red);}
 
-/* STAT GRID */
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:14px;margin-bottom:20px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
-.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);}
-.stat-card.green::before{background:var(--green);}
-.stat-card.yellow::before{background:var(--yellow);}
-.stat-card.purple::before{background:var(--purple);}
-.stat-card.red::before{background:var(--red);}
-.stat-lbl{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:6px;}
-.stat-val{font-size:1.9rem;font-weight:700;font-family:'Space Grotesk',sans-serif;line-height:1;}
-.stat-sub{font-size:.72rem;color:var(--text3);margin-top:5px;}
-.stat-ico{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1.8rem;opacity:.07;}
+/* ── STATS ── */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--red);}
+.stat-card.green::after{background:var(--green);}
+.stat-card.yellow::after{background:var(--yellow);}
+.stat-card.purple::after{background:var(--purple);}
+.stat-card.blue::after{background:var(--accent);}
+.s-lbl{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:5px;}
+.s-val{font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.s-sub{font-size:.7rem;color:var(--text3);margin-top:4px;}
+.s-ico{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1.7rem;opacity:.06;}
 
-/* FILTERS */
-.filters-bar{display:flex;gap:8px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
-.fchip{padding:5px 13px;border-radius:var(--rpill);font-size:.78rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s;}
-.fchip:hover,.fchip.active{background:var(--accent-light);border-color:var(--accent);color:var(--accent);}
-.fchip.hi{border-color:var(--red);color:var(--red);background:var(--red-light);}
-.fchip.hi.active{background:var(--red);color:#fff;}
+/* ── FILTERS ── */
+.fbar{display:flex;gap:7px;align-items:center;margin-bottom:18px;flex-wrap:wrap;}
+.fchip{padding:5px 12px;border-radius:var(--rpill);font-size:.76rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:all .15s;}
+.fchip:hover,.fchip.on{background:var(--red-light);border-color:var(--red);color:var(--red);}
+.fchip.hi{border-color:#dc2626;color:#dc2626;background:#fff1f2;}
+.fchip.hi.on{background:#dc2626;color:#fff;}
 .fchip.me{border-color:var(--yellow);color:var(--yellow);background:var(--yellow-light);}
-.fchip.me.active{background:var(--yellow);color:#fff;}
+.fchip.me.on{background:var(--yellow);color:#fff;}
 .fchip.lo{border-color:var(--green);color:var(--green);background:var(--green-light);}
-.fchip.lo.active{background:var(--green);color:#fff;}
-select.fsel{padding:5px 13px;border-radius:var(--rpill);font-size:.78rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);outline:none;font-family:'DM Sans',sans-serif;}
+.fchip.lo.on{background:var(--green);color:#fff;}
+select.fsel{padding:5px 12px;border-radius:var(--rpill);font-size:.76rem;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text2);outline:none;font-family:'Inter',sans-serif;}
 
-/* PROJECT GRID */
-.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(390px,1fr));gap:18px;}
-.proj-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);overflow:hidden;display:flex;flex-direction:column;transition:box-shadow .2s,transform .2s;}
-.proj-card:hover{box-shadow:var(--shadow);transform:translateY(-1px);}
+/* ── PROJECT CARD GRID ── */
+.proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.pcard{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow-sm);cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;overflow:hidden;display:flex;flex-direction:column;}
+.pcard:hover{box-shadow:var(--shadow);transform:translateY(-2px);border-color:var(--red);}
 
-/* CARD TOP */
-.card-top{padding:16px 16px 12px;border-bottom:1px solid var(--border);}
-.card-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
-.card-title{font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:700;}
-.card-acts{display:flex;gap:3px;}
-.card-meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:8px;}
-.badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:var(--rpill);font-size:.68rem;font-weight:700;text-transform:uppercase;}
-.badge-high{background:var(--red-light);color:var(--red);}
-.badge-medium{background:var(--yellow-light);color:var(--yellow);}
-.badge-low{background:var(--green-light);color:var(--green);}
-.meta-it{font-size:.73rem;color:var(--text3);display:flex;align-items:center;gap:4px;}
-.meta-it.overdue{color:var(--red);}
-.meta-it.soon{color:var(--yellow);}
+/* card top color strip by priority */
+.pcard-strip{height:4px;}
+.pcard-strip.high{background:linear-gradient(90deg,#df1e26,#f87171);}
+.pcard-strip.medium{background:linear-gradient(90deg,var(--yellow),#fbbf24);}
+.pcard-strip.low{background:linear-gradient(90deg,var(--green),#4ade80);}
 
-/* ASSIGNED BY */
-.assigned-by-row{font-size:.75rem;color:var(--text2);display:flex;align-items:center;gap:5px;}
-.assigned-by-row strong{color:var(--text);}
+.pcard-body{padding:16px 16px 12px;flex:1;display:flex;flex-direction:column;gap:10px;}
+.pcard-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.pcard-title{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;color:var(--text);line-height:1.3;}
+.pbadge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:var(--rpill);font-size:.65rem;font-weight:700;text-transform:uppercase;white-space:nowrap;}
+.pbadge.high{background:var(--red-light);color:var(--red);}
+.pbadge.medium{background:var(--yellow-light);color:var(--yellow);}
+.pbadge.low{background:var(--green-light);color:var(--green);}
+.pcard-meta{display:flex;flex-wrap:wrap;gap:8px;}
+.pmeta{font-size:.72rem;color:var(--text3);display:flex;align-items:center;gap:4px;}
+.pmeta.red{color:var(--red);}
+.pmeta.yellow{color:var(--yellow);}
 
-/* INLINE NUMBERS */
-.num-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:10px;}
-.num-cell{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 6px 4px;display:flex;flex-direction:column;align-items:center;}
-.num-cell input{width:100%;background:none;border:none;outline:none;font-weight:700;font-size:.88rem;color:var(--text);font-family:'Space Grotesk',sans-serif;text-align:center;}
-.num-cell .nl{font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
-.num-computed{background:var(--accent-light);border-color:var(--accent);}
-.num-computed .nv{font-weight:700;font-size:.88rem;color:var(--accent);font-family:'Space Grotesk',sans-serif;}
-
-/* PROGRESS */
-.prog-section{padding:12px 16px;border-bottom:1px solid var(--border);}
-.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-.prog-lbl{font-size:.72rem;color:var(--text2);font-weight:500;}
-.prog-pct{font-size:.72rem;font-weight:700;}
-.prog-bar{height:5px;background:var(--surface2);border-radius:10px;overflow:hidden;margin-bottom:8px;}
+/* mini progress */
+.pcard-prog{display:flex;flex-direction:column;gap:5px;}
+.prog-row{display:flex;align-items:center;gap:8px;}
+.prog-lbl{font-size:.68rem;color:var(--text3);width:70px;flex-shrink:0;}
+.prog-track{flex:1;height:5px;background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
 .prog-fill{height:100%;border-radius:10px;transition:width .4s;}
-.pf-ann{background:var(--accent);}
-.pf-rev{background:var(--green);}
+.pf-a{background:var(--red);}
+.pf-r{background:var(--green);}
+.prog-pct{font-size:.68rem;font-weight:700;color:var(--text2);width:32px;text-align:right;}
 
-/* ASSIGNEES */
-.asn-section{padding:12px 16px;border-bottom:1px solid var(--border);}
-.sec-hdr{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:7px;}
-.asn-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
-.asn-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;}
-.asn-tag{display:inline-flex;align-items:center;gap:4px;background:var(--accent-light);border:1px solid var(--accent);color:var(--accent);padding:2px 8px;border-radius:var(--rpill);font-size:.73rem;font-weight:500;}
-.asn-tag.conflict{background:var(--red-light);border-color:var(--red);color:var(--red);}
-.asn-tag button{background:none;border:none;color:inherit;cursor:pointer;padding:0;display:flex;align-items:center;font-size:.62rem;opacity:.7;}
+/* card bottom numbers */
+.pcard-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.pnum{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 8px;text-align:center;}
+.pnum .v{font-family:'Space Grotesk',sans-serif;font-size:.95rem;font-weight:700;color:var(--text);}
+.pnum .l{font-size:.6rem;color:var(--text3);text-transform:uppercase;letter-spacing:.3px;margin-top:1px;}
+
+/* assigned chips */
+.pcard-footer{padding:10px 16px 12px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;}
+.emp-chips{display:flex;flex-wrap:wrap;gap:4px;}
+.echip{display:inline-flex;align-items:center;gap:3px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);padding:2px 8px;border-radius:var(--rpill);font-size:.7rem;font-weight:500;}
+.echip.more{background:var(--red-light);color:var(--red);border-color:var(--red-mid);}
+.target-chip{display:inline-flex;align-items:center;gap:4px;background:var(--purple-light);color:var(--purple);border:1px solid #c4b5fd;padding:2px 8px;border-radius:var(--rpill);font-size:.7rem;font-weight:600;}
+.click-hint{font-size:.68rem;color:var(--text3);display:flex;align-items:center;gap:4px;margin-top:2px;}
+
+/* ── DETAIL MODAL (full panel) ── */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;z-index:500;opacity:0;pointer-events:none;transition:opacity .25s;padding:16px;}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:20px;width:900px;max-width:100%;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:translateY(24px) scale(.98);transition:transform .25s;display:flex;flex-direction:column;}
+.overlay.open .modal{transform:translateY(0) scale(1);}
+.modal.sm{width:520px;}
+.modal.md{width:640px;}
+
+/* modal header */
+.mhdr{padding:20px 24px 16px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:12px;position:sticky;top:0;background:var(--surface);z-index:10;border-radius:20px 20px 0 0;}
+.mhdr-ico{width:40px;height:40px;border-radius:10px;background:var(--red-light);display:flex;align-items:center;justify-content:center;color:var(--red);font-size:1rem;flex-shrink:0;}
+.mhdr-info{flex:1;min-width:0;}
+.mhdr-title{font-family:'Space Grotesk',sans-serif;font-size:1.2rem;font-weight:700;line-height:1.2;}
+.mhdr-sub{font-size:.76rem;color:var(--text3);margin-top:3px;}
+.mclose{width:32px;height:32px;border-radius:8px;border:none;background:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;font-size:.9rem;margin-left:auto;flex-shrink:0;}
+.mclose:hover{background:var(--surface2);color:var(--text);}
+
+/* modal tabs */
+.mtabs{display:flex;gap:2px;padding:12px 24px 0;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:80px;z-index:9;}
+.mtab{padding:8px 16px;font-size:.82rem;font-weight:500;cursor:pointer;border:none;background:none;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-family:'Inter',sans-serif;}
+.mtab.active{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
+.mtab:hover:not(.active){color:var(--text2);}
+.mpanel{display:none;padding:20px 24px;}.mpanel.active{display:block;}
+
+/* detail sections */
+.dsec{margin-bottom:20px;}
+.dsec-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.info-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;}
+.ib-lbl{font-size:.66rem;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
+.ib-val{font-size:.88rem;font-weight:600;color:var(--text);}
+
+/* big progress in detail */
+.prog-big{margin-bottom:14px;}
+.prog-big-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px;}
+.prog-big-lbl{font-size:.8rem;font-weight:600;color:var(--text2);}
+.prog-big-pct{font-size:.8rem;font-weight:700;}
+.prog-big-bar{height:10px;background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+.prog-big-fill{height:100%;border-radius:10px;}
+
+/* num editor row */
+.num-edit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:16px;}
+.ne-box{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px;}
+.ne-lbl{font-size:.65rem;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);}
+.ne-input{background:none;border:none;outline:none;font-family:'Space Grotesk',sans-serif;font-size:1.3rem;font-weight:700;color:var(--text);width:100%;}
+.ne-input:focus{color:var(--red);}
+.ne-computed{background:var(--accent-light);border-color:#bfdbfe;}
+.ne-computed .ne-input{color:var(--accent);pointer-events:none;}
+.save-nums-btn{margin-top:4px;}
+
+/* assignee search */
+.emp-search-row{display:flex;gap:8px;margin-bottom:10px;}
+.emp-sbox{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rsm);padding:7px 12px;flex:1;}
+.emp-sbox input{border:none;background:none;outline:none;color:var(--text);font-family:inherit;font-size:.83rem;width:100%;}
+.emp-list{max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface);}
+.emp-row{display:flex;align-items:center;gap:10px;padding:8px 12px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--border);}
+.emp-row:last-child{border-bottom:none;}
+.emp-row:hover{background:var(--surface2);}
+.emp-row.disabled{opacity:.5;cursor:default;}
+.emp-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;flex-shrink:0;}
+.emp-avatar.m{background:#dbeafe;color:#1d4ed8;}
+.emp-avatar.f{background:#fce7f3;color:#9d174d;}
+.emp-name-col{flex:1;}
+.emp-nm{font-size:.82rem;font-weight:600;color:var(--text);}
+.emp-em{font-size:.7rem;color:var(--text3);}
+.emp-status-tag{font-size:.68rem;padding:2px 7px;border-radius:var(--rpill);font-weight:600;}
+.est-free{background:var(--green-light);color:var(--green);}
+.est-assigned{background:var(--yellow-light);color:var(--yellow);}
+.est-this{background:var(--red-light);color:var(--red);}
+.assigned-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px;}
+.asn-tag{display:inline-flex;align-items:center;gap:5px;background:var(--red-light);border:1px solid var(--red-mid);color:var(--red);padding:3px 10px;border-radius:var(--rpill);font-size:.76rem;font-weight:500;}
+.asn-tag button{background:none;border:none;color:inherit;cursor:pointer;font-size:.65rem;opacity:.7;padding:0;}
 .asn-tag button:hover{opacity:1;}
-.emp-select-multi{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-size:.82rem;font-family:'DM Sans',sans-serif;outline:none;min-height:90px;}
-.emp-select-multi option:checked{background:var(--accent);color:#fff;}
-.select-hint{font-size:.67rem;color:var(--text3);margin-top:4px;}
 
-/* COMMENTS */
-.cmt-section{padding:12px 16px;}
-.cmt-textarea{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-size:.82rem;font-family:'DM Sans',sans-serif;resize:vertical;min-height:60px;outline:none;}
-.cmt-textarea:focus{border-color:var(--accent);}
-.save-cmt-btn{margin-top:6px;padding:5px 14px;font-size:.76rem;}
+/* docs */
+.doc-upload-area{border:2px dashed var(--border);border-radius:var(--r);padding:24px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;margin-bottom:12px;}
+.doc-upload-area:hover{border-color:var(--red);background:var(--red-light);}
+.doc-upload-area i{font-size:1.8rem;color:var(--text3);margin-bottom:8px;display:block;}
+.doc-upload-area p{font-size:.82rem;color:var(--text3);}
+.doc-upload-area strong{color:var(--red);}
+.doc-list{display:flex;flex-direction:column;gap:7px;}
+.doc-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rsm);padding:9px 12px;}
+.doc-icon{width:32px;height:32px;border-radius:7px;background:var(--accent-light);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:.82rem;flex-shrink:0;}
+.doc-info{flex:1;min-width:0;}
+.doc-name{font-size:.82rem;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.doc-size{font-size:.68rem;color:var(--text3);}
 
-/* CONFLICT BANNER */
-.conflict-banner{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--red-light);border:1px solid var(--red);border-radius:var(--rsm);color:var(--red);font-size:.8rem;font-weight:600;margin-bottom:16px;}
+/* comments */
+.cmt-box{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;font-size:.83rem;resize:vertical;min-height:80px;outline:none;transition:border-color .15s;}
+.cmt-box:focus{border-color:var(--red);}
 
-/* EMPLOYEE TABLE */
-.emp-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);}
+/* form fields */
+.fg{display:flex;flex-direction:column;gap:4px;}.fg.full{grid-column:1/-1;}
+.fg label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);}
+.fg input,.fg select,.fg textarea{padding:8px 11px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--red);}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+
+/* checkbox toggle */
+.toggle-row{display:flex;align-items:center;gap:10px;padding:10px 0;}
+.toggle-lbl{font-size:.84rem;font-weight:500;}
+.toggle-desc{font-size:.72rem;color:var(--text3);}
+input[type="checkbox"].toggle{width:36px;height:20px;appearance:none;background:var(--border);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+input[type="checkbox"].toggle:checked{background:var(--red);}
+input[type="checkbox"].toggle::after{content:'';position:absolute;width:14px;height:14px;background:#fff;border-radius:50%;top:3px;left:3px;transition:left .2s;}
+input[type="checkbox"].toggle:checked::after{left:19px;}
+
+/* employee table */
+.emp-table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
 table{width:100%;border-collapse:collapse;}
-th{background:var(--surface2);padding:10px 14px;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text3);text-align:left;border-bottom:1px solid var(--border);}
-td{padding:10px 14px;font-size:.84rem;border-bottom:1px solid var(--border);vertical-align:middle;}
+th{background:var(--surface2);padding:9px 13px;font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);text-align:left;border-bottom:1px solid var(--border);}
+td{padding:9px 13px;font-size:.82rem;border-bottom:1px solid var(--border);vertical-align:middle;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:var(--surface2);}
-.emp-status-free{color:var(--text3);font-size:.75rem;}
-.emp-status-assigned{color:var(--green);font-weight:600;font-size:.75rem;}
-.emp-status-conflict{color:var(--red);font-weight:700;font-size:.75rem;}
-.gender-m{color:#3b82f6;font-size:.75rem;font-weight:600;}
-.gender-f{color:#ec4899;font-size:.75rem;font-weight:600;}
+.gm{color:#3b82f6;font-size:.72rem;font-weight:600;}
+.gf{color:#ec4899;font-size:.72rem;font-weight:600;}
 
-/* WORKLOAD */
-.wl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:18px;}
-.wl-row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}
+/* workload */
+.wl-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;}
 .wl-row:last-child{border-bottom:none;}
-.wl-name{font-weight:600;font-size:.88rem;min-width:160px;}
-.wl-projs{color:var(--text3);font-size:.78rem;flex:1;}
-.wl-bar-wrap{width:160px;}
+.wl-name{font-weight:600;font-size:.86rem;min-width:160px;}
+.wl-projs{color:var(--text3);font-size:.76rem;flex:1;}
 
-/* MODAL */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;}
-.overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--surface);border-radius:20px;padding:26px;width:580px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px);transition:transform .2s;max-height:90vh;overflow-y:auto;}
-.overlay.open .modal{transform:translateY(0);}
-.modal-title{font-size:1.15rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
-.ff{display:flex;flex-direction:column;gap:4px;}
-.ff.full{grid-column:1/-1;}
-.ff label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--text3);}
-.ff input,.ff select,.ff textarea{padding:8px 12px;border:1px solid var(--border);border-radius:var(--rsm);background:var(--surface2);color:var(--text);font-family:'DM Sans',sans-serif;font-size:.86rem;outline:none;transition:border-color .15s;}
-.ff input:focus,.ff select:focus,.ff textarea:focus{border-color:var(--accent);}
-.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+/* conflict banner */
+.cbanner{display:flex;align-items:center;gap:8px;padding:9px 13px;background:var(--red-light);border:1px solid var(--red-mid);border-radius:var(--rsm);color:var(--red);font-size:.78rem;font-weight:600;margin-bottom:16px;}
 
-/* TOAST */
-.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:999;display:flex;flex-direction:column;gap:7px;}
-.toast{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:.83rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;animation:slideIn .2s ease;max-width:300px;}
-.toast.success{border-color:var(--green);color:var(--green);}
-.toast.error{border-color:var(--red);color:var(--red);}
+/* toast */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:9px 14px;font-size:.8rem;box-shadow:var(--shadow);display:flex;align-items:center;gap:7px;animation:tin .2s ease;max-width:280px;}
+.toast.ok{border-color:var(--green);color:var(--green);}
+.toast.err{border-color:var(--red);color:var(--red);}
 .toast.info{border-color:var(--accent);color:var(--accent);}
-@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tin{from{transform:translateX(110%);opacity:0}to{transform:translateX(0);opacity:1}}
 
-/* EMPTY */
-.empty{text-align:center;padding:50px 20px;color:var(--text3);}
-.empty i{font-size:2.5rem;margin-bottom:10px;display:block;}
-.empty h3{font-size:.95rem;color:var(--text2);margin-bottom:5px;}
+/* loading */
+#loverlay{position:fixed;inset:0;background:rgba(15,23,42,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;font-family:'Inter',sans-serif;gap:14px;}
+.spin{width:42px;height:42px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite;}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-/* LOADING */
-#loadingOverlay{position:fixed;inset:0;background:rgba(13,31,51,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;color:#fff;font-family:'DM Sans',sans-serif;gap:14px;}
-.spin{width:44px;height:44px;border:4px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty i{font-size:2.2rem;margin-bottom:8px;display:block;}
+.empty h3{font-size:.9rem;color:var(--text2);}
 
 @media(max-width:768px){
   .sidebar{transform:translateX(-100%);}
@@ -221,769 +295,943 @@ tr:hover td{background:var(--surface2);}
 </style>
 </head>
 <body>
-<div id="loadingOverlay" style="display:none;">
-  <div class="spin"></div>
-  <div style="font-size:1rem;font-weight:600;">Loading data...</div>
-</div>
+
+<div id="loverlay" style="display:none;"><div class="spin"></div><div style="font-size:.95rem;font-weight:600;">Loading data...</div></div>
+<div class="toasts" id="toasts"></div>
 
 <div class="layout">
 <!-- ═══ SIDEBAR ═══ -->
 <aside class="sidebar">
-  <div class="sidebar-logo">
-    <h2><i class="fas fa-layer-group"></i> AnnotateHQ</h2>
-    <span>Data Annotation Platform</span>
+  <div class="logo-wrap">
+    <svg style="width:44px;height:44px;border-radius:6px;flex-shrink:0;" viewBox="0 0 469.3 529.3" xmlns="http://www.w3.org/2000/svg">
+      <rect fill="#fff" width="469.3" height="529.3"/>
+      <rect fill="#df1e26" x="36.8" y="37.3" width="395.7" height="395.7"/>
+      <path fill="#fff" d="M139,216.4c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.7c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.8,4.2-4.2,9.1-7.6,14.7-10,5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2-.7,1.5-1.9,2.3-3.4,2.7-1.5.4-2.9.2-4.3-.5-2.6-1.6-5.5-2.7-8.4-3.5s-6-1.2-9.3-1.2c-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5.8,1.4,1.1,2.7.7,4.2s-1.2,2.6-2.5,3.6c-7.6,4.4-15.9,6.8-24.9,6.8"/>
+      <path fill="#fff" d="M267.6,208.2c.6,1.5.7,2.8.2,4.2s-1.5,2.4-2.8,3c-1.4.6-2.8.7-4.3.2-1.4-.5-2.4-1.5-3.2-2.8l-9.9-21.2h-25.1c-1.6,0-2.9-.5-4-1.6s-1.6-2.3-1.6-4,.5-2.8,1.6-3.9,2.3-1.6,4-1.6h19.9l-17.6-37.5-30.8,69.7c-.5,1.1-1.2,1.9-2.1,2.4s-1.9.8-3,.8-1.5-.1-2.3-.4c-1.4-.6-2.4-1.7-2.9-3.2-.5-1.4-.5-2.8.2-4.2l36-80.8c.4-1.1,1.1-1.8,2-2.4s1.9-.8,3-.8,2.1.3,3,.8,1.6,1.3,2,2.3l37.8,80.9Z"/>
+      <path fill="#fff" d="M371.3,216c-1.5,0-2.7-.5-3.8-1.6s-1.6-2.4-1.6-3.9v-56.7l-25.1,58.9c-.4,1.1-1.1,1.8-1.9,2.4s-1.9.9-2.9.9-2.1-.3-3-.8-1.6-1.4-2-2.2l-29.2-61.6v59.3c0,1.5-.5,2.7-1.6,3.8s-2.3,1.6-3.8,1.6-2.8-.5-3.9-1.6-1.7-2.3-1.7-3.8v-83.5c0-1.3.4-2.4,1.2-3.4.7-1.1,1.8-1.6,3-1.9s2.4-.1,3.6.4,2,1.4,2.5,2.5l34.4,72.4,30.8-72.2c.5-1.2,1.4-2,2.5-2.6s2.4-.7,3.6-.5c1.3.2,2.3.8,3.2,1.9s1.3,2.1,1.3,3.4v83.4c0,1.5-.5,2.8-1.6,3.9-1.1,1.1-2.4,1.6-3.9,1.6"/>
+      <path fill="#fff" d="M139,348.5c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.8c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.7s9.1-7.6,14.7-10c5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2s-1.9,2.3-3.4,2.7-2.9.2-4.3-.5c-2.6-1.6-5.5-2.7-8.4-3.5-2.9-.7-6-1.2-9.3-1.2-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5s1.1,2.7.7,4.2-1.2,2.6-2.5,3.6c-7.6,4.5-15.9,6.8-24.9,6.8"/>
+      <path fill="#fff" d="M371.3,348.2c-1.5,0-2.7-.5-3.8-1.7-1.1-1.1-1.6-2.4-1.6-3.9v-56.7l-25.1,58.9c-.4,1.1-1.1,1.8-1.9,2.4-.8.6-1.9.9-2.9,1.1-1.1,0-2.1-.3-3-.8-.9-.6-1.6-1.4-2-2.2l-29.2-61.6v59.3c0,1.5-.5,2.7-1.6,3.8s-2.3,1.6-3.8,1.6-2.8-.5-3.9-1.6c-1.1-1.1-1.7-2.3-1.7-3.8v-83.5c0-1.3.4-2.4,1.2-3.4.7-.9,1.8-1.7,3-1.9,1.3-.2,2.4-.1,3.6.4s2,1.4,2.5,2.5l34.4,72.4,30.8-72.2c.5-1.2,1.4-2,2.5-2.6s2.4-.7,3.6-.5c1.3.2,2.3.8,3.2,1.9s1.3,2.1,1.3,3.4v83.4c0,1.5-.5,2.8-1.6,3.9-1.1.9-2.4,1.6-3.9,1.6"/>
+      <path fill="#1a1a1a" d="M36.8,491.2v-31.8h15.8v2.7h-13v10h13v2.7h-13v13.7h13v2.7Z"/>
+      <path fill="#1a1a1a" d="M72.5,491.2v-14.6l-10.6-17.2h3.5l8.6,14.5,8.5-14.5h3.3l-10.4,17.2v14.6Z"/>
+      <path fill="#1a1a1a" d="M149.5,491.2v-29.1h-8.7v-2.7h20.4v2.7h-8.8v29.1Z"/>
+    </svg>
+    <div class="logo-text">
+      <strong>CamCom</strong>
+      <span>Annotation Tracker</span>
+    </div>
   </div>
-  <div class="nav-sec">Main</div>
-  <button class="nav-item active" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-th-large"></i> Dashboard</button>
-  <button class="nav-item" data-page="projects" onclick="switchPage('projects')"><i class="fas fa-folder-open"></i> All Projects <span class="nav-badge" id="nb-proj">0</span></button>
-  <button class="nav-item" data-page="employees" onclick="switchPage('employees')"><i class="fas fa-users"></i> Employees <span class="nav-badge" id="nb-emp">0</span></button>
-  <button class="nav-item" data-page="workload" onclick="switchPage('workload')"><i class="fas fa-chart-bar"></i> Workload</button>
-  <div class="nav-sec">Actions</div>
-  <button class="nav-item" onclick="openProjModal()"><i class="fas fa-plus-circle"></i> New Project</button>
-  <button class="nav-item" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
-  <button class="nav-item" onclick="exportCSV()"><i class="fas fa-download"></i> Export CSV</button>
-  <div class="sidebar-bottom">
-    <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="themeIco"></i><span id="themeLbl">Dark mode</span></button>
+  <div class="nav-grp">Navigation</div>
+  <button class="nav-btn active" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-th-large"></i> Dashboard</button>
+  <button class="nav-btn" data-page="projects" onclick="switchPage('projects')"><i class="fas fa-folder-open"></i> All Projects <span class="nbadge" id="nb-p">0</span></button>
+  <button class="nav-btn" data-page="employees" onclick="switchPage('employees')"><i class="fas fa-users"></i> Employees <span class="nbadge" id="nb-e">0</span></button>
+  <button class="nav-btn" data-page="workload" onclick="switchPage('workload')"><i class="fas fa-chart-bar"></i> Workload</button>
+  <div class="nav-grp">Actions</div>
+  <button class="nav-btn" onclick="openNewProjModal()"><i class="fas fa-plus-circle"></i> New Project</button>
+  <button class="nav-btn" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
+  <button class="nav-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+  <div class="sidebar-foot">
+    <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="tIco"></i><span id="tLbl">Dark mode</span></button>
   </div>
 </aside>
 
 <!-- ═══ MAIN ═══ -->
 <main class="main">
 
-<!-- ── DASHBOARD ── -->
+<!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
   <div class="topbar">
     <h1 class="page-title">Dashboard</h1>
-    <div class="topbar-right">
-      <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search projects..." id="globalSearch" oninput="handleSearch()"></div>
-      <button class="btn btn-primary" onclick="openProjModal()"><i class="fas fa-plus"></i> New project</button>
+    <div class="topbar-r">
+      <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search projects..." id="gSearch" oninput="handleSearch()"></div>
+      <button class="btn btn-red" onclick="openNewProjModal()"><i class="fas fa-plus"></i> New project</button>
     </div>
   </div>
   <div class="stat-grid" id="statGrid"></div>
-  <div id="conflictBanner" style="display:none;" class="conflict-banner"><i class="fas fa-exclamation-triangle"></i><span id="conflictTxt"></span><button class="btn btn-ghost" style="margin-left:auto;padding:4px 11px;font-size:.72rem;" onclick="switchPage('employees')">View →</button></div>
-  <div class="filters-bar">
-    <span style="font-size:.72rem;color:var(--text3);font-weight:700;">FILTER:</span>
-    <button class="fchip active" onclick="setFilter('all',this)">All</button>
+  <div id="conflictBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="cTxt"></span><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="switchPage('employees')">View →</button></div>
+  <div class="fbar">
+    <span style="font-size:.68rem;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Filter:</span>
+    <button class="fchip on" onclick="setFilter('all',this)">All</button>
     <button class="fchip hi" onclick="setFilter('high',this)"><i class="fas fa-fire"></i> High</button>
-    <button class="fchip me" onclick="setFilter('medium',this)"><i class="fas fa-minus"></i> Medium</button>
+    <button class="fchip me" onclick="setFilter('medium',this)">⚡ Medium</button>
     <button class="fchip lo" onclick="setFilter('low',this)"><i class="fas fa-leaf"></i> Low</button>
     <select class="fsel" id="sortSel" onchange="renderProjects()">
       <option value="default">Sort: Default</option>
-      <option value="name">Sort: Name A–Z</option>
-      <option value="progress">Sort: % Progress</option>
-      <option value="deadline">Sort: Deadline</option>
-      <option value="priority">Sort: Priority</option>
+      <option value="name">Name A–Z</option>
+      <option value="progress">Progress ↑</option>
+      <option value="deadline">Deadline ↑</option>
+      <option value="priority">Priority</option>
     </select>
   </div>
   <div class="proj-grid" id="projGrid"></div>
 </div>
 
-<!-- ── ALL PROJECTS ── -->
+<!-- ALL PROJECTS -->
 <div class="page" id="page-projects">
   <div class="topbar">
     <h1 class="page-title">All Projects</h1>
-    <div class="topbar-right">
+    <div class="topbar-r">
       <button class="btn btn-green" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
-      <button class="btn btn-primary" onclick="openProjModal()"><i class="fas fa-plus"></i> New project</button>
+      <button class="btn btn-red" onclick="openNewProjModal()"><i class="fas fa-plus"></i> New project</button>
     </div>
   </div>
   <div class="proj-grid" id="projGridFull"></div>
 </div>
 
-<!-- ── EMPLOYEES ── -->
+<!-- EMPLOYEES -->
 <div class="page" id="page-employees">
   <div class="topbar">
     <h1 class="page-title">Employees</h1>
-    <div class="topbar-right">
-      <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Search name or email..." id="empSearch" oninput="renderEmployees()"></div>
-      <button class="btn btn-primary" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add employee</button>
+    <div class="topbar-r">
+      <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search..." id="empSearch" oninput="renderEmployees()"></div>
+      <button class="btn btn-red" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add employee</button>
     </div>
   </div>
-  <div id="empConflictBanner" style="display:none;" class="conflict-banner"><i class="fas fa-exclamation-triangle"></i><span id="empConflictTxt"></span></div>
+  <div id="empCBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="empCTxt"></span></div>
   <div class="emp-table-wrap">
-    <table>
-      <thead><tr>
-        <th>#</th><th>Full Name</th><th>Email</th><th>Gender</th><th>Status</th><th>Assigned To</th><th>Actions</th>
-      </tr></thead>
-      <tbody id="empTableBody"></tbody>
-    </table>
+    <table><thead><tr>
+      <th>#</th><th>Full Name</th><th>Email</th><th>Gender</th><th>Status</th><th>Assigned To</th><th></th>
+    </tr></thead>
+    <tbody id="empBody"></tbody></table>
   </div>
 </div>
 
-<!-- ── WORKLOAD ── -->
+<!-- WORKLOAD -->
 <div class="page" id="page-workload">
   <div class="topbar"><h1 class="page-title">Workload Overview</h1></div>
-  <div class="wl-card"><div style="font-size:.83rem;color:var(--text2);margin-bottom:14px;">Employees with at least one assignment are shown below.</div><div id="wlList"></div></div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);">
+    <div style="font-size:.8rem;color:var(--text2);margin-bottom:14px;">Employees with active project assignments.</div>
+    <div id="wlList"></div>
+  </div>
 </div>
 
 </main>
 </div>
 
-<!-- ═══ MODAL: PROJECT ═══ -->
-<div class="overlay" id="projOverlay" onclick="closeProjModalIfBg(event)">
-<div class="modal">
-  <div class="modal-title"><i class="fas fa-folder-plus" style="color:var(--accent)"></i><span id="projModalTitle">New Project</span></div>
-  <div class="form-grid">
-    <div class="ff full"><label>Project name *</label><input type="text" id="fp-name" placeholder="e.g. Satellite buildings"></div>
-    <div class="ff"><label>Priority</label>
-      <select id="fp-priority">
-        <option value="medium">⚡ Medium</option>
-        <option value="high">🔥 High</option>
-        <option value="low">🌿 Low</option>
-      </select>
+<!-- ═══════════════════════════════ -->
+<!--  MODAL: PROJECT DETAIL/EDIT    -->
+<!-- ═══════════════════════════════ -->
+<div class="overlay" id="detailOverlay" onclick="closeDetailIfBg(event)">
+<div class="modal" id="detailModal">
+  <div class="mhdr">
+    <div class="mhdr-ico"><i class="fas fa-folder-open"></i></div>
+    <div class="mhdr-info">
+      <div class="mhdr-title" id="dm-title">Project Name</div>
+      <div class="mhdr-sub" id="dm-sub">Loading...</div>
     </div>
-    <div class="ff"><label>Assigned By</label><input type="text" id="fp-assignedby" placeholder="e.g. Project Manager name"></div>
-    <div class="ff"><label>Start Date</label><input type="date" id="fp-startdate"></div>
-    <div class="ff"><label>Deadline</label><input type="date" id="fp-deadline"></div>
-    <div class="ff"><label>Total Images</label><input type="number" id="fp-total" value="1000" min="0"></div>
-    <div class="ff"><label>Annotated</label><input type="number" id="fp-annotated" value="0" min="0"></div>
-    <div class="ff"><label>Reviewed</label><input type="number" id="fp-reviewed" value="0" min="0"></div>
-    <div class="ff full"><label>Notes</label><textarea id="fp-notes" placeholder="Project notes..." style="min-height:55px;"></textarea></div>
-    <div class="ff full"><label>Comments</label><textarea id="fp-comments" placeholder="Additional comments..." style="min-height:55px;"></textarea></div>
+    <button class="mclose" onclick="closeDetail()"><i class="fas fa-times"></i></button>
   </div>
-  <div class="modal-footer">
-    <button class="btn btn-ghost" onclick="closeProjModal()">Cancel</button>
-    <button class="btn btn-primary" onclick="saveProject()"><i class="fas fa-save"></i> Save project</button>
+  <div class="mtabs">
+    <button class="mtab active" onclick="switchTab('overview',this)">Overview</button>
+    <button class="mtab" onclick="switchTab('assign',this)">Assign Employees</button>
+    <button class="mtab" onclick="switchTab('docs',this)">Documents</button>
+    <button class="mtab" onclick="switchTab('comments',this)">Comments</button>
+    <button class="mtab" onclick="switchTab('edit',this)">Edit</button>
+  </div>
+
+  <!-- OVERVIEW TAB -->
+  <div class="mpanel active" id="tab-overview">
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-info-circle"></i> Project Info</div>
+      <div class="info-grid" id="dm-infoGrid"></div>
+    </div>
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-chart-line"></i> Progress</div>
+      <div id="dm-progress"></div>
+    </div>
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-calculator"></i> Numbers (editable)</div>
+      <div class="num-edit-grid" id="dm-numGrid"></div>
+      <button class="btn btn-red btn-sm save-nums-btn" onclick="saveNums()"><i class="fas fa-save"></i> Save numbers</button>
+    </div>
+    <div class="dsec" id="dm-notesSec" style="display:none;">
+      <div class="dsec-title"><i class="fas fa-sticky-note"></i> Notes</div>
+      <div id="dm-notes" style="font-size:.84rem;color:var(--text2);line-height:1.6;"></div>
+    </div>
+  </div>
+
+  <!-- ASSIGN TAB -->
+  <div class="mpanel" id="tab-assign">
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-user-check"></i> Currently Assigned (<span id="asnCount">0</span>)</div>
+      <div class="assigned-list" id="asnList"></div>
+    </div>
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-search"></i> Search & Add Employees</div>
+      <div class="emp-search-row">
+        <div class="emp-sbox"><i class="fas fa-search"></i><input type="text" id="empAssignSearch" placeholder="Type name or email..." oninput="renderEmpSearchList()"></div>
+      </div>
+      <div class="emp-list" id="empSearchList"></div>
+    </div>
+  </div>
+
+  <!-- DOCS TAB -->
+  <div class="mpanel" id="tab-docs">
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-paperclip"></i> Documents & Annotations</div>
+      <div class="doc-upload-area" onclick="triggerFileUpload()" id="uploadArea">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Click to upload or <strong>drag & drop</strong></p>
+        <p style="margin-top:4px;font-size:.72rem;">PDF, DOCX, XLSX, PNG, JPG, ZIP — up to 50MB</p>
+      </div>
+      <input type="file" id="docFileInput" style="display:none;" multiple onchange="handleFileUpload(this)">
+      <div class="doc-list" id="docList"></div>
+    </div>
+  </div>
+
+  <!-- COMMENTS TAB -->
+  <div class="mpanel" id="tab-comments">
+    <div class="dsec">
+      <div class="dsec-title"><i class="fas fa-comments"></i> Additional Comments</div>
+      <textarea class="cmt-box" id="dm-comments" placeholder="Type comments, updates, or any additional information..."></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px;">
+        <button class="btn btn-red btn-sm" onclick="saveComments()"><i class="fas fa-save"></i> Save comments</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT TAB -->
+  <div class="mpanel" id="tab-edit">
+    <div class="fgrid">
+      <div class="fg full"><label>Project Name *</label><input type="text" id="ep-name"></div>
+      <div class="fg"><label>Priority</label>
+        <select id="ep-priority">
+          <option value="medium">⚡ Medium</option><option value="high">🔥 High</option><option value="low">🌿 Low</option>
+        </select>
+      </div>
+      <div class="fg"><label>Assigned By</label><input type="text" id="ep-assignedby" placeholder="Manager name"></div>
+      <div class="fg"><label>Start Date</label><input type="date" id="ep-startdate"></div>
+      <div class="fg"><label>Deadline</label><input type="date" id="ep-deadline"></div>
+      <div class="fg"><label>Total Images</label><input type="number" id="ep-total" min="0"></div>
+      <div class="fg"><label>Annotated</label><input type="number" id="ep-annotated" min="0"></div>
+      <div class="fg"><label>Reviewed</label><input type="number" id="ep-reviewed" min="0"></div>
+      <div class="fg full">
+        <div class="toggle-row">
+          <input type="checkbox" class="toggle" id="ep-hasTarget" onchange="toggleTargetField()">
+          <div>
+            <div class="toggle-lbl">Daily Target</div>
+            <div class="toggle-desc">Set a daily image completion target for this project</div>
+          </div>
+        </div>
+      </div>
+      <div class="fg" id="ep-targetField" style="display:none;"><label>Daily Target (images/day)</label><input type="number" id="ep-target" min="1" placeholder="e.g. 100"></div>
+      <div class="fg full"><label>Notes</label><textarea id="ep-notes" style="min-height:60px;"></textarea></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);">
+      <button class="btn btn-ghost btn-sm" style="color:var(--red);border-color:var(--red-mid);" onclick="deleteCurrentProj()"><i class="fas fa-trash"></i> Delete project</button>
+      <button class="btn btn-red" onclick="saveEditedProject()"><i class="fas fa-save"></i> Save changes</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ MODAL: NEW PROJECT ═══ -->
+<div class="overlay" id="newProjOverlay" onclick="closeNewProjIfBg(event)">
+<div class="modal md">
+  <div class="mhdr">
+    <div class="mhdr-ico"><i class="fas fa-plus"></i></div>
+    <div class="mhdr-info"><div class="mhdr-title">Create New Project</div></div>
+    <button class="mclose" onclick="closeNewProj()"><i class="fas fa-times"></i></button>
+  </div>
+  <div style="padding:20px 24px;">
+    <div class="fgrid">
+      <div class="fg full"><label>Project Name *</label><input type="text" id="np-name" placeholder="e.g. Satellite Buildings"></div>
+      <div class="fg"><label>Priority</label>
+        <select id="np-priority">
+          <option value="medium">⚡ Medium</option><option value="high">🔥 High</option><option value="low">🌿 Low</option>
+        </select>
+      </div>
+      <div class="fg"><label>Assigned By</label><input type="text" id="np-assignedby" placeholder="Manager name"></div>
+      <div class="fg"><label>Start Date</label><input type="date" id="np-startdate"></div>
+      <div class="fg"><label>Deadline</label><input type="date" id="np-deadline"></div>
+      <div class="fg"><label>Total Images</label><input type="number" id="np-total" value="1000" min="0"></div>
+      <div class="fg"><label>Annotated</label><input type="number" id="np-annotated" value="0" min="0"></div>
+      <div class="fg"><label>Reviewed</label><input type="number" id="np-reviewed" value="0" min="0"></div>
+      <div class="fg full">
+        <div class="toggle-row">
+          <input type="checkbox" class="toggle" id="np-hasTarget" onchange="toggleNewTargetField()">
+          <div>
+            <div class="toggle-lbl">Set Daily Target</div>
+            <div class="toggle-desc">Optional: define how many images should be completed per day</div>
+          </div>
+        </div>
+      </div>
+      <div class="fg" id="np-targetField" style="display:none;"><label>Daily Target (images/day)</label><input type="number" id="np-target" min="1" placeholder="e.g. 100"></div>
+      <div class="fg full"><label>Notes</label><textarea id="np-notes" style="min-height:55px;" placeholder="Optional notes..."></textarea></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--border);">
+      <button class="btn btn-ghost" onclick="closeNewProj()">Cancel</button>
+      <button class="btn btn-red" onclick="createProject()"><i class="fas fa-plus-circle"></i> Create project</button>
+    </div>
   </div>
 </div>
 </div>
 
 <!-- ═══ MODAL: EMPLOYEE ═══ -->
-<div class="overlay" id="empOverlay" onclick="closeEmpModalIfBg(event)">
-<div class="modal" style="width:420px;">
-  <div class="modal-title"><i class="fas fa-user-plus" style="color:var(--accent)"></i><span id="empModalTitle">Add Employee</span></div>
-  <div class="form-grid">
-    <div class="ff full"><label>Full Name *</label><input type="text" id="fe-name" placeholder="e.g. Ramyashree V R"></div>
-    <div class="ff full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="e.g. ramya@company.com"></div>
-    <div class="ff full"><label>Gender</label>
-      <select id="fe-gender">
-        <option value="female">Female</option>
-        <option value="male">Male</option>
-      </select>
+<div class="overlay" id="empOverlay" onclick="closeEmpIfBg(event)">
+<div class="modal sm">
+  <div class="mhdr">
+    <div class="mhdr-ico"><i class="fas fa-user-plus"></i></div>
+    <div class="mhdr-info"><div class="mhdr-title" id="empModalTitle">Add Employee</div></div>
+    <button class="mclose" onclick="closeEmpModal()"><i class="fas fa-times"></i></button>
+  </div>
+  <div style="padding:20px 24px;">
+    <div class="fgrid">
+      <div class="fg full"><label>Full Name *</label><input type="text" id="fe-name" placeholder="e.g. Ramyashree V R"></div>
+      <div class="fg full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="e.g. name@camcom.ai"></div>
+      <div class="fg full"><label>Gender</label>
+        <select id="fe-gender"><option value="female">♀ Female</option><option value="male">♂ Male</option></select>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:12px;border-top:1px solid var(--border);">
+      <button class="btn btn-ghost" onclick="closeEmpModal()">Cancel</button>
+      <button class="btn btn-red" onclick="saveEmployee()"><i class="fas fa-save"></i> Save</button>
     </div>
   </div>
-  <div class="modal-footer">
-    <button class="btn btn-ghost" onclick="closeEmpModal()">Cancel</button>
-    <button class="btn btn-primary" onclick="saveEmployee()"><i class="fas fa-save"></i> Save employee</button>
-  </div>
 </div>
 </div>
-
-<!-- TOAST -->
-<div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // SUPABASE
-// ═══════════════════════════════════════════
-const SB_URL = 'https://phtzpswuqlixaroxhkmy.supabase.co';
-const SB_KEY = 'sb_publishable_V1bOmccJ0AKXmRyV7bFctg_ka58Wb-L';
-const sb = supabase.createClient(SB_URL, SB_KEY);
+// ═══════════════════════════════════════════════
+const SB_URL='https://phtzpswuqlixaroxhkmy.supabase.co';
+const SB_KEY='sb_publishable_V1bOmccJ0AKXmRyV7bFctg_ka58Wb-L';
+const sb=supabase.createClient(SB_URL,SB_KEY);
 
-// ═══════════════════════════════════════════
-// DATA — real employee names
-// ═══════════════════════════════════════════
-let employees = [
-  {id:'e1',  name:'Ramyashree V R',           email:'ramyashree@company.com',      gender:'female'},
-  {id:'e2',  name:'Manoj Kumar Devanga Kotha',email:'manoj.devanga@company.com',   gender:'male'},
-  {id:'e3',  name:'Dande Kalyani',             email:'dande.kalyani@company.com',   gender:'female'},
-  {id:'e4',  name:'Dande Sandhya',             email:'dande.sandhya@company.com',   gender:'female'},
-  {id:'e5',  name:'Challa Koteswaramma',       email:'challa.kotes@company.com',    gender:'female'},
-  {id:'e6',  name:'Kadagandla Hariprasad',     email:'kadagandla.hari@company.com', gender:'male'},
-  {id:'e7',  name:'Uma Krishnappa',            email:'uma.krishnappa@company.com',  gender:'female'},
-  {id:'e8',  name:'Manjunath Kalakappa Bandihal',email:'manjunath.kb@company.com', gender:'male'},
-  {id:'e9',  name:'Akshay Phatale',            email:'akshay.phatale@company.com',  gender:'male'},
-  {id:'e10', name:'Maitra Salimath',           email:'maitra.salimath@company.com', gender:'female'},
-  {id:'e11', name:'Yathish Gowda K H',         email:'yathish.gowda@company.com',   gender:'male'},
-  {id:'e12', name:'Pavan Kalyan Yeddala',      email:'pavan.kalyan@company.com',    gender:'male'},
-  {id:'e13', name:'Sabharmathi Selvam',        email:'sabharmathi@company.com',     gender:'female'},
-  {id:'e14', name:'G Umesh',                   email:'g.umesh@company.com',         gender:'male'},
-  {id:'e15', name:'Shilpa E',                  email:'shilpa.e@company.com',        gender:'female'},
-  {id:'e16', name:'Prema Joshi',               email:'prema.joshi@company.com',     gender:'female'},
-  {id:'e17', name:'Keerti Doddwad',            email:'keerti.doddwad@company.com',  gender:'female'},
-  {id:'e18', name:'Ajay Reddy H',              email:'ajay.reddy@company.com',      gender:'male'},
-  {id:'e19', name:'Varun Kumar H N',           email:'varun.kumar@company.com',     gender:'male'},
-  {id:'e20', name:'Sneha B V',                 email:'sneha.bv@company.com',        gender:'female'},
-  {id:'e21', name:'Fathima Reneesha',          email:'fathima.reneesha@company.com',gender:'female'},
-  {id:'e22', name:'Vishruthi Raghu',           email:'vishruthi.raghu@company.com', gender:'female'},
-  {id:'e23', name:'Sanjana G P',               email:'sanjana.gp@company.com',      gender:'female'},
-  {id:'e24', name:'Dhanyasri A S',             email:'dhanyasri.as@company.com',    gender:'female'},
-  {id:'e25', name:'Siddharth Anandan',         email:'siddharth.anandan@company.com',gender:'male'},
-  {id:'e26', name:'Bindusree S N',             email:'bindusree.sn@company.com',    gender:'female'},
-  {id:'e27', name:'Anil Kumar Pasala',         email:'anil.pasala@company.com',     gender:'male'},
-  {id:'e28', name:'Mihir',                     email:'mihir@company.com',           gender:'male'},
-  {id:'e29', name:'Suzan',                     email:'suzan@company.com',           gender:'female'},
-  {id:'e30', name:'Umesh Nagappa Barker',      email:'umesh.barker@company.com',    gender:'male'},
-  {id:'e31', name:'Sunil Kumar',               email:'sunil.kumar@company.com',     gender:'male'},
-  {id:'e32', name:'Shanta Mantri',             email:'shanta.mantri@company.com',   gender:'female'},
-  {id:'e33', name:'Nandini Keni',              email:'nandini.keni@company.com',    gender:'female'},
-  {id:'e34', name:'Shweta Kannagar',           email:'shweta.kannagar@company.com', gender:'female'},
-  {id:'e35', name:'Kishore Devaragudi',        email:'kishore.dev@company.com',     gender:'male'},
-  {id:'e36', name:'Anil Gandreddi',            email:'anil.gandreddi@company.com',  gender:'male'},
-  {id:'e37', name:'K Ganesh',                  email:'k.ganesh@company.com',        gender:'male'},
-  {id:'e38', name:'Kiran Y',                   email:'kiran.y@company.com',         gender:'male'},
-  {id:'e39', name:'Vishwas Reddy',             email:'vishwas.reddy@company.com',   gender:'male'},
+// ═══════════════════════════════════════════════
+// EMPLOYEES DATA
+// ═══════════════════════════════════════════════
+let employees=[
+  {id:'e1',name:'Ramyashree V R',email:'ramyashree@camcom.ai',gender:'female'},
+  {id:'e2',name:'Manoj Kumar Devanga Kotha',email:'manoj.devanga@camcom.ai',gender:'male'},
+  {id:'e3',name:'Dande Kalyani',email:'dande.kalyani@camcom.ai',gender:'female'},
+  {id:'e4',name:'Dande Sandhya',email:'dande.sandhya@camcom.ai',gender:'female'},
+  {id:'e5',name:'Challa Koteswaramma',email:'challa.kotes@camcom.ai',gender:'female'},
+  {id:'e6',name:'Kadagandla Hariprasad',email:'kadagandla.hari@camcom.ai',gender:'male'},
+  {id:'e7',name:'Uma Krishnappa',email:'uma.krishnappa@camcom.ai',gender:'female'},
+  {id:'e8',name:'Manjunath Kalakappa Bandihal',email:'manjunath.kb@camcom.ai',gender:'male'},
+  {id:'e9',name:'Akshay Phatale',email:'akshay.phatale@camcom.ai',gender:'male'},
+  {id:'e10',name:'Maitra Salimath',email:'maitra.salimath@camcom.ai',gender:'female'},
+  {id:'e11',name:'Yathish Gowda K H',email:'yathish.gowda@camcom.ai',gender:'male'},
+  {id:'e12',name:'Pavan Kalyan Yeddala',email:'pavan.kalyan@camcom.ai',gender:'male'},
+  {id:'e13',name:'Sabharmathi Selvam',email:'sabharmathi@camcom.ai',gender:'female'},
+  {id:'e14',name:'G Umesh',email:'g.umesh@camcom.ai',gender:'male'},
+  {id:'e15',name:'Shilpa E',email:'shilpa.e@camcom.ai',gender:'female'},
+  {id:'e16',name:'Prema Joshi',email:'prema.joshi@camcom.ai',gender:'female'},
+  {id:'e17',name:'Keerti Doddwad',email:'keerti.doddwad@camcom.ai',gender:'female'},
+  {id:'e18',name:'Ajay Reddy H',email:'ajay.reddy@camcom.ai',gender:'male'},
+  {id:'e19',name:'Varun Kumar H N',email:'varun.kumar@camcom.ai',gender:'male'},
+  {id:'e20',name:'Sneha B V',email:'sneha.bv@camcom.ai',gender:'female'},
+  {id:'e21',name:'Fathima Reneesha',email:'fathima.reneesha@camcom.ai',gender:'female'},
+  {id:'e22',name:'Vishruthi Raghu',email:'vishruthi.raghu@camcom.ai',gender:'female'},
+  {id:'e23',name:'Sanjana G P',email:'sanjana.gp@camcom.ai',gender:'female'},
+  {id:'e24',name:'Dhanyasri A S',email:'dhanyasri.as@camcom.ai',gender:'female'},
+  {id:'e25',name:'Siddharth Anandan',email:'siddharth.anandan@camcom.ai',gender:'male'},
+  {id:'e26',name:'Bindusree S N',email:'bindusree.sn@camcom.ai',gender:'female'},
+  {id:'e27',name:'Anil Kumar Pasala',email:'anil.pasala@camcom.ai',gender:'male'},
+  {id:'e28',name:'Mihir',email:'mihir@camcom.ai',gender:'male'},
+  {id:'e29',name:'Suzan',email:'suzan@camcom.ai',gender:'female'},
+  {id:'e30',name:'Umesh Nagappa Barker',email:'umesh.barker@camcom.ai',gender:'male'},
+  {id:'e31',name:'Sunil Kumar',email:'sunil.kumar@camcom.ai',gender:'male'},
+  {id:'e32',name:'Shanta Mantri',email:'shanta.mantri@camcom.ai',gender:'female'},
+  {id:'e33',name:'Nandini Keni',email:'nandini.keni@camcom.ai',gender:'female'},
+  {id:'e34',name:'Shweta Kannagar',email:'shweta.kannagar@camcom.ai',gender:'female'},
+  {id:'e35',name:'Kishore Devaragudi',email:'kishore.dev@camcom.ai',gender:'male'},
+  {id:'e36',name:'Anil Gandreddi',email:'anil.gandreddi@camcom.ai',gender:'male'},
+  {id:'e37',name:'K Ganesh',email:'k.ganesh@camcom.ai',gender:'male'},
+  {id:'e38',name:'Kiran Y',email:'kiran.y@camcom.ai',gender:'male'},
+  {id:'e39',name:'Vishwas Reddy',email:'vishwas.reddy@camcom.ai',gender:'male'},
 ];
 
-let projects = [];
-let currentFilter = 'all';
-let searchQuery = '';
-let editProjId = null;
-let editEmpId = null;
+let projects=[];
+let currentFilter='all';
+let searchQuery='';
+let activeProjectId=null;
+let editEmpId=null;
+// docs stored in memory per project: { projId: [{name,size,type,dataUrl}] }
+let projectDocs={};
 
-// ═══════════════════════════════════════════
-// SUPABASE — PROJECTS
-// ═══════════════════════════════════════════
-async function loadProjects() {
-  showLoading(true);
-  try {
-    const {data,error} = await sb.from('projects').select('*').order('created_at',{ascending:false});
-    if (error) throw error;
-    projects = (data||[]).map(r => ({
-      id: r.id, name: r.name,
-      total: r.total||0, annotated: r.annotated||0, reviewed: r.reviewed||0,
-      priority: r.priority||'medium',
-      startdate: r.startdate||'', deadline: r.deadline||'',
-      assignedby: r.assignedby||'',
-      notes: r.notes||'', comments: r.comments||'',
-      assignedEmployees: r.assigned_employees ? r.assigned_employees.split(',').filter(Boolean) : []
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function genId(){return crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);}
+function esc(s){return(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function pct(a,b){return b>0?Math.round((a/b)*100):0;}
+function fmtDate(d){if(!d)return'—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function dlMeta(d){if(!d)return null;const dt=new Date(d+'T00:00:00');const diff=Math.ceil((dt-new Date())/86400000);return{label:fmtDate(d),diff};}
+function showLoad(v){document.getElementById('loverlay').style.display=v?'flex':'none';}
+function toast(msg,type='info'){
+  const el=document.createElement('div');el.className=`toast ${type}`;
+  el.innerHTML=`<i class="fas ${type==='ok'?'fa-check-circle':type==='err'?'fa-times-circle':'fa-info-circle'}"></i>${msg}`;
+  document.getElementById('toasts').appendChild(el);setTimeout(()=>el.remove(),3200);
+}
+function getAMap(){const m=new Map();projects.forEach(p=>(p.assignedEmployees||[]).forEach(id=>m.set(id,(m.get(id)||0)+1)));return m;}
+function getConflicts(){const m=getAMap();return[...m.entries()].filter(([,c])=>c>1).map(([id])=>id);}
+
+// ═══════════════════════════════════════════════
+// SUPABASE DB
+// ═══════════════════════════════════════════════
+async function loadProjects(){
+  showLoad(true);
+  try{
+    const{data,error}=await sb.from('projects').select('*').order('created_at',{ascending:false});
+    if(error)throw error;
+    projects=(data||[]).map(r=>({
+      id:r.id,name:r.name,total:r.total||0,annotated:r.annotated||0,reviewed:r.reviewed||0,
+      priority:r.priority||'medium',startdate:r.startdate||'',deadline:r.deadline||'',
+      assignedby:r.assignedby||'',notes:r.notes||'',comments:r.comments||'',
+      hasTarget:r.has_target||false,dailyTarget:r.daily_target||null,
+      assignedEmployees:r.assigned_employees?r.assigned_employees.split(',').filter(Boolean):[]
     }));
-    toast('Loaded from Supabase ✓','success');
-  } catch(e) {
-    console.error(e);
-    toast('Supabase error: '+e.message,'error');
-  } finally { showLoading(false); renderAll(); }
+    toast('Data loaded ✓','ok');
+  }catch(e){console.error(e);toast('Supabase: '+e.message,'err');}
+  finally{showLoad(false);renderAll();}
 }
+async function saveProjDB(p){
+  const row={id:p.id,name:p.name,total:p.total,annotated:p.annotated,reviewed:p.reviewed,
+    priority:p.priority,startdate:p.startdate||null,deadline:p.deadline||null,
+    assignedby:p.assignedby||'',notes:p.notes||'',comments:p.comments||'',
+    has_target:p.hasTarget||false,daily_target:p.dailyTarget||null,
+    assigned_employees:(p.assignedEmployees||[]).join(',')};
+  const{error}=await sb.from('projects').upsert(row);
+  if(error){toast('Save error: '+error.message,'err');console.error(error);}
+}
+async function delProjDB(id){const{error}=await sb.from('projects').delete().eq('id',id);if(error)toast('Delete error: '+error.message,'err');}
 
-async function saveProjectToDB(p) {
-  const row = {
-    id:p.id, name:p.name,
-    total:p.total, annotated:p.annotated, reviewed:p.reviewed,
-    priority:p.priority,
-    startdate:p.startdate||null, deadline:p.deadline||null,
-    assignedby:p.assignedby||'',
-    notes:p.notes||'', comments:p.comments||'',
-    assigned_employees:(p.assignedEmployees||[]).join(',')
-  };
-  const {error} = await sb.from('projects').upsert(row);
-  if (error) { toast('Save error: '+error.message,'error'); console.error(error); }
-}
+function saveEmpsLocal(){localStorage.setItem('cc_emps',JSON.stringify(employees));}
+function loadEmpsLocal(){try{const s=localStorage.getItem('cc_emps');if(s){const a=JSON.parse(s);if(a.length)employees=a;}}catch(e){}}
 
-async function deleteProjFromDB(id) {
-  const {error} = await sb.from('projects').delete().eq('id',id);
-  if (error) toast('Delete error: '+error.message,'error');
-}
-
-// ═══════════════════════════════════════════
-// SUPABASE — EMPLOYEES (optional persistence)
-// We store employees in localStorage as backup
-// ═══════════════════════════════════════════
-function saveEmployeesLocal() {
-  localStorage.setItem('ahq_employees', JSON.stringify(employees));
-}
-function loadEmployeesLocal() {
-  try {
-    const stored = localStorage.getItem('ahq_employees');
-    if (stored) { const arr = JSON.parse(stored); if (arr.length > 0) employees = arr; }
-  } catch(e) {}
-}
-
-// ═══════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════
-function genId() { return crypto.randomUUID ? crypto.randomUUID() : 'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,6); }
-function esc(s) { return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function pct(a,b) { return b>0?Math.round((a/b)*100):0; }
-
-function getAssignMap() {
-  const m = new Map();
-  projects.forEach(p => (p.assignedEmployees||[]).forEach(id => m.set(id,(m.get(id)||0)+1)));
-  return m;
-}
-function isAvailable(empId, excludeProjId=null) {
-  return !projects.some(p => p.id!==excludeProjId && (p.assignedEmployees||[]).includes(empId));
-}
-function getConflicts() {
-  const m = getAssignMap();
-  return [...m.entries()].filter(([,c])=>c>1).map(([id])=>id);
-}
-function fmtDate(d) {
-  if (!d) return null;
-  const dt = new Date(d+'T00:00:00');
-  return dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
-}
-function deadlineMeta(d) {
-  if (!d) return null;
-  const dt = new Date(d+'T00:00:00');
-  const diff = Math.ceil((dt - new Date())/86400000);
-  return {label: fmtDate(d), diff};
-}
-
-function showLoading(v) { document.getElementById('loadingOverlay').style.display = v?'flex':'none'; }
-
-function toast(msg,type='info') {
-  const el = document.createElement('div');
-  el.className = `toast ${type}`;
-  el.innerHTML = `<i class="fas ${type==='success'?'fa-check-circle':type==='error'?'fa-times-circle':'fa-info-circle'}"></i>${msg}`;
-  document.getElementById('toastWrap').appendChild(el);
-  setTimeout(()=>el.remove(),3000);
-}
-
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // PAGES
-// ═══════════════════════════════════════════
-function switchPage(p) {
+// ═══════════════════════════════════════════════
+function switchPage(p){
   document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(x=>x.classList.remove('active'));
   document.getElementById('page-'+p).classList.add('active');
   document.querySelector(`[data-page="${p}"]`)?.classList.add('active');
-  if (p==='employees') renderEmployees();
-  if (p==='workload') renderWorkload();
-  if (p==='projects') renderProjFull();
+  if(p==='employees')renderEmployees();
+  if(p==='workload')renderWorkload();
+  if(p==='projects')renderProjFull();
 }
+function renderAll(){renderProjects();renderStats();}
 
-function renderAll() { renderProjects(); renderStats(); }
-
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // STATS
-// ═══════════════════════════════════════════
-function renderStats() {
-  const totalImg = projects.reduce((s,p)=>s+(+p.total||0),0);
-  const totalAnn = projects.reduce((s,p)=>s+(+p.annotated||0),0);
-  const totalRev = projects.reduce((s,p)=>s+(+p.reviewed||0),0);
-  const assigned = new Set(projects.flatMap(p=>p.assignedEmployees||[])).size;
-  const conflicts = getConflicts().length;
-
-  document.getElementById('statGrid').innerHTML = [
-    {lbl:'Projects',       val:projects.length,          sub:`${projects.filter(p=>p.priority==='high').length} high priority`, cls:'',       ico:'fa-folder-open'},
-    {lbl:'Total Images',   val:totalImg.toLocaleString(), sub:`${pct(totalAnn,totalImg)}% annotated`,             cls:'',       ico:'fa-images'},
-    {lbl:'Annotated',      val:totalAnn.toLocaleString(), sub:`${pct(totalAnn,totalImg)}% done`,                  cls:'green',  ico:'fa-check-circle'},
-    {lbl:'Reviewed',       val:totalRev.toLocaleString(), sub:`${pct(totalRev,totalImg)}% done`,                  cls:'yellow', ico:'fa-eye'},
-    {lbl:'Employees Total',val:employees.length,          sub:`${assigned} assigned, ${employees.length-assigned} free`, cls:'purple',ico:'fa-users'},
-    {lbl:'Conflicts',      val:conflicts,                 sub:conflicts>0?'double-booked!':'All clear ✓',         cls:conflicts>0?'red':'', ico:'fa-exclamation-triangle'},
-  ].map(c=>`<div class="stat-card ${c.cls}">
-    <div class="stat-lbl">${c.lbl}</div>
-    <div class="stat-val">${c.val}</div>
-    <div class="stat-sub">${c.sub}</div>
-    <i class="fas ${c.ico} stat-ico"></i>
+// ═══════════════════════════════════════════════
+function renderStats(){
+  const tImg=projects.reduce((s,p)=>s+(+p.total||0),0);
+  const tAnn=projects.reduce((s,p)=>s+(+p.annotated||0),0);
+  const tRev=projects.reduce((s,p)=>s+(+p.reviewed||0),0);
+  const asnd=new Set(projects.flatMap(p=>p.assignedEmployees||[])).size;
+  const cc=getConflicts();
+  document.getElementById('statGrid').innerHTML=[
+    {l:'Projects',v:projects.length,s:`${projects.filter(p=>p.priority==='high').length} high priority`,c:'',i:'fa-folder-open'},
+    {l:'Total Images',v:tImg.toLocaleString(),s:`${pct(tAnn,tImg)}% annotated`,c:'blue',i:'fa-images'},
+    {l:'Annotated',v:tAnn.toLocaleString(),s:`${pct(tAnn,tImg)}% done`,c:'green',i:'fa-check-circle'},
+    {l:'Reviewed',v:tRev.toLocaleString(),s:`${pct(tRev,tImg)}% done`,c:'yellow',i:'fa-eye'},
+    {l:'Employees',v:employees.length,s:`${asnd} assigned, ${employees.length-asnd} free`,c:'purple',i:'fa-users'},
+    {l:'Conflicts',v:cc.length,s:cc.length>0?'double-booking!':'All clear ✓',c:cc.length>0?'red':'',i:'fa-exclamation-triangle'},
+  ].map(c=>`<div class="stat-card ${c.c}">
+    <div class="s-lbl">${c.l}</div><div class="s-val">${c.v}</div><div class="s-sub">${c.s}</div>
+    <i class="fas ${c.i} s-ico"></i>
   </div>`).join('');
-
-  document.getElementById('nb-proj').textContent = projects.length;
-  document.getElementById('nb-emp').textContent = employees.length;
-
-  const cc = getConflicts();
-  const cb = document.getElementById('conflictBanner');
-  if (cc.length>0) {
-    cb.style.display='flex';
-    document.getElementById('conflictTxt').textContent = `⚠ ${cc.length} employee(s) double-booked: ${cc.map(id=>employees.find(e=>e.id===id)?.name||id).join(', ')}`;
-  } else cb.style.display='none';
+  document.getElementById('nb-p').textContent=projects.length;
+  document.getElementById('nb-e').textContent=employees.length;
+  const cb=document.getElementById('conflictBanner');
+  if(cc.length>0){cb.style.display='flex';document.getElementById('cTxt').textContent=`⚠ ${cc.length} employee(s) double-booked: ${cc.map(id=>employees.find(e=>e.id===id)?.name||id).join(', ')}`;}
+  else cb.style.display='none';
 }
 
-// ═══════════════════════════════════════════
-// BUILD PROJECT CARD
-// ═══════════════════════════════════════════
-function buildCard(proj, aMap) {
-  const T=+proj.total||0, A=+proj.annotated||0, R=+proj.reviewed||0;
-  const annPct=pct(A,T), revPct=pct(R,T);
-  const pendA=Math.max(T-A,0), pendR=Math.max(A-R,0);
+// ═══════════════════════════════════════════════
+// PROJECT CARD (summary only)
+// ═══════════════════════════════════════════════
+function buildCard(proj){
+  const T=+proj.total||0,A=+proj.annotated||0,R=+proj.reviewed||0;
+  const aP=pct(A,T),rP=pct(R,T);
+  const dl=dlMeta(proj.deadline);
+  const isOD=dl&&dl.diff<0, isSoon=dl&&dl.diff>=0&&dl.diff<=7;
   const assigned=proj.assignedEmployees||[];
-  const dl = deadlineMeta(proj.deadline);
-  const isOverdue = dl && dl.diff<0;
-  const isSoon = dl && dl.diff>=0 && dl.diff<=7;
-  const pLabel = {high:'🔥 High',medium:'⚡ Medium',low:'🌿 Low'}[proj.priority]||'⚡ Medium';
-
-  // Available employees for multi-select (not already assigned to ANY project except this one)
-  const availEmps = employees.filter(e => !assigned.includes(e.id) && isAvailable(e.id, proj.id));
-
-  const assignedTags = assigned.map(id => {
-    const emp = employees.find(e=>e.id===id)||{name:'Unknown'};
-    const conflict = (aMap.get(id)||0)>1;
-    return `<span class="asn-tag ${conflict?'conflict':''}">
-      ${conflict?'⚠ ':''}${esc(emp.name)}
-      <button onclick="removeEmp('${proj.id}','${id}')"><i class="fas fa-times"></i></button>
-    </span>`;
+  const visEmps=assigned.slice(0,3).map(id=>{
+    const e=employees.find(x=>x.id===id);
+    return`<span class="echip"><i class="fas fa-user" style="font-size:.6rem;"></i>${esc(e?.name||'Unknown')}</span>`;
   }).join('');
+  const extra=assigned.length>3?`<span class="echip more">+${assigned.length-3} more</span>`:'';
+  const pLabel={high:'🔥 High',medium:'⚡ Med',low:'🌿 Low'}[proj.priority]||'⚡ Med';
 
-  const empOptions = availEmps.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('');
-
-  return `<div class="proj-card" id="card-${proj.id}">
-    <div class="card-top">
-      <div class="card-title-row">
-        <span class="card-title">${esc(proj.name)}</span>
-        <div class="card-acts">
-          <button class="icon-btn" onclick="openEditProjModal('${proj.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-          <button class="icon-btn del" onclick="deleteProj('${proj.id}')" title="Delete"><i class="fas fa-trash"></i></button>
-        </div>
+  return`<div class="pcard" onclick="openDetail('${proj.id}')">
+    <div class="pcard-strip ${proj.priority}"></div>
+    <div class="pcard-body">
+      <div class="pcard-title-row">
+        <div class="pcard-title">${esc(proj.name)}</div>
+        <span class="pbadge ${proj.priority}">${pLabel}</span>
       </div>
-      <div class="card-meta">
-        <span class="badge badge-${proj.priority}">${pLabel}</span>
-        ${proj.startdate?`<span class="meta-it"><i class="fas fa-play-circle"></i> Start: ${fmtDate(proj.startdate)}</span>`:''}
-        ${dl?`<span class="meta-it ${isOverdue?'overdue':isSoon?'soon':''}"><i class="fas fa-calendar-alt"></i> Due: ${dl.label} ${isOverdue?'(Overdue)':isSoon?`(${dl.diff}d left)`:''}</span>`:''}
+      <div class="pcard-meta">
+        ${proj.assignedby?`<span class="pmeta"><i class="fas fa-user-tie"></i>${esc(proj.assignedby)}</span>`:''}
+        ${proj.startdate?`<span class="pmeta"><i class="fas fa-play-circle"></i>${fmtDate(proj.startdate)}</span>`:''}
+        ${dl?`<span class="pmeta ${isOD?'red':isSoon?'yellow':''}"><i class="fas fa-calendar-alt"></i>${dl.label}${isOD?' (Overdue)':isSoon?` (${dl.diff}d)`:''}` +'</span>':''}
       </div>
-      ${proj.assignedby?`<div class="assigned-by-row"><i class="fas fa-user-tie"></i> Assigned by: <strong>${esc(proj.assignedby)}</strong></div>`:''}
-      <!-- Inline editable numbers -->
-      <div class="num-grid">
-        <div class="num-cell"><input type="number" value="${T}" min="0" onchange="updateField('${proj.id}','total',this.value)"><span class="nl">Total</span></div>
-        <div class="num-cell"><input type="number" value="${A}" min="0" onchange="updateField('${proj.id}','annotated',this.value)"><span class="nl">Annotated</span></div>
-        <div class="num-cell"><input type="number" value="${R}" min="0" onchange="updateField('${proj.id}','reviewed',this.value)"><span class="nl">Reviewed</span></div>
-        <div class="num-cell num-computed"><div class="nv">${pendA}</div><span class="nl">Pend.Ann</span></div>
-        <div class="num-cell num-computed"><div class="nv" style="color:var(--purple)">${pendR}</div><span class="nl">Pend.Rev</span></div>
+      <div class="pcard-prog">
+        <div class="prog-row"><span class="prog-lbl">Annotation</span><div class="prog-track"><div class="prog-fill pf-a" style="width:${aP}%"></div></div><span class="prog-pct">${aP}%</span></div>
+        <div class="prog-row"><span class="prog-lbl">Review</span><div class="prog-track"><div class="prog-fill pf-r" style="width:${rP}%"></div></div><span class="prog-pct">${rP}%</span></div>
+      </div>
+      <div class="pcard-nums">
+        <div class="pnum"><div class="v">${T.toLocaleString()}</div><div class="l">Total</div></div>
+        <div class="pnum"><div class="v">${A.toLocaleString()}</div><div class="l">Annotated</div></div>
+        <div class="pnum"><div class="v">${R.toLocaleString()}</div><div class="l">Reviewed</div></div>
       </div>
     </div>
-
-    <!-- PROGRESS -->
-    <div class="prog-section">
-      <div class="prog-row"><span class="prog-lbl">Annotation</span><span class="prog-pct">${annPct}%</span></div>
-      <div class="prog-bar"><div class="prog-fill pf-ann" style="width:${annPct}%"></div></div>
-      <div class="prog-row"><span class="prog-lbl">Review</span><span class="prog-pct">${revPct}%</span></div>
-      <div class="prog-bar"><div class="prog-fill pf-rev" style="width:${revPct}%"></div></div>
-    </div>
-
-    <!-- ASSIGNEES — multi-select -->
-    <div class="asn-section">
-      <div class="sec-hdr"><i class="fas fa-users"></i> Assigned Employees (${assigned.length})</div>
-      ${availEmps.length>0?`
-      <select class="emp-select-multi" id="ms-${proj.id}" multiple size="4">
-        ${empOptions}
-      </select>
-      <div class="select-hint">Hold <strong>Ctrl</strong> (Windows) or <strong>⌘ Cmd</strong> (Mac) to select multiple</div>
-      <button class="btn btn-primary" style="margin-top:8px;padding:6px 14px;font-size:.78rem;" onclick="assignMultiple('${proj.id}')"><i class="fas fa-plus"></i> Assign selected</button>
-      `:`<div style="font-size:.78rem;color:var(--text3);margin-bottom:8px;">All available employees assigned.</div>`}
-      <div class="asn-tags" style="margin-top:10px;">
-        ${assignedTags||'<span style="color:var(--text3);font-size:.76rem;">No employees assigned yet</span>'}
-      </div>
-    </div>
-
-    <!-- NOTES -->
-    ${proj.notes?`<div class="cmt-section" style="border-top:1px solid var(--border);">
-      <div class="sec-hdr"><i class="fas fa-sticky-note"></i> Notes</div>
-      <div style="font-size:.82rem;color:var(--text2);">${esc(proj.notes)}</div>
-    </div>`:''}
-
-    <!-- COMMENTS -->
-    <div class="cmt-section" style="border-top:1px solid var(--border);">
-      <div class="sec-hdr"><i class="fas fa-comments"></i> Comments</div>
-      <textarea class="cmt-textarea" id="cmt-${proj.id}" placeholder="Type a comment here...">${esc(proj.comments||'')}</textarea>
-      <button class="btn btn-ghost save-cmt-btn" onclick="saveComment('${proj.id}')"><i class="fas fa-save"></i> Save comment</button>
+    <div class="pcard-footer">
+      ${proj.hasTarget&&proj.dailyTarget?`<div><span class="target-chip"><i class="fas fa-bullseye"></i> ${proj.dailyTarget} imgs/day target</span></div>`:''}
+      ${assigned.length>0?`<div class="emp-chips">${visEmps}${extra}</div>`:'<div style="font-size:.72rem;color:var(--text3);">No employees assigned</div>'}
+      <div class="click-hint"><i class="fas fa-expand-alt"></i> Click to view full details</div>
     </div>
   </div>`;
 }
 
-// ═══════════════════════════════════════════
-// RENDER PROJECTS
-// ═══════════════════════════════════════════
-function getFiltered() {
-  const sort = document.getElementById('sortSel')?.value||'default';
-  let list = [...projects];
-  if (currentFilter!=='all') list=list.filter(p=>p.priority===currentFilter);
-  if (searchQuery) {
+function getFiltered(){
+  const sort=document.getElementById('sortSel')?.value||'default';
+  let list=[...projects];
+  if(currentFilter!=='all')list=list.filter(p=>p.priority===currentFilter);
+  if(searchQuery){
     const q=searchQuery.toLowerCase();
-    list=list.filter(p=>
-      p.name.toLowerCase().includes(q)||
-      (p.notes||'').toLowerCase().includes(q)||
-      (p.comments||'').toLowerCase().includes(q)||
-      (p.assignedby||'').toLowerCase().includes(q)||
-      (p.assignedEmployees||[]).some(id=>employees.find(e=>e.id===id)?.name.toLowerCase().includes(q))
-    );
+    list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.notes||'').toLowerCase().includes(q)||(p.assignedby||'').toLowerCase().includes(q)||(p.assignedEmployees||[]).some(id=>employees.find(e=>e.id===id)?.name.toLowerCase().includes(q)));
   }
-  if (sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
-  else if (sort==='progress') list.sort((a,b)=>pct(b.annotated,b.total)-pct(a.annotated,a.total));
-  else if (sort==='deadline') list.sort((a,b)=>(a.deadline||'9999').localeCompare(b.deadline||'9999'));
-  else if (sort==='priority') { const w={high:0,medium:1,low:2}; list.sort((a,b)=>(w[a.priority]||1)-(w[b.priority]||1)); }
+  if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
+  else if(sort==='progress')list.sort((a,b)=>pct(b.annotated,b.total)-pct(a.annotated,a.total));
+  else if(sort==='deadline')list.sort((a,b)=>(a.deadline||'9999').localeCompare(b.deadline||'9999'));
+  else if(sort==='priority'){const w={high:0,medium:1,low:2};list.sort((a,b)=>(w[a.priority]||1)-(w[b.priority]||1));}
   return list;
 }
 
-function renderProjects() {
-  const list=getFiltered(), aMap=getAssignMap();
-  const grid=document.getElementById('projGrid');
-  grid.innerHTML = list.length===0
-    ? `<div class="empty" style="grid-column:1/-1;"><i class="fas fa-folder-open"></i><h3>No projects found</h3><p>Adjust filters or add a new project.</p></div>`
-    : list.map(p=>buildCard(p,aMap)).join('');
+function renderProjects(){
+  const list=getFiltered();
+  const g=document.getElementById('projGrid');
+  g.innerHTML=list.length===0?`<div class="empty" style="grid-column:1/-1;"><i class="fas fa-folder-open"></i><h3>No projects found</h3></div>`:list.map(buildCard).join('');
   renderStats();
 }
+function renderProjFull(){document.getElementById('projGridFull').innerHTML=projects.map(buildCard).join('');}
 
-function renderProjFull() {
-  const aMap=getAssignMap();
-  document.getElementById('projGridFull').innerHTML = projects.map(p=>buildCard(p,aMap)).join('');
+// ═══════════════════════════════════════════════
+// DETAIL MODAL
+// ═══════════════════════════════════════════════
+function openDetail(projId){
+  activeProjectId=projId;
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  // reset tabs
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.mpanel').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.mtab').classList.add('active');
+  document.getElementById('tab-overview').classList.add('active');
+  // header
+  document.getElementById('dm-title').textContent=p.name;
+  const dl=dlMeta(p.deadline);
+  document.getElementById('dm-sub').textContent=`${p.priority.toUpperCase()} PRIORITY${dl?` · Due ${dl.label}`:''}${p.assignedby?` · By ${p.assignedby}`:''}`;
+  // populate overview
+  populateOverview(p);
+  // populate edit tab
+  populateEditTab(p);
+  // populate comments
+  document.getElementById('dm-comments').value=p.comments||'';
+  // populate docs
+  renderDocList(projId);
+  // populate assign tab
+  renderAssignTab(projId);
+  document.getElementById('detailOverlay').classList.add('open');
+}
+function closeDetail(){document.getElementById('detailOverlay').classList.remove('open');activeProjectId=null;}
+function closeDetailIfBg(e){if(e.target===document.getElementById('detailOverlay'))closeDetail();}
+
+function switchTab(name,el){
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.mpanel').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+  if(name==='assign')renderAssignTab(activeProjectId);
 }
 
-// ═══════════════════════════════════════════
-// FIELD EDITS & COMMENTS
-// ═══════════════════════════════════════════
-async function updateField(id,field,val) {
-  const p=projects.find(x=>x.id===id); if(!p) return;
-  p[field]=Math.max(0,parseInt(val)||0);
-  renderProjects();
-  await saveProjectToDB(p);
-  toast('Saved ✓','success');
+function populateOverview(p){
+  const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+  const aP=pct(A,T),rP=pct(R,T);
+  const pendA=Math.max(T-A,0),pendR=Math.max(A-R,0);
+  document.getElementById('dm-infoGrid').innerHTML=[
+    {l:'Priority',v:`<span class="pbadge ${p.priority}" style="font-size:.78rem;">${{high:'🔥 High',medium:'⚡ Medium',low:'🌿 Low'}[p.priority]}</span>`},
+    {l:'Assigned By',v:esc(p.assignedby)||'—'},
+    {l:'Start Date',v:fmtDate(p.startdate)},
+    {l:'Deadline',v:fmtDate(p.deadline)},
+    {l:'Daily Target',v:p.hasTarget&&p.dailyTarget?`${p.dailyTarget} imgs/day`:'Not set'},
+    {l:'Assigned Employees',v:(p.assignedEmployees||[]).length+' people'},
+  ].map(x=>`<div class="info-box"><div class="ib-lbl">${x.l}</div><div class="ib-val">${x.v}</div></div>`).join('');
+
+  document.getElementById('dm-progress').innerHTML=`
+    <div class="prog-big">
+      <div class="prog-big-row"><span class="prog-big-lbl">Annotation Progress</span><span class="prog-big-pct" style="color:var(--red);">${aP}%</span></div>
+      <div class="prog-big-bar"><div class="prog-big-fill pf-a" style="width:${aP}%"></div></div>
+    </div>
+    <div class="prog-big">
+      <div class="prog-big-row"><span class="prog-big-lbl">Review Progress</span><span class="prog-big-pct" style="color:var(--green);">${rP}%</span></div>
+      <div class="prog-big-bar"><div class="prog-big-fill pf-r" style="width:${rP}%"></div></div>
+    </div>`;
+
+  document.getElementById('dm-numGrid').innerHTML=[
+    {l:'Total Images',f:'total',v:T,computed:false},
+    {l:'Annotated',f:'annotated',v:A,computed:false},
+    {l:'Reviewed',f:'reviewed',v:R,computed:false},
+    {l:'Pending Annotation',f:'',v:pendA,computed:true},
+    {l:'Pending Review',f:'',v:pendR,computed:true},
+    ...(p.hasTarget&&p.dailyTarget?[{l:'Days to Complete (est.)',f:'',v:pendA>0?Math.ceil(pendA/p.dailyTarget)+'d':'Done',computed:true}]:[]),
+  ].map(x=>`<div class="ne-box ${x.computed?'ne-computed':''}">
+    <div class="ne-lbl">${x.l}</div>
+    ${x.computed?`<div class="ne-input" style="font-size:1.1rem;">${x.v}</div>`:`<input class="ne-input" type="number" value="${x.v}" id="ne-${x.f}" min="0">`}
+  </div>`).join('');
+
+  const ns=document.getElementById('dm-notesSec');
+  if(p.notes){ns.style.display='block';document.getElementById('dm-notes').textContent=p.notes;}
+  else ns.style.display='none';
 }
 
-async function saveComment(projId) {
-  const p=projects.find(x=>x.id===projId); if(!p) return;
-  p.comments = document.getElementById(`cmt-${projId}`)?.value||'';
-  await saveProjectToDB(p);
-  toast('Comment saved ✓','success');
+async function saveNums(){
+  const p=projects.find(x=>x.id===activeProjectId);if(!p)return;
+  const tEl=document.getElementById('ne-total');
+  const aEl=document.getElementById('ne-annotated');
+  const rEl=document.getElementById('ne-reviewed');
+  if(tEl)p.total=Math.max(0,parseInt(tEl.value)||0);
+  if(aEl)p.annotated=Math.max(0,parseInt(aEl.value)||0);
+  if(rEl)p.reviewed=Math.max(0,parseInt(rEl.value)||0);
+  populateOverview(p);renderAll();
+  await saveProjDB(p);toast('Numbers saved ✓','ok');
 }
 
-// ═══════════════════════════════════════════
-// EMPLOYEE ASSIGNMENT
-// ═══════════════════════════════════════════
-async function assignMultiple(projId) {
-  const sel = document.getElementById(`ms-${projId}`);
-  if (!sel) return;
-  const chosen = [...sel.selectedOptions].map(o=>o.value);
-  if (chosen.length===0) { toast('Please select at least one employee','error'); return; }
-  const proj=projects.find(p=>p.id===projId); if(!proj) return;
-  if (!proj.assignedEmployees) proj.assignedEmployees=[];
-  let added=0;
-  chosen.forEach(empId => {
-    if (!isAvailable(empId,projId)) { toast(`${employees.find(e=>e.id===empId)?.name} already assigned elsewhere!`,'error'); return; }
-    if (!proj.assignedEmployees.includes(empId)) { proj.assignedEmployees.push(empId); added++; }
+// ═══════════════════════════════════════════════
+// ASSIGN TAB
+// ═══════════════════════════════════════════════
+function renderAssignTab(projId){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const assigned=p.assignedEmployees||[];
+  document.getElementById('asnCount').textContent=assigned.length;
+  document.getElementById('asnList').innerHTML=assigned.length===0
+    ?'<span style="font-size:.8rem;color:var(--text3);">No employees assigned yet.</span>'
+    :assigned.map(id=>{
+      const e=employees.find(x=>x.id===id)||{name:'Unknown'};
+      return`<span class="asn-tag">${esc(e.name)}<button onclick="unassignEmp('${projId}','${id}')"><i class="fas fa-times"></i></button></span>`;
+    }).join('');
+  document.getElementById('empAssignSearch').value='';
+  renderEmpSearchList();
+}
+
+function renderEmpSearchList(){
+  const projId=activeProjectId;
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const q=(document.getElementById('empAssignSearch')?.value||'').toLowerCase();
+  const assigned=p.assignedEmployees||[];
+  const aMap=getAMap();
+  let list=employees;
+  if(q)list=employees.filter(e=>e.name.toLowerCase().includes(q)||e.email.toLowerCase().includes(q));
+  document.getElementById('empSearchList').innerHTML=list.slice(0,20).map(e=>{
+    const isAssignedHere=assigned.includes(e.id);
+    const isAssignedElsewhere=!isAssignedHere&&(aMap.get(e.id)||0)>0;
+    const ini=(e.name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase());
+    let statusTag,actionBtn;
+    if(isAssignedHere){
+      statusTag=`<span class="emp-status-tag est-this">✓ On this project</span>`;
+      actionBtn=`<button class="btn btn-sm" style="background:var(--red-light);color:var(--red);border:1px solid var(--red-mid);" onclick="unassignEmp('${projId}','${e.id}')"><i class="fas fa-times"></i> Remove</button>`;
+    } else if(isAssignedElsewhere){
+      const otherProjs=projects.filter(pr=>pr.id!==projId&&(pr.assignedEmployees||[]).includes(e.id)).map(pr=>pr.name).join(', ');
+      statusTag=`<span class="emp-status-tag est-assigned" title="Already in: ${esc(otherProjs)}">⚡ In other project</span>`;
+      actionBtn=`<button class="btn btn-sm" style="background:var(--yellow-light);color:var(--yellow);border:1px solid #fcd34d;" onclick="assignEmp('${projId}','${e.id}')"><i class="fas fa-plus"></i> Assign anyway</button>`;
+    } else {
+      statusTag=`<span class="emp-status-tag est-free">Free</span>`;
+      actionBtn=`<button class="btn btn-red btn-sm" onclick="assignEmp('${projId}','${e.id}')"><i class="fas fa-plus"></i> Assign</button>`;
+    }
+    return`<div class="emp-row">
+      <div class="emp-avatar ${e.gender}">${ini}</div>
+      <div class="emp-name-col"><div class="emp-nm">${esc(e.name)}</div><div class="emp-em">${esc(e.email)}</div></div>
+      ${statusTag}
+      ${actionBtn}
+    </div>`;
+  }).join('');
+}
+
+async function assignEmp(projId,empId){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  if(!p.assignedEmployees)p.assignedEmployees=[];
+  if(!p.assignedEmployees.includes(empId))p.assignedEmployees.push(empId);
+  renderAssignTab(projId);renderAll();
+  await saveProjDB(p);toast(`${employees.find(e=>e.id===empId)?.name} assigned ✓`,'ok');
+}
+async function unassignEmp(projId,empId){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==empId);
+  renderAssignTab(projId);renderAll();
+  await saveProjDB(p);toast('Employee removed','info');
+}
+
+// ═══════════════════════════════════════════════
+// DOCUMENTS TAB
+// ═══════════════════════════════════════════════
+function triggerFileUpload(){document.getElementById('docFileInput').click();}
+function handleFileUpload(input){
+  const projId=activeProjectId;if(!projId)return;
+  const files=[...input.files];
+  if(!projectDocs[projId])projectDocs[projId]=[];
+  files.forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      projectDocs[projId].push({name:f.name,size:f.size,type:f.type,dataUrl:ev.target.result});
+      renderDocList(projId);toast(`${f.name} uploaded ✓`,'ok');
+    };
+    reader.readAsDataURL(f);
   });
-  if (added>0) { toast(`${added} employee(s) assigned ✓`,'success'); renderProjects(); await saveProjectToDB(proj); }
+  input.value='';
+}
+function getDocIcon(type){
+  if(type.includes('pdf'))return{i:'fa-file-pdf',c:'#ef4444'};
+  if(type.includes('word')||type.includes('docx'))return{i:'fa-file-word',c:'#2563eb'};
+  if(type.includes('sheet')||type.includes('excel')||type.includes('xlsx')||type.includes('csv'))return{i:'fa-file-excel',c:'#16a34a'};
+  if(type.includes('image'))return{i:'fa-file-image',c:'#7c3aed'};
+  if(type.includes('zip')||type.includes('rar'))return{i:'fa-file-archive',c:'#d97706'};
+  return{i:'fa-file-alt',c:'#64748b'};
+}
+function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+function renderDocList(projId){
+  const docs=projectDocs[projId]||[];
+  const el=document.getElementById('docList');if(!el)return;
+  if(docs.length===0){el.innerHTML='<div style="text-align:center;padding:16px;font-size:.8rem;color:var(--text3);">No documents uploaded yet.</div>';return;}
+  el.innerHTML=docs.map((d,i)=>{
+    const ic=getDocIcon(d.type);
+    return`<div class="doc-item">
+      <div class="doc-icon" style="background:${ic.c}1a;color:${ic.c};"><i class="fas ${ic.i}"></i></div>
+      <div class="doc-info"><div class="doc-name">${esc(d.name)}</div><div class="doc-size">${fmtSize(d.size)}</div></div>
+      <a href="${d.dataUrl}" download="${esc(d.name)}" class="btn btn-ghost btn-sm" title="Download"><i class="fas fa-download"></i></a>
+      <button class="iBtn del" onclick="removeDoc('${projId}',${i})" title="Delete"><i class="fas fa-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+function removeDoc(projId,idx){if(!projectDocs[projId])return;projectDocs[projId].splice(idx,1);renderDocList(projId);}
+
+// ═══════════════════════════════════════════════
+// COMMENTS
+// ═══════════════════════════════════════════════
+async function saveComments(){
+  const p=projects.find(x=>x.id===activeProjectId);if(!p)return;
+  p.comments=document.getElementById('dm-comments').value||'';
+  await saveProjDB(p);toast('Comments saved ✓','ok');
 }
 
-async function removeEmp(projId,empId) {
-  const proj=projects.find(p=>p.id===projId); if(!proj) return;
-  proj.assignedEmployees=(proj.assignedEmployees||[]).filter(e=>e!==empId);
-  toast('Employee removed','info');
-  renderProjects();
-  await saveProjectToDB(proj);
+// ═══════════════════════════════════════════════
+// EDIT TAB
+// ═══════════════════════════════════════════════
+function populateEditTab(p){
+  document.getElementById('ep-name').value=p.name;
+  document.getElementById('ep-priority').value=p.priority||'medium';
+  document.getElementById('ep-assignedby').value=p.assignedby||'';
+  document.getElementById('ep-startdate').value=p.startdate||'';
+  document.getElementById('ep-deadline').value=p.deadline||'';
+  document.getElementById('ep-total').value=p.total;
+  document.getElementById('ep-annotated').value=p.annotated;
+  document.getElementById('ep-reviewed').value=p.reviewed;
+  document.getElementById('ep-hasTarget').checked=!!p.hasTarget;
+  document.getElementById('ep-target').value=p.dailyTarget||'';
+  document.getElementById('ep-notes').value=p.notes||'';
+  document.getElementById('ep-targetField').style.display=p.hasTarget?'flex':'none';
+}
+function toggleTargetField(){document.getElementById('ep-targetField').style.display=document.getElementById('ep-hasTarget').checked?'flex':'none';}
+async function saveEditedProject(){
+  const p=projects.find(x=>x.id===activeProjectId);if(!p)return;
+  const name=document.getElementById('ep-name').value.trim();
+  if(!name){toast('Project name required','err');return;}
+  const ht=document.getElementById('ep-hasTarget').checked;
+  p.name=name;p.priority=document.getElementById('ep-priority').value;
+  p.assignedby=document.getElementById('ep-assignedby').value.trim();
+  p.startdate=document.getElementById('ep-startdate').value;
+  p.deadline=document.getElementById('ep-deadline').value;
+  p.total=parseInt(document.getElementById('ep-total').value)||0;
+  p.annotated=parseInt(document.getElementById('ep-annotated').value)||0;
+  p.reviewed=parseInt(document.getElementById('ep-reviewed').value)||0;
+  p.hasTarget=ht;p.dailyTarget=ht?(parseInt(document.getElementById('ep-target').value)||null):null;
+  p.notes=document.getElementById('ep-notes').value.trim();
+  document.getElementById('dm-title').textContent=p.name;
+  populateOverview(p);renderAll();
+  await saveProjDB(p);toast('Project updated ✓','ok');
+}
+async function deleteCurrentProj(){
+  const p=projects.find(x=>x.id===activeProjectId);if(!p)return;
+  if(!confirm(`Delete "${p.name}"? This cannot be undone.`))return;
+  closeDetail();projects=projects.filter(x=>x.id!==activeProjectId);
+  renderAll();await delProjDB(activeProjectId);toast('Project deleted','info');
 }
 
-// ═══════════════════════════════════════════
-// DELETE PROJECT
-// ═══════════════════════════════════════════
-async function deleteProj(id) {
-  if (!confirm('Delete this project? This cannot be undone.')) return;
-  projects=projects.filter(p=>p.id!==id);
-  toast('Project deleted','info');
-  renderProjects();
-  await deleteProjFromDB(id);
+// ═══════════════════════════════════════════════
+// NEW PROJECT MODAL
+// ═══════════════════════════════════════════════
+function openNewProjModal(){
+  document.getElementById('np-name').value='';document.getElementById('np-priority').value='medium';
+  document.getElementById('np-assignedby').value='';document.getElementById('np-startdate').value='';
+  document.getElementById('np-deadline').value='';document.getElementById('np-total').value='1000';
+  document.getElementById('np-annotated').value='0';document.getElementById('np-reviewed').value='0';
+  document.getElementById('np-hasTarget').checked=false;document.getElementById('np-target').value='';
+  document.getElementById('np-notes').value='';
+  document.getElementById('np-targetField').style.display='none';
+  document.getElementById('newProjOverlay').classList.add('open');
+}
+function closeNewProj(){document.getElementById('newProjOverlay').classList.remove('open');}
+function closeNewProjIfBg(e){if(e.target===document.getElementById('newProjOverlay'))closeNewProj();}
+function toggleNewTargetField(){document.getElementById('np-targetField').style.display=document.getElementById('np-hasTarget').checked?'flex':'none';}
+async function createProject(){
+  const name=document.getElementById('np-name').value.trim();
+  if(!name){toast('Project name required','err');return;}
+  const ht=document.getElementById('np-hasTarget').checked;
+  const proj={id:genId(),name,
+    priority:document.getElementById('np-priority').value,
+    assignedby:document.getElementById('np-assignedby').value.trim(),
+    startdate:document.getElementById('np-startdate').value,
+    deadline:document.getElementById('np-deadline').value,
+    total:parseInt(document.getElementById('np-total').value)||0,
+    annotated:parseInt(document.getElementById('np-annotated').value)||0,
+    reviewed:parseInt(document.getElementById('np-reviewed').value)||0,
+    hasTarget:ht,dailyTarget:ht?(parseInt(document.getElementById('np-target').value)||null):null,
+    notes:document.getElementById('np-notes').value.trim(),
+    comments:'',assignedEmployees:[]};
+  projects.unshift(proj);closeNewProj();renderAll();
+  await saveProjDB(proj);toast('Project created ✓','ok');
 }
 
-// ═══════════════════════════════════════════
-// PROJECT MODAL
-// ═══════════════════════════════════════════
-function openProjModal() {
-  editProjId=null;
-  document.getElementById('projModalTitle').textContent='New Project';
-  document.getElementById('fp-name').value='';
-  document.getElementById('fp-priority').value='medium';
-  document.getElementById('fp-assignedby').value='';
-  document.getElementById('fp-startdate').value='';
-  document.getElementById('fp-deadline').value='';
-  document.getElementById('fp-total').value='1000';
-  document.getElementById('fp-annotated').value='0';
-  document.getElementById('fp-reviewed').value='0';
-  document.getElementById('fp-notes').value='';
-  document.getElementById('fp-comments').value='';
-  document.getElementById('projOverlay').classList.add('open');
-}
-function openEditProjModal(id) {
-  const p=projects.find(x=>x.id===id); if(!p) return;
-  editProjId=id;
-  document.getElementById('projModalTitle').textContent='Edit Project';
-  document.getElementById('fp-name').value=p.name;
-  document.getElementById('fp-priority').value=p.priority||'medium';
-  document.getElementById('fp-assignedby').value=p.assignedby||'';
-  document.getElementById('fp-startdate').value=p.startdate||'';
-  document.getElementById('fp-deadline').value=p.deadline||'';
-  document.getElementById('fp-total').value=p.total;
-  document.getElementById('fp-annotated').value=p.annotated;
-  document.getElementById('fp-reviewed').value=p.reviewed;
-  document.getElementById('fp-notes').value=p.notes||'';
-  document.getElementById('fp-comments').value=p.comments||'';
-  document.getElementById('projOverlay').classList.add('open');
-}
-function closeProjModal() { document.getElementById('projOverlay').classList.remove('open'); }
-function closeProjModalIfBg(e) { if(e.target===document.getElementById('projOverlay')) closeProjModal(); }
-
-async function saveProject() {
-  const name=document.getElementById('fp-name').value.trim();
-  if (!name) { toast('Project name is required','error'); return; }
-  const data={
-    name,
-    priority: document.getElementById('fp-priority').value,
-    assignedby: document.getElementById('fp-assignedby').value.trim(),
-    startdate: document.getElementById('fp-startdate').value,
-    deadline: document.getElementById('fp-deadline').value,
-    total: parseInt(document.getElementById('fp-total').value)||0,
-    annotated: parseInt(document.getElementById('fp-annotated').value)||0,
-    reviewed: parseInt(document.getElementById('fp-reviewed').value)||0,
-    notes: document.getElementById('fp-notes').value.trim(),
-    comments: document.getElementById('fp-comments').value.trim(),
-  };
-  let proj;
-  if (editProjId) {
-    const idx=projects.findIndex(p=>p.id===editProjId);
-    if (idx>-1) { Object.assign(projects[idx],data); proj=projects[idx]; toast('Project updated ✓','success'); }
-  } else {
-    proj={id:genId(),assignedEmployees:[],...data};
-    projects.push(proj);
-    toast('Project created ✓','success');
-  }
-  closeProjModal(); renderProjects();
-  if (proj) await saveProjectToDB(proj);
-}
-
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // EMPLOYEE MODAL
-// ═══════════════════════════════════════════
-function openEmpModal(id=null) {
+// ═══════════════════════════════════════════════
+function openEmpModal(id=null){
   editEmpId=id;
-  if (id) {
-    const e=employees.find(x=>x.id===id); if(!e) return;
+  if(id){const e=employees.find(x=>x.id===id);if(!e)return;
     document.getElementById('empModalTitle').textContent='Edit Employee';
-    document.getElementById('fe-name').value=e.name;
-    document.getElementById('fe-email').value=e.email;
-    document.getElementById('fe-gender').value=e.gender;
-  } else {
+    document.getElementById('fe-name').value=e.name;document.getElementById('fe-email').value=e.email;document.getElementById('fe-gender').value=e.gender;
+  }else{
     document.getElementById('empModalTitle').textContent='Add Employee';
-    document.getElementById('fe-name').value='';
-    document.getElementById('fe-email').value='';
-    document.getElementById('fe-gender').value='female';
+    document.getElementById('fe-name').value='';document.getElementById('fe-email').value='';document.getElementById('fe-gender').value='female';
   }
   document.getElementById('empOverlay').classList.add('open');
 }
-function closeEmpModal() { document.getElementById('empOverlay').classList.remove('open'); }
-function closeEmpModalIfBg(e) { if(e.target===document.getElementById('empOverlay')) closeEmpModal(); }
-
-function saveEmployee() {
+function closeEmpModal(){document.getElementById('empOverlay').classList.remove('open');}
+function closeEmpIfBg(e){if(e.target===document.getElementById('empOverlay'))closeEmpModal();}
+function saveEmployee(){
   const name=document.getElementById('fe-name').value.trim();
   const email=document.getElementById('fe-email').value.trim();
   const gender=document.getElementById('fe-gender').value;
-  if (!name) { toast('Name is required','error'); return; }
-  if (!email) { toast('Email is required','error'); return; }
-  if (editEmpId) {
-    const idx=employees.findIndex(e=>e.id===editEmpId);
-    if (idx>-1) { employees[idx]={...employees[idx],name,email,gender}; toast('Employee updated ✓','success'); }
-  } else {
-    employees.push({id:'e_'+Date.now(),name,email,gender});
-    toast('Employee added ✓','success');
-  }
-  saveEmployeesLocal();
-  closeEmpModal(); renderEmployees(); renderStats();
+  if(!name){toast('Name required','err');return;}
+  if(!email){toast('Email required','err');return;}
+  if(editEmpId){const idx=employees.findIndex(e=>e.id===editEmpId);if(idx>-1){employees[idx]={...employees[idx],name,email,gender};toast('Employee updated ✓','ok');}}
+  else{employees.push({id:'ec_'+Date.now(),name,email,gender});toast('Employee added ✓','ok');}
+  saveEmpsLocal();closeEmpModal();renderEmployees();renderStats();
 }
-
-function deleteEmployee(id) {
-  if (!confirm('Remove this employee?')) return;
+function deleteEmployee(id){
+  if(!confirm('Remove this employee?'))return;
   employees=employees.filter(e=>e.id!==id);
-  // also remove from all projects
-  projects.forEach(p=>{ p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id); });
-  saveEmployeesLocal();
-  renderEmployees(); renderStats();
-  toast('Employee removed','info');
+  projects.forEach(p=>{p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id);});
+  saveEmpsLocal();renderEmployees();renderStats();toast('Employee removed','info');
 }
 
-// ═══════════════════════════════════════════
-// RENDER EMPLOYEES TABLE
-// ═══════════════════════════════════════════
-function renderEmployees() {
-  const aMap=getAssignMap();
-  const conflicts=getConflicts();
+// ═══════════════════════════════════════════════
+// EMPLOYEES PAGE
+// ═══════════════════════════════════════════════
+function renderEmployees(){
+  const aMap=getAMap(),cc=getConflicts();
   const q=(document.getElementById('empSearch')?.value||'').toLowerCase();
   const list=q?employees.filter(e=>e.name.toLowerCase().includes(q)||e.email.toLowerCase().includes(q)):employees;
-
-  const cb=document.getElementById('empConflictBanner');
-  if (conflicts.length>0) {
-    cb.style.display='flex';
-    document.getElementById('empConflictTxt').textContent=`⚠ Double-booking: ${conflicts.map(id=>employees.find(e=>e.id===id)?.name||id).join(', ')}`;
-  } else cb.style.display='none';
-
-  document.getElementById('empTableBody').innerHTML = list.map((emp,i)=>{
+  const ecb=document.getElementById('empCBanner');
+  if(cc.length>0){ecb.style.display='flex';document.getElementById('empCTxt').textContent=`⚠ ${cc.map(id=>employees.find(e=>e.id===id)?.name||id).join(', ')} are double-booked`;}
+  else ecb.style.display='none';
+  document.getElementById('empBody').innerHTML=list.map((emp,i)=>{
     const cnt=aMap.get(emp.id)||0;
     const projs=projects.filter(p=>(p.assignedEmployees||[]).includes(emp.id));
-    const statusCls=cnt>1?'emp-status-conflict':cnt===1?'emp-status-assigned':'emp-status-free';
-    const statusTxt=cnt>1?`⚠ In ${cnt} projects (CONFLICT)`:cnt===1?`✓ ${projs[0]?.name}`:'Free';
-    const genderCls=emp.gender==='male'?'gender-m':'gender-f';
-    const genderTxt=emp.gender==='male'?'♂ Male':'♀ Female';
-    return `<tr>
-      <td style="color:var(--text3);font-size:.78rem;">${i+1}</td>
+    const sCls=cnt>1?'color:var(--red);font-weight:700;':cnt===1?'color:var(--green);font-weight:600;':'color:var(--text3);';
+    const sTxt=cnt>1?`⚠ ${cnt} projects (CONFLICT)`:cnt===1?`✓ ${projs[0]?.name}`:'Free';
+    return`<tr>
+      <td style="color:var(--text3);font-size:.75rem;">${i+1}</td>
       <td><strong>${esc(emp.name)}</strong></td>
-      <td style="color:var(--text2);font-size:.8rem;">${esc(emp.email)}</td>
-      <td><span class="${genderCls}">${genderTxt}</span></td>
-      <td><span class="${statusCls}">${statusTxt}</span></td>
-      <td style="font-size:.78rem;color:var(--text3);">${projs.map(p=>esc(p.name)).join(', ')||'—'}</td>
-      <td>
-        <button class="icon-btn" onclick="openEmpModal('${emp.id}')" title="Edit"><i class="fas fa-pen"></i></button>
-        <button class="icon-btn del" onclick="deleteEmployee('${emp.id}')" title="Remove"><i class="fas fa-trash"></i></button>
+      <td style="color:var(--text2);font-size:.78rem;">${esc(emp.email)}</td>
+      <td><span class="${emp.gender==='male'?'gm':'gf'}">${emp.gender==='male'?'♂ Male':'♀ Female'}</span></td>
+      <td style="${sCls}font-size:.78rem;">${sTxt}</td>
+      <td style="font-size:.76rem;color:var(--text3);">${projs.map(p=>`<span style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:1px 7px;margin:1px;">${esc(p.name)}</span>`).join('')||'—'}</td>
+      <td style="display:flex;gap:4px;">
+        <button class="iBtn" onclick="openEmpModal('${emp.id}')"><i class="fas fa-pen"></i></button>
+        <button class="iBtn del" onclick="deleteEmployee('${emp.id}')"><i class="fas fa-trash"></i></button>
       </td>
     </tr>`;
   }).join('');
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // WORKLOAD
-// ═══════════════════════════════════════════
-function renderWorkload() {
-  const aMap=getAssignMap();
+// ═══════════════════════════════════════════════
+function renderWorkload(){
+  const aMap=getAMap();
   const active=[...aMap.entries()].filter(([,c])=>c>0).sort((a,b)=>b[1]-a[1]);
-  if (active.length===0) { document.getElementById('wlList').innerHTML='<div class="empty"><i class="fas fa-chart-bar"></i><h3>No assignments yet.</h3></div>'; return; }
+  if(!active.length){document.getElementById('wlList').innerHTML='<div class="empty"><i class="fas fa-chart-bar"></i><h3>No assignments yet.</h3></div>';return;}
   const max=Math.max(...active.map(([,c])=>c));
   document.getElementById('wlList').innerHTML=active.map(([id,cnt])=>{
     const emp=employees.find(e=>e.id===id);
-    const projs=projects.filter(p=>(p.assignedEmployees||[]).includes(id));
-    const bar=Math.round((cnt/max)*100);
-    const isC=cnt>1;
-    return `<div class="wl-row">
+    const ps=projects.filter(p=>(p.assignedEmployees||[]).includes(id));
+    const bar=Math.round((cnt/max)*100);const isC=cnt>1;
+    return`<div class="wl-row">
       <span class="wl-name">${emp?.name||id}</span>
-      <span class="wl-projs">${projs.map(p=>p.name).join(' · ')}</span>
-      <div class="wl-bar-wrap">
-        <div class="prog-bar" style="height:7px;"><div class="prog-fill ${isC?'':'pf-ann'}" style="width:${bar}%;${isC?'background:var(--red)':''}"></div></div>
-        <div style="font-size:.68rem;color:${isC?'var(--red)':'var(--text3)'};margin-top:2px;text-align:right;">${cnt} project${cnt>1?'s':''} ${isC?'⚠ CONFLICT':''}</div>
+      <span class="wl-projs">${ps.map(p=>p.name).join(' · ')}</span>
+      <div style="width:160px;">
+        <div style="height:6px;background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);">
+          <div style="height:100%;border-radius:10px;width:${bar}%;background:${isC?'var(--red)':'var(--red)'};opacity:${isC?1:.6};"></div>
+        </div>
+        <div style="font-size:.68rem;color:${isC?'var(--red)':'var(--text3)'};margin-top:2px;text-align:right;">${cnt} proj${cnt>1?'s':''} ${isC?'⚠ CONFLICT':''}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-// ═══════════════════════════════════════════
-// FILTERS / SEARCH
-// ═══════════════════════════════════════════
-function setFilter(val,el) {
-  currentFilter=val;
-  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active'); renderProjects();
-}
-function handleSearch() { searchQuery=document.getElementById('globalSearch').value; renderProjects(); }
+// ═══════════════════════════════════════════════
+// FILTERS / SEARCH / EXPORT
+// ═══════════════════════════════════════════════
+function setFilter(val,el){currentFilter=val;document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderProjects();}
+function handleSearch(){searchQuery=document.getElementById('gSearch').value;renderProjects();}
 
-// ═══════════════════════════════════════════
-// EXPORT CSV
-// ═══════════════════════════════════════════
-function exportCSV() {
-  const hdr=['Project Name','Priority','Assigned By','Start Date','Deadline','Total','Annotated','Reviewed','Pend.Annotation','Pend.Review','% Annotated','% Reviewed','Assigned Employees','Notes','Comments'];
+function exportCSV(){
+  const h=['Project Name','Priority','Assigned By','Start Date','Deadline','Total','Annotated','Reviewed','Pend.Ann','Pend.Rev','% Ann','% Rev','Daily Target','Assigned Employees','Notes','Comments'];
   const rows=projects.map(p=>{
     const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
     const emps=(p.assignedEmployees||[]).map(id=>employees.find(e=>e.id===id)?.name||id).join('; ');
-    return [
-      `"${p.name}"`,p.priority,`"${p.assignedby||''}"`,p.startdate||'',p.deadline||'',
-      T,A,R,Math.max(T-A,0),Math.max(A-R,0),pct(A,T)+'%',pct(R,T)+'%',
-      `"${emps}"`,`"${(p.notes||'').replace(/"/g,'""')}"`,`"${(p.comments||'').replace(/"/g,'""')}"`
-    ].join(',');
+    return[`"${p.name}"`,p.priority,`"${p.assignedby||''}"`,p.startdate||'',p.deadline||'',T,A,R,Math.max(T-A,0),Math.max(A-R,0),pct(A,T)+'%',pct(R,T)+'%',p.hasTarget?p.dailyTarget:'—',`"${emps}"`,`"${(p.notes||'').replace(/"/g,'""')}"`,`"${(p.comments||'').replace(/"/g,'""')}"`].join(',');
   });
-  const csv=[hdr.join(','),...rows].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a'); a.href=url; a.download='annotation_projects.csv'; a.click();
-  URL.revokeObjectURL(url);
-  toast('CSV exported ✓','success');
+  const csv=[h.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='camcom_annotation_projects.csv';a.click();URL.revokeObjectURL(url);
+  toast('CSV exported ✓','ok');
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
 // THEME
-// ═══════════════════════════════════════════
-function toggleTheme() {
+// ═══════════════════════════════════════════════
+function toggleTheme(){
   const dark=document.documentElement.getAttribute('data-theme')==='dark';
   document.documentElement.setAttribute('data-theme',dark?'light':'dark');
-  document.getElementById('themeIco').className=dark?'fas fa-moon':'fas fa-sun';
-  document.getElementById('themeLbl').textContent=dark?'Dark mode':'Light mode';
+  document.getElementById('tIco').className=dark?'fas fa-moon':'fas fa-sun';
+  document.getElementById('tLbl').textContent=dark?'Dark mode':'Light mode';
 }
 
-// ═══════════════════════════════════════════
+// ═══════════════════════════════════════════════
+// DRAG & DROP on upload area
+// ═══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>{
+  const area=document.getElementById('uploadArea');
+  if(area){
+    area.addEventListener('dragover',e=>{e.preventDefault();area.style.borderColor='var(--red)';area.style.background='var(--red-light)';});
+    area.addEventListener('dragleave',()=>{area.style.borderColor='var(--border)';area.style.background='';});
+    area.addEventListener('drop',e=>{
+      e.preventDefault();area.style.borderColor='var(--border)';area.style.background='';
+      const dt=e.dataTransfer;if(dt.files.length){handleFileUpload({files:dt.files,value:''});}
+    });
+  }
+});
+
+// ═══════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════
-loadEmployeesLocal(); // load any previously added employees from local storage
-loadProjects();       // load projects from Supabase
+// ═══════════════════════════════════════════════
+loadEmpsLocal();
+loadProjects();
 </script>
 </body>
 </html>
