@@ -1528,7 +1528,6 @@ function loadUsersLocal(){
     if(s){
       const a=JSON.parse(s);
       if(a&&a.length){
-        // Merge: always include DEFAULT_USERS so default credentials always work
         const savedIds=new Set(a.map(u=>u.id));
         const merged=[...a];
         DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
@@ -1537,7 +1536,32 @@ function loadUsersLocal(){
     }
   }catch(e){appUsers=[...DEFAULT_USERS];}
 }
-function saveUsersLocal(){try{localStorage.setItem('cc_users',JSON.stringify(appUsers));}catch(e){}}
+async function loadUsersFromDB(){
+  try{
+    const{data,error}=await sb.from('app_settings').select('value').eq('key','app_users').single();
+    if(error||!data?.value){
+      // First time: push DEFAULT_USERS to DB so all browsers get them
+      await saveUsersToDB();
+      return;
+    }
+    const remote=JSON.parse(data.value);
+    if(remote&&remote.length){
+      // Merge: always include DEFAULT_USERS so hardcoded accounts always work
+      const savedIds=new Set(remote.map(u=>u.id));
+      const merged=[...remote];
+      DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
+      appUsers=merged;
+      saveUsersLocal(); // sync to local cache
+    }
+  }catch(e){console.warn('loadUsersFromDB failed, using local:',e);loadUsersLocal();}
+}
+function saveUsersLocal(){try{localStorage.setItem('cc_users',JSON.stringify(appUsers));}catch(e){}} // keep for fallback
+async function saveUsersToDB(){
+  saveUsersLocal(); // local backup
+  try{
+    await sb.from('app_settings').upsert({key:'app_users',value:JSON.stringify(appUsers)},{onConflict:'key'});
+  }catch(e){console.warn('saveUsersToDB failed:',e);}
+}
 
 // ══════════════════════════════════
 // AUTH
@@ -1565,7 +1589,9 @@ function startSession(user){
   applyRoleToUI();
   appInit();
 }
-function tryRestoreSession(){
+async function tryRestoreSession(){
+  // Always load latest users+emps from DB before checking session
+  try{await Promise.all([loadUsersFromDB(),loadEmpsFromDB()]);}catch(e){}
   loadUsersLocal();
   loadActLog();
   try{
@@ -1668,9 +1694,11 @@ let dragSrcId=null;
 // ══════════════════════════════════
 // INIT
 // ══════════════════════════════════
-function appInit(){
-  loadFeaturesLocal(); loadEmpsLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
+async function appInit(){
+  loadFeaturesLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
   loadThreadedComments(); loadNotifications();
+  // Load users + employees from Supabase (so all browsers are in sync)
+  await Promise.all([loadUsersFromDB(), loadEmpsFromDB()]);
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
   startRealtime();
@@ -1747,8 +1775,22 @@ async function saveProjDB(p){
 
 async function delProjDB(id){const{error}=await sb.from('projects').delete().eq('id',id);if(error)toast('Delete: '+error.message,'err');}
 
-function saveEmpsLocal(){localStorage.setItem('cc_emps',JSON.stringify(employees));}
+function saveEmpsLocal(){try{localStorage.setItem('cc_emps',JSON.stringify(employees));}catch(e){}} // keep for fallback
+async function saveEmpsToDB(){
+  saveEmpsLocal(); // local backup
+  try{
+    await sb.from('app_settings').upsert({key:'app_emps',value:JSON.stringify(employees)},{onConflict:'key'});
+  }catch(e){console.warn('saveEmpsToDB failed:',e);}
+}
 function loadEmpsLocal(){try{const s=localStorage.getItem('cc_emps');if(s){const a=JSON.parse(s);if(a.length)employees=a;}}catch(e){}}
+async function loadEmpsFromDB(){
+  try{
+    const{data,error}=await sb.from('app_settings').select('value').eq('key','app_emps').single();
+    if(error||!data?.value){await saveEmpsToDB();return;}
+    const remote=JSON.parse(data.value);
+    if(remote&&remote.length){employees=remote;saveEmpsLocal();}
+  }catch(e){console.warn('loadEmpsFromDB failed, using local:',e);loadEmpsLocal();}
+}
 function saveDocsLocal(){try{localStorage.setItem('cc_docs',JSON.stringify(projDocs));}catch(e){}}
 function loadDocsLocal(){try{const s=localStorage.getItem('cc_docs');if(s)projDocs=JSON.parse(s);}catch(e){}}
 function saveFeaturesLocal(){localStorage.setItem('cc_features',JSON.stringify(features));}
@@ -2419,7 +2461,7 @@ function delEmp(id){
     p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id);
     p.reviewEmployees=(p.reviewEmployees||[]).filter(e=>e!==id);
   });
-  saveEmpsLocal();renderEmps();renderProjects();renderStats();toast(name+' removed','info');
+  await saveEmpsToDB();renderEmps();renderProjects();renderStats();toast(name+' removed','info');
 }
 
 // ═══════════════════════
@@ -3991,7 +4033,7 @@ function populateEmpSelect(){
   sel.innerHTML='<option value="">— Select employee record —</option>'+
     employees.map(e=>`<option value="${e.id}">${esc(e.name)} (${e.gender==='male'?'♂':'♀'})</option>`).join('');
 }
-function saveUser(){
+async function saveUser(){
   const name=document.getElementById('fu-name').value.trim();
   const email=document.getElementById('fu-email').value.trim().toLowerCase();
   const pwd=document.getElementById('fu-pwd').value.trim();
@@ -4028,11 +4070,10 @@ function saveUser(){
     // Ensure the user's empId is linked
     const uIdx = appUsers.findIndex(u=>u.id===uid||u.id===editUserId);
     if(uIdx>-1) appUsers[uIdx].empId = eid;
-    saveEmpsLocal();
   }
-  saveUsersLocal();closeUserModal();renderUsers();renderEmps();
+  await Promise.all([saveUsersToDB(),saveEmpsToDB()]);closeUserModal();renderUsers();renderEmps();renderStats();
 }
-function deleteUser(id){
+async function deleteUser(id){
   if(id===currentUser?.id){toast("You can't delete your own account",'err');return;}
   if(!confirm('Delete this user? They will no longer be able to sign in.'))return;
   const u=appUsers.find(x=>x.id===id);
@@ -4044,9 +4085,9 @@ function deleteUser(id){
       p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==u.empId);
       p.reviewEmployees=(p.reviewEmployees||[]).filter(e=>e!==u.empId);
     });
-    saveEmpsLocal();renderEmps();renderProjects();
   }
-  saveUsersLocal();renderUsers();toast('User removed','info');
+  await Promise.all([saveUsersToDB(),saveEmpsToDB()]);
+  renderUsers();renderEmps();renderProjects();renderStats();toast('User removed','info');
 }
 
 // START — restore session or show login
@@ -4137,22 +4178,27 @@ function startRealtime(){
         }
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(pl)=>{
-        const row=pl.new||pl.old;
-        if(!row||row.key!=='vis_config'||pl.eventType==='DELETE')return;
+        const row=pl.new;
+        if(!row)return;
         try{
-          const remote=JSON.parse(row.value);
-          if(JSON.stringify(remote)!==JSON.stringify(visConfig)){
-            Object.assign(visConfig,remote);
-            saveVisConfig();
-            applyRoleToUI();
-            if(currentUser?.role!=='admin')toast('⚙️ Access settings updated','info');
+          if(row.key==='vis_config'){
+            const remote=JSON.parse(row.value);
+            if(JSON.stringify(remote)!==JSON.stringify(visConfig)){Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();if(currentUser?.role!=='admin')toast('Access settings updated','info');}
+          } else if(row.key==='app_users'){
+            const remote=JSON.parse(row.value);
+            if(remote&&remote.length){
+              const savedIds=new Set(remote.map(u=>u.id));
+              const merged=[...remote];
+              DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
+              appUsers=merged;saveUsersLocal();
+              renderStats();
+              if(document.getElementById('usersPage')?.style.display!=='none')renderUsers();
+            }
+          } else if(row.key==='app_emps'){
+            const remote=JSON.parse(row.value);
+            if(remote&&remote.length){employees=remote;saveEmpsLocal();renderStats();renderEmps();renderProjects();}
           }
         }catch(e){}
-      })
-      .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(pl)=>{
-        const row=pl.new||pl.old;
-        if(!row||row.key!=='vis_config')return;
-        try{const remote=JSON.parse(row.value);if(JSON.stringify(remote)!==JSON.stringify(visConfig)){Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();if(currentUser?.role!=='admin')toast('Access settings updated','info');}}catch(e){}
       })
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'project_comments'},(pl)=>{
         const nr=pl.new;if(!nr)return;
@@ -4178,9 +4224,7 @@ function startRealtime(){
   }catch(e){console.warn('Realtime unavailable:',e);}
 }
 
-// Patch saveProjDB to record timestamp so echo suppression works
-const _origSaveProjDB=saveProjDB;
-async function saveProjDB(p){_lastSave=Date.now();return _origSaveProjDB(p);}
+// saveProjDB already includes _lastSave and _ownSaves tracking (see above)
 
 // ══════════════════════════════════════════════════════════════
 // THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
