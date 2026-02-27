@@ -241,6 +241,8 @@ select.fsel{padding:5px 11px;border-radius:var(--rp);font-size:.75rem;border:1px
 .np-time{font-size:.65rem;color:var(--tx3);margin-top:3px;}
 .np-empty{padding:36px 20px;text-align:center;color:var(--tx3);font-size:.82rem;}
 /* realtime indicator */
+.no-create .newproj-btn,
+.no-create #nav-newproj{display:none !important;}
 .rt-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:600;background:rgba(22,163,74,.1);color:#16a34a;border:1px solid rgba(22,163,74,.25);}
 .rt-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:rtP 1.8s infinite;}
 @keyframes rtP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
@@ -624,7 +626,7 @@ tr:hover td{background:var(--sur2);}
     <h1 class="pg-title">Dashboard</h1>
     <div class="topbar-r">
       <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search projects..." id="gSearch" oninput="handleSearch()"></div>
-      <button class="btn btn-red" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="btn btn-red newproj-btn" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
     </div>
   </div>
   <div class="stat-grid" id="statGrid"></div>
@@ -664,7 +666,7 @@ tr:hover td{background:var(--sur2);}
     <div class="topbar-r">
       <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search projects..." id="projSearch" oninput="renderProjFull()"></div>
       <button class="btn btn-green btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
-      <button class="btn btn-red" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="btn btn-red newproj-btn" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
     </div>
   </div>
   <div class="proj-grid" id="projGridFull"></div>
@@ -676,7 +678,7 @@ tr:hover td{background:var(--sur2);}
     <h1 class="pg-title">Kanban Board</h1>
     <div class="topbar-r">
       <span style="font-size:.78rem;color:var(--tx3);"><i class="fas fa-grip-vertical"></i> Drag cards between columns</span>
-      <button class="btn btn-red" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="btn btn-red newproj-btn" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
     </div>
   </div>
   <div class="kanban-wrap" id="kanbanWrap"></div>
@@ -1650,6 +1652,7 @@ function applyRoleToUI(){
 
   // ─── Action buttons ───────────────────────────────────────────────────────
   showId('nav-newproj',   can('canCreate'));
+  document.body.classList.toggle('no-create', !can('canCreate'));
   // nav-addemp removed — employees added via Manage Users
   showId('nav-exportcsv', canSeePage('exportCSV'));
   showId('nav-exportpdf', canSeePage('exportPDF'));
@@ -1910,9 +1913,9 @@ function switchPage(p){
   if(p==='access')renderAccessControl();
 }
 function renderAll(){
-  renderProjects();
+  renderProjects();   // updates #projGrid (home/dashboard cards)
+  renderProjFull();   // updates #projGridFull (projects page — where employees land)
   renderStats();
-  // Re-render gantt/burndown/analytics if those tabs are active
   if(document.getElementById('page-analytics')?.classList.contains('active'))renderCharts();
   if(document.getElementById('page-kanban')?.classList.contains('active'))renderKanban();
 }
@@ -2433,6 +2436,7 @@ async function deleteProj(id){
 function tglTgtField(prefix){document.getElementById(`${prefix}-tgtFw`).classList.toggle('show',document.getElementById(`${prefix}-tgtOn`).checked);}
 
 function openNewProj(){
+  if(!can('canCreate')){toast('You do not have permission to create projects','err');return;}
   editProjId=null;document.getElementById('pMTtl').textContent='New Project';
   ['name','by','client','link'].forEach(f=>document.getElementById(`np-${f}`).value='');
   ['start','dead'].forEach(f=>document.getElementById(`np-${f}`).value='');
@@ -3150,7 +3154,7 @@ function exportWorkloadPDF(mode='both'){
 // ═══════════════════════
 function renderKanban(){
   const cols={todo:[],inprog:[],review:[],done:[]};
-  projects.forEach(p=>{const s=p.kanbanStatus||'todo';if(cols[s])cols[s].push(p);});
+  visibleProjects().forEach(p=>{const s=p.kanbanStatus||'todo';if(cols[s])cols[s].push(p);});
   const colDefs=[
     {id:'todo',title:'📋 To Do',cls:'col-todo'},
     {id:'inprog',title:'⚡ In Progress',cls:'col-inprog'},
@@ -4259,16 +4263,24 @@ function startRealtime(){
             const nowAssigned=(mapped.assignedEmployees||[]).includes(eid)||(mapped.reviewEmployees||[]).includes(eid);
             const isAnnotator=(mapped.assignedEmployees||[]).includes(eid);
             const isReviewer=(mapped.reviewEmployees||[]).includes(eid);
-            // Newly assigned
+            // Newly assigned — prominent notification
             if(!wasAssigned&&nowAssigned){
-              const role=isReviewer&&!isAnnotator?' (as reviewer)':isAnnotator&&isReviewer?' (annotator + reviewer)':'';
-              toast(`📋 You were assigned to "${mapped.name}"${role}`,'ok');
+              const roleLabel=isReviewer&&!isAnnotator?' (reviewer)':isAnnotator&&isReviewer?' (annotator+reviewer)':'';
+              toast(`📋 Assigned to: "${mapped.name}"${roleLabel}`,'ok');
+              // Push into notification panel so they don't miss it
+              notifications.unshift({
+                id:'assign_'+Date.now(), userId:currentUser.id,
+                projId:mapped.id, projName:mapped.name, cmtId:'',
+                author:'System', text:`You were assigned to "${mapped.name}"${roleLabel}`,
+                ts:new Date().toISOString(), read:false
+              });
+              saveNotifications(); updateNbDot();
             }
-            // Unassigned
+            // Removed from project
             else if(wasAssigned&&!nowAssigned){
-              toast(`You were removed from "${mapped.name}"`,'info');
+              toast(`Removed from: "${mapped.name}"`,'info');
             }
-            // Status change for assigned users
+            // Status change on a project you're on
             else if(nowAssigned&&prev.kanbanStatus!==mapped.kanbanStatus){
               toast(`"${mapped.name}" → ${KB_LABELS[mapped.kanbanStatus]||mapped.kanbanStatus}`,'info');
             }
