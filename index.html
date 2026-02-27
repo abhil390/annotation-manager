@@ -592,7 +592,6 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" id="nav-workload" data-page="workload" onclick="switchPage('workload')"><i class="fas fa-chart-bar"></i> Workload</button>
   <div class="nav-grp">Actions</div>
   <button class="nav-btn" id="nav-newproj" onclick="openNewProj()"><i class="fas fa-plus-circle"></i> New Project</button>
-  <button class="nav-btn" id="nav-addemp" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
   <button class="nav-btn" id="nav-exportcsv" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
   <button class="nav-btn" id="nav-exportpdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
   <button class="nav-btn" id="nav-dailyreport" onclick="openDailyReport()"><i class="fas fa-paper-plane" style="color:var(--blue)"></i> Daily Report</button>
@@ -720,7 +719,7 @@ tr:hover td{background:var(--sur2);}
   <div class="topbar"><h1 class="pg-title">Employees</h1>
     <div class="topbar-r">
       <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search name or email..." id="empSearch" oninput="renderEmps()"></div>
-      <button class="btn btn-red" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
+      
     </div>
   </div>
   <div id="empCBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="ecTxt"></span></div>
@@ -1610,7 +1609,7 @@ function applyRoleToUI(){
 
   // ─── Action buttons ───────────────────────────────────────────────────────
   showId('nav-newproj',   can('canCreate'));
-  showId('nav-addemp',    can('canManageUsers'));
+  // nav-addemp removed — employees added via Manage Users
   showId('nav-exportcsv', canSeePage('exportCSV'));
   showId('nav-exportpdf', canSeePage('exportPDF'));
   showId('nav-dailyreport', role==='admin'||role==='manager');
@@ -2412,10 +2411,15 @@ function saveEmployee(){
   saveEmpsLocal();closeEmpModal();renderEmps();renderStats();
 }
 function delEmp(id){
-  if(!confirm('Remove employee?'))return;
+  const emp=employees.find(e=>e.id===id);
+  const name=emp?.name||'this employee';
+  if(!confirm('Remove '+name+'? They will be unassigned from all projects.'))return;
   employees=employees.filter(e=>e.id!==id);
-  projects.forEach(p=>{p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id);});
-  saveEmpsLocal();renderEmps();renderProjects();renderStats();toast('Removed','info');
+  projects.forEach(p=>{
+    p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id);
+    p.reviewEmployees=(p.reviewEmployees||[]).filter(e=>e!==id);
+  });
+  saveEmpsLocal();renderEmps();renderProjects();renderStats();toast(name+' removed','info');
 }
 
 // ═══════════════════════
@@ -2455,7 +2459,7 @@ function renderEmps(){
       <td><span class="${sc}">${st}</span></td>
       <td style="font-size:.73rem;color:var(--tx2);">${projs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
       <td style="font-size:.73rem;color:var(--yellow);">${revProjs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
-      <td><button class="iBtn" onclick="openEmpModal('${e.id}')"><i class="fas fa-pen"></i></button><button class="iBtn del" onclick="delEmp('${e.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+      <td><button class="iBtn del" onclick="delEmp('${e.id}')" title="Remove employee and unassign from all projects"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -3977,7 +3981,10 @@ function openUserModal(id=null){
 function closeUserModal(){document.getElementById('userOvl').classList.remove('open');}
 function onRoleChange(){
   const role=document.getElementById('fu-role').value;
-  document.getElementById('empLinkWrap').style.display=role==='employee'?'':'none';
+  const showLink=['employee','reviewer','manager'].includes(role);
+  document.getElementById('empLinkWrap').style.display=showLink?'':'none';
+  const note=document.getElementById('emp-auto-note');
+  if(note)note.style.display=showLink?'':'none';
 }
 function populateEmpSelect(){
   const sel=document.getElementById('fu-empId');
@@ -3996,19 +4003,49 @@ function saveUser(){
   // Check email uniqueness
   const dup=appUsers.find(u=>u.email===email&&u.id!==editUserId);
   if(dup){toast('Email already in use by another user','err');return;}
+  const uid = editUserId || ('u_'+Date.now());
   if(editUserId){
     const idx=appUsers.findIndex(u=>u.id===editUserId);
     if(idx>-1){appUsers[idx]={...appUsers[idx],name,email,pwd,role,empId};toast('User updated ✓','ok');}
   } else {
-    appUsers.push({id:'u_'+Date.now(),name,email,pwd,role,empId});
+    appUsers.push({id:uid,name,email,pwd,role,empId});
     toast('User added ✓','ok');
   }
-  saveUsersLocal();closeUserModal();renderUsers();
+  // ── Auto-sync to employees array so they appear in workload/assignment ──
+  const empRole = ['employee','reviewer','manager'].includes(role);
+  if(empRole){
+    // Use empId if linked, otherwise use uid as emp id
+    const eid = empId || uid;
+    const existing = employees.find(e=>e.id===eid || e.email===email);
+    if(existing){
+      // Update name/email if changed
+      existing.name = name;
+      existing.email = email;
+    } else {
+      // Add new employee record
+      employees.push({id:eid, name, email, gender:'male'});
+    }
+    // Ensure the user's empId is linked
+    const uIdx = appUsers.findIndex(u=>u.id===uid||u.id===editUserId);
+    if(uIdx>-1) appUsers[uIdx].empId = eid;
+    saveEmpsLocal();
+  }
+  saveUsersLocal();closeUserModal();renderUsers();renderEmps();
 }
 function deleteUser(id){
   if(id===currentUser?.id){toast("You can't delete your own account",'err');return;}
   if(!confirm('Delete this user? They will no longer be able to sign in.'))return;
+  const u=appUsers.find(x=>x.id===id);
   appUsers=appUsers.filter(u=>u.id!==id);
+  // Also remove from employees if linked
+  if(u?.empId){
+    employees=employees.filter(e=>e.id!==u.empId);
+    projects.forEach(p=>{
+      p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==u.empId);
+      p.reviewEmployees=(p.reviewEmployees||[]).filter(e=>e!==u.empId);
+    });
+    saveEmpsLocal();renderEmps();renderProjects();
+  }
   saveUsersLocal();renderUsers();toast('User removed','info');
 }
 
@@ -4468,5 +4505,13 @@ tryRestoreSession();
       </select>
     </div>
     <div class="ff full" id="empLinkWrap" style="display:none;">
-      <label>Link to Employee Record</label>
-      <select id="fu-empId" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;"><option value="">— Select employee record —</option></select>
+      <label>Link to Existing Employee Record <span style="font-weight:400;color:var(--tx3);font-size:.75rem;">(optional — leave blank to auto-create)</span></label>
+      <select id="fu-empId" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;"><option value="">— Auto-create new employee record —</option></select>
+      <p id="emp-auto-note" style="font-size:.73rem;color:var(--blue);margin:4px 0 0;"><i class="fas fa-info-circle"></i> This user will automatically appear in the Employees list and can be assigned to projects.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 20px 20px;border-top:1px solid var(--brd);margin-top:8px;">
+    <button class="btn" onclick="closeUserModal()" style="background:var(--sur2);color:var(--tx);border:1px solid var(--brd);">Cancel</button>
+    <button class="btn btn-red" onclick="saveUser()"><i class="fas fa-check"></i> Save User</button>
+  </div>
+</div>
