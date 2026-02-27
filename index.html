@@ -559,9 +559,9 @@ tr:hover td{background:var(--sur2);}
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
-      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub" id="dlbl-admin">admin / admin123</span></button>
-      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub" id="dlbl-manager">manager / mgr123</span></button>
-      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub" id="dlbl-reviewer">reviewer / rev123</span></button>
+      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"> / admin123</span></button>
+      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"> / mgr123</span></button>
+      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"> / rev123</span></button>
       <button class="dbtn" onclick="quickLogin('employee')"><span class="dname">🟢 Employee</span><span class="dsub">My assigned projects only</span></button>
       <button class="dbtn" onclick="quickLogin('stakeholder')" style="grid-column:1/-1;"><span class="dname">🟣 Stakeholder</span><span class="dsub">Executive / investor view — admin configures what they see</span></button>
     </div>
@@ -815,36 +815,7 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS startdate TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS assignedby TEXT DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS comments TEXT DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS review_employees TEXT DEFAULT '';
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS client TEXT DEFAULT '';
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS labellink TEXT DEFAULT '';
-
-CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT);
-ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='app_settings' AND policyname='settings_read') THEN
-    CREATE POLICY "settings_read" ON app_settings FOR SELECT USING (true);
-  END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='app_settings' AND policyname='settings_write') THEN
-    CREATE POLICY "settings_write" ON app_settings FOR ALL USING (true);
-  END IF;
-END $$;
-
-CREATE TABLE IF NOT EXISTS project_comments (
-  id TEXT PRIMARY KEY, proj_id TEXT NOT NULL, parent_id TEXT,
-  author_id TEXT, author TEXT, role TEXT, text TEXT, ts TEXT,
-  mentions TEXT, created_at TIMESTAMPTZ DEFAULT NOW()
-);
-ALTER TABLE project_comments ENABLE ROW LEVEL SECURITY;
-DO $$ BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='project_comments' AND policyname='comments_all') THEN
-    CREATE POLICY "comments_all" ON project_comments FOR ALL USING (true);
-  END IF;
-END $$;
-
-ALTER PUBLICATION supabase_realtime ADD TABLE projects;
-ALTER PUBLICATION supabase_realtime ADD TABLE app_settings;
-ALTER PUBLICATION supabase_realtime ADD TABLE project_comments;</code>
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('migBanner').style.display='none'">Dismiss</button>
   </div>
   <div class="settings-grid" id="settingsGrid"></div>
@@ -983,48 +954,51 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 // ═══════════════════════
 // STATE
 // ═══════════════════════
-const AT='@';
 let projects=[];
+const AT='@'; // prevents proxy email obfuscation
 let employees=[
-  {id:'e1',name:'Ramyashree V R',email:'ramyashree'+AT+'camcom.ai',gender:'female'},
-  {id:'e2',name:'Manoj Kumar Devanga Kotha',email:'manoj.devanga'+AT+'camcom.ai',gender:'male'},
-  {id:'e3',name:'Dande Kalyani',email:'dande.kalyani'+AT+'camcom.ai',gender:'female'},
-  {id:'e4',name:'Dande Sandhya',email:'dande.sandhya'+AT+'camcom.ai',gender:'female'},
-  {id:'e5',name:'Challa Koteswaramma',email:'challa.kotes'+AT+'camcom.ai',gender:'female'},
-  {id:'e6',name:'Kadagandla Hariprasad',email:'kadagandla.hari'+AT+'camcom.ai',gender:'male'},
-  {id:'e7',name:'Uma Krishnappa',email:'uma.krishnappa'+AT+'camcom.ai',gender:'female'},
-  {id:'e8',name:'Manjunath Kalakappa Bandihal',email:'manjunath.kb'+AT+'camcom.ai',gender:'male'},
-  {id:'e9',name:'Akshay Phatale',email:'akshay.phatale'+AT+'camcom.ai',gender:'male'},
-  {id:'e10',name:'Maitra Salimath',email:'maitra.salimath'+AT+'camcom.ai',gender:'female'},
-  {id:'e11',name:'Yathish Gowda K H',email:'yathish.gowda'+AT+'camcom.ai',gender:'male'},
-  {id:'e12',name:'Pavan Kalyan Yeddala',email:'pavan.kalyan'+AT+'camcom.ai',gender:'male'},
-  {id:'e13',name:'Sabharmathi Selvam',email:'sabharmathi'+AT+'camcom.ai',gender:'female'},
-  {id:'e14',name:'G Umesh',email:'g.umesh'+AT+'camcom.ai',gender:'male'},
-  {id:'e15',name:'Shilpa E',email:'shilpa.e'+AT+'camcom.ai',gender:'female'},
-  {id:'e16',name:'Prema Joshi',email:'prema.joshi'+AT+'camcom.ai',gender:'female'},
-  {id:'e17',name:'Keerti Doddwad',email:'keerti.doddwad'+AT+'camcom.ai',gender:'female'},
-  {id:'e18',name:'Ajay Reddy H',email:'ajay.reddy'+AT+'camcom.ai',gender:'male'},
-  {id:'e19',name:'Varun Kumar H N',email:'varun.kumar'+AT+'camcom.ai',gender:'male'},
-  {id:'e20',name:'Sneha B V',email:'sneha.bv'+AT+'camcom.ai',gender:'female'},
-  {id:'e21',name:'Fathima Reneesha',email:'fathima.reneesha'+AT+'camcom.ai',gender:'female'},
-  {id:'e22',name:'Vishruthi Raghu',email:'vishruthi.raghu'+AT+'camcom.ai',gender:'female'},
-  {id:'e23',name:'Sanjana G P',email:'sanjana.gp'+AT+'camcom.ai',gender:'female'},
-  {id:'e24',name:'Dhanyasri A S',email:'dhanyasri.as'+AT+'camcom.ai',gender:'female'},
-  {id:'e25',name:'Siddharth Anandan',email:'siddharth.anandan'+AT+'camcom.ai',gender:'male'},
-  {id:'e26',name:'Bindusree S N',email:'bindusree.sn'+AT+'camcom.ai',gender:'female'},
-  {id:'e27',name:'Anil Kumar Pasala',email:'anil.pasala'+AT+'camcom.ai',gender:'male'},
-  {id:'e28',name:'Mihir',email:'mihir'+AT+'camcom.ai',gender:'male'},
-  {id:'e29',name:'Suzan',email:'suzan'+AT+'camcom.ai',gender:'female'},
-  {id:'e30',name:'Umesh Nagappa Barker',email:'umesh.barker'+AT+'camcom.ai',gender:'male'},
-  {id:'e31',name:'Sunil Kumar',email:'sunil.kumar'+AT+'camcom.ai',gender:'male'},
-  {id:'e32',name:'Shanta Mantri',email:'shanta.mantri'+AT+'camcom.ai',gender:'female'},
-  {id:'e33',name:'Nandini Keni',email:'nandini.keni'+AT+'camcom.ai',gender:'female'},
-  {id:'e34',name:'Shweta Kannagar',email:'shweta.kannagar'+AT+'camcom.ai',gender:'female'},
-  {id:'e35',name:'Kishore Devaragudi',email:'kishore.dev'+AT+'camcom.ai',gender:'male'},
-  {id:'e36',name:'Anil Gandreddi',email:'anil.gandreddi'+AT+'camcom.ai',gender:'male'},
-  {id:'e37',name:'K Ganesh',email:'k.ganesh'+AT+'camcom.ai',gender:'male'},
-  {id:'e38',name:'Kiran Y',email:'kiran.y'+AT+'camcom.ai',gender:'male'},
-  {id:'e39',name:'Vishwas Reddy',email:'vishwas.reddy'+AT+'camcom.ai',gender:'male'},
+  {id:'e1', name:'Ramyashree V R',             email:'ramyashree.ragupathy'+AT+'camcom.ai',  gender:'female'},
+  {id:'e2', name:'Manoj Kumar Devanga Kotha',   email:'manoj.kotha'+AT+'camcom.ai',           gender:'male'},
+  {id:'e3', name:'Dande Kalyani',               email:'dande.kalyani'+AT+'camcom.ai',         gender:'female'},
+  {id:'e4', name:'Dande Sandhya',               email:'dande.sandhya'+AT+'camcom.ai',         gender:'female'},
+  {id:'e5', name:'Challa Koteswaramma',         email:'challa.koteswaramma'+AT+'camcom.ai',   gender:'female'},
+  {id:'e6', name:'Kadagandla Hariprasad',       email:'kadagandla.hariprasad'+AT+'camcom.ai', gender:'male'},
+  {id:'e7', name:'Uma Krishnappa',              email:'uma.krishnappa'+AT+'camcom.ai',        gender:'female'},
+  {id:'e8', name:'Manjunath Kalakappa Bandihal',email:'manjunath.bandihal'+AT+'camcom.ai',    gender:'male'},
+  {id:'e9', name:'Akshay Phatale',              email:'akshay.phatale'+AT+'camcom.ai',        gender:'male'},
+  {id:'e10',name:'Maitra Salimath',             email:'maitra.salimath'+AT+'camcom.ai',       gender:'female'},
+  {id:'e11',name:'Yathish Gowda K H',           email:'yathish.gowda'+AT+'camcom.ai',         gender:'male'},
+  {id:'e12',name:'Pavan Kalyan Yeddala',        email:'pavan.yeddala'+AT+'camcom.ai',         gender:'male'},
+  {id:'e13',name:'Sabharmathi Selvam',          email:'sabarmathi.selvam'+AT+'camcom.ai',     gender:'female'},
+  {id:'e14',name:'G Umesh',                     email:'umesh.g'+AT+'camcom.ai',               gender:'male'},
+  {id:'e15',name:'Shilpa E',                    email:'shilpa.e'+AT+'camcom.ai',              gender:'female'},
+  {id:'e16',name:'Prema Joshi',                 email:'prema.joshi'+AT+'camcom.ai',           gender:'female'},
+  {id:'e17',name:'Keerti Doddwad',              email:'keerti.doddwad'+AT+'camcom.ai',        gender:'female'},
+  {id:'e18',name:'Ajay Reddy H',                email:'ajay.reddy'+AT+'camcom.ai',            gender:'male'},
+  {id:'e19',name:'Varun Kumar H N',             email:'varun.kumar'+AT+'camcom.ai',           gender:'male'},
+  {id:'e20',name:'Sneha B V',                   email:'sneha.bv'+AT+'camcom.ai',              gender:'female'},
+  {id:'e21',name:'Fathima Reneesha',            email:'fathima.reneesha'+AT+'camcom.ai',      gender:'female'},
+  {id:'e22',name:'Vishruthi Raghu',             email:'vishruthi.raghu'+AT+'camcom.ai',       gender:'female'},
+  {id:'e23',name:'Sanjana G P',                 email:'sanjana.gp'+AT+'camcom.ai',            gender:'female'},
+  {id:'e24',name:'Dhanyasri A S',               email:'dhanyasri.as'+AT+'camcom.ai',          gender:'female'},
+  {id:'e25',name:'Siddharth Anandan',           email:'siddharth.anandan'+AT+'camcom.ai',     gender:'male'},
+  {id:'e26',name:'Bindusree S N',               email:'bindusree.sn'+AT+'camcom.ai',          gender:'female'},
+  {id:'e27',name:'Anil Kumar Pasala',           email:'anilkumar.pasala'+AT+'camcom.ai',      gender:'male'},
+  {id:'e28',name:'Mihir',                       email:'mihir.singh'+AT+'camcom.ai',           gender:'male'},
+  {id:'e29',name:'Suzan',                       email:'suzan.john'+AT+'camcom.ai',            gender:'female'},
+  {id:'e30',name:'Umesh Nagappa Barker',        email:'umesh'+AT+'zuru.ai',                   gender:'male'},
+  {id:'e31',name:'Sunil Kumar',                 email:'sunilkumar'+AT+'zuru.ai',              gender:'male'},
+  {id:'e32',name:'Shanta Mantri',               email:'shanta'+AT+'zuru.ai',                  gender:'female'},
+  {id:'e33',name:'Nandini Keni',                email:'nandini'+AT+'zuru.ai',                 gender:'female'},
+  {id:'e34',name:'Shweta Kannagar',             email:'shwetak'+AT+'zuru.ai',                 gender:'female'},
+  {id:'e35',name:'Kishore Devaragudi',          email:'kishored'+AT+'zuru.ai',                gender:'male'},
+  {id:'e36',name:'Anil Gandredi',               email:'anilg'+AT+'zuru.ai',                   gender:'male'},
+  {id:'e37',name:'K Ganesh',                    email:'ganeshk'+AT+'zuru.ai',                 gender:'male'},
+  {id:'e38',name:'Kiran Y',                     email:'kirany'+AT+'zuru.ai',                  gender:'male'},
+  {id:'e39',name:'Vishwas Reddy',               email:'vishwasreddy'+AT+'zuru.ai',            gender:'male'},
+  {id:'e40',name:'Sandhya K',                   email:'sandhya.k'+AT+'camcom.ai',             gender:'female'},
+  {id:'e41',name:'Venkatesh Chilukuri',         email:'venkatesh.chilukuri'+AT+'camcom.ai',   gender:'male'},
+  {id:'e42',name:'Abhil C Sasindran',           email:'abhil.sasindran'+AT+'camcom.ai',       gender:'male'}
 ];
 
 // ══════════════════════════════════
@@ -1498,21 +1472,53 @@ function toggleStakeholderField(key,val){
 
 // Default users (persisted in localStorage so Admin can add more)
 const DEFAULT_USERS=[
-  {id:'u1',name:'CamCom Admin',  email:'admin'+AT+'camcom.ai',    pwd:'admin123', role:'admin',       empId:null},
-  {id:'u2',name:'Priya Manager', email:'manager'+AT+'camcom.ai',  pwd:'mgr123',   role:'manager',     empId:null},
-  {id:'u3',name:'Ravi Reviewer', email:'reviewer'+AT+'camcom.ai', pwd:'rev123',   role:'reviewer',    empId:null},
-  {id:'u8',name:'Investor View', email:'stakeholder'+AT+'camcom.ai',pwd:'stake123',role:'stakeholder',empId:null},
-  // Employee demo accounts linked to real emp records
-  {id:'u4',name:'Ramyashree V R',      email:'ramyashree'+AT+'camcom.ai',       pwd:'emp123',role:'employee',empId:'e1'},
-  {id:'u5',name:'Akshay Phatale',      email:'akshay.phatale'+AT+'camcom.ai',   pwd:'emp123',role:'employee',empId:'e9'},
-  {id:'u6',name:'Sneha B V',           email:'sneha.bv'+AT+'camcom.ai',         pwd:'emp123',role:'employee',empId:'e20'},
-  {id:'u7',name:'Siddharth Anandan',   email:'siddharth.anandan'+AT+'camcom.ai',pwd:'emp123',role:'employee',empId:'e25'},
+  {id:'u1', name:'CamCom Admin',    email:'admin'+AT+'camcom.ai',        pwd:'admin123',  role:'admin',       empId:null},
+  {id:'u2', name:'Priya Manager',   email:'manager'+AT+'camcom.ai',      pwd:'mgr123',    role:'manager',     empId:null},
+  {id:'u3', name:'Ravi Reviewer',   email:'reviewer'+AT+'camcom.ai',     pwd:'rev123',    role:'reviewer',    empId:null},
+  {id:'u8', name:'Investor View',   email:'stakeholder'+AT+'camcom.ai',  pwd:'stake123',  role:'stakeholder', empId:null},
+  {id:'u10',name:'Ramyashree V R',              email:'ramyashree.ragupathy'+AT+'camcom.ai',  pwd:'emp123', role:'manager',  empId:'e1'},
+  {id:'u11',name:'Manoj Kumar Devanga Kotha',   email:'manoj.kotha'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e2'},
+  {id:'u12',name:'Dande Kalyani',               email:'dande.kalyani'+AT+'camcom.ai',         pwd:'emp123', role:'employee', empId:'e3'},
+  {id:'u13',name:'Dande Sandhya',               email:'dande.sandhya'+AT+'camcom.ai',         pwd:'emp123', role:'reviewer', empId:'e4'},
+  {id:'u14',name:'Challa Koteswaramma',         email:'challa.koteswaramma'+AT+'camcom.ai',   pwd:'emp123', role:'employee', empId:'e5'},
+  {id:'u15',name:'Kadagandla Hariprasad',       email:'kadagandla.hariprasad'+AT+'camcom.ai', pwd:'emp123', role:'reviewer', empId:'e6'},
+  {id:'u16',name:'Uma Krishnappa',              email:'uma.krishnappa'+AT+'camcom.ai',        pwd:'emp123', role:'employee', empId:'e7'},
+  {id:'u17',name:'Manjunath Kalakappa Bandihal',email:'manjunath.bandihal'+AT+'camcom.ai',    pwd:'emp123', role:'employee', empId:'e8'},
+  {id:'u18',name:'Akshay Phatale',              email:'akshay.phatale'+AT+'camcom.ai',        pwd:'emp123', role:'reviewer', empId:'e9'},
+  {id:'u19',name:'Maitra Salimath',             email:'maitra.salimath'+AT+'camcom.ai',       pwd:'emp123', role:'reviewer', empId:'e10'},
+  {id:'u20',name:'Yathish Gowda K H',           email:'yathish.gowda'+AT+'camcom.ai',         pwd:'emp123', role:'reviewer', empId:'e11'},
+  {id:'u21',name:'Pavan Kalyan Yeddala',        email:'pavan.yeddala'+AT+'camcom.ai',         pwd:'emp123', role:'employee', empId:'e12'},
+  {id:'u22',name:'Sabharmathi Selvam',          email:'sabarmathi.selvam'+AT+'camcom.ai',     pwd:'emp123', role:'employee', empId:'e13'},
+  {id:'u23',name:'G Umesh',                     email:'umesh.g'+AT+'camcom.ai',               pwd:'emp123', role:'employee', empId:'e14'},
+  {id:'u24',name:'Shilpa E',                    email:'shilpa.e'+AT+'camcom.ai',              pwd:'emp123', role:'employee', empId:'e15'},
+  {id:'u25',name:'Prema Joshi',                 email:'prema.joshi'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e16'},
+  {id:'u26',name:'Keerti Doddwad',              email:'keerti.doddwad'+AT+'camcom.ai',        pwd:'emp123', role:'employee', empId:'e17'},
+  {id:'u27',name:'Ajay Reddy H',                email:'ajay.reddy'+AT+'camcom.ai',            pwd:'emp123', role:'employee', empId:'e18'},
+  {id:'u28',name:'Varun Kumar H N',             email:'varun.kumar'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e19'},
+  {id:'u29',name:'Sneha B V',                   email:'sneha.bv'+AT+'camcom.ai',              pwd:'emp123', role:'employee', empId:'e20'},
+  {id:'u30',name:'Fathima Reneesha',            email:'fathima.reneesha'+AT+'camcom.ai',      pwd:'emp123', role:'employee', empId:'e21'},
+  {id:'u31',name:'Vishruthi Raghu',             email:'vishruthi.raghu'+AT+'camcom.ai',       pwd:'emp123', role:'employee', empId:'e22'},
+  {id:'u32',name:'Sanjana G P',                 email:'sanjana.gp'+AT+'camcom.ai',            pwd:'emp123', role:'employee', empId:'e23'},
+  {id:'u33',name:'Dhanyasri A S',               email:'dhanyasri.as'+AT+'camcom.ai',          pwd:'emp123', role:'employee', empId:'e24'},
+  {id:'u34',name:'Siddharth Anandan',           email:'siddharth.anandan'+AT+'camcom.ai',     pwd:'emp123', role:'employee', empId:'e25'},
+  {id:'u35',name:'Bindusree S N',               email:'bindusree.sn'+AT+'camcom.ai',          pwd:'emp123', role:'employee', empId:'e26'},
+  {id:'u36',name:'Anil Kumar Pasala',           email:'anilkumar.pasala'+AT+'camcom.ai',      pwd:'emp123', role:'employee', empId:'e27'},
+  {id:'u37',name:'Mihir',                       email:'mihir.singh'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e28'},
+  {id:'u38',name:'Suzan',                       email:'suzan.john'+AT+'camcom.ai',            pwd:'emp123', role:'employee', empId:'e29'},
+  {id:'u39',name:'Umesh Nagappa Barker',        email:'umesh'+AT+'zuru.ai',                   pwd:'emp123', role:'employee', empId:'e30'},
+  {id:'u40',name:'Sunil Kumar',                 email:'sunilkumar'+AT+'zuru.ai',              pwd:'emp123', role:'employee', empId:'e31'},
+  {id:'u41',name:'Shanta Mantri',               email:'shanta'+AT+'zuru.ai',                  pwd:'emp123', role:'employee', empId:'e32'},
+  {id:'u42',name:'Nandini Keni',                email:'nandini'+AT+'zuru.ai',                 pwd:'emp123', role:'employee', empId:'e33'},
+  {id:'u43',name:'Shweta Kannagar',             email:'shwetak'+AT+'zuru.ai',                 pwd:'emp123', role:'employee', empId:'e34'},
+  {id:'u44',name:'Kishore Devaragudi',          email:'kishored'+AT+'zuru.ai',                pwd:'emp123', role:'employee', empId:'e35'},
+  {id:'u45',name:'Anil Gandredi',               email:'anilg'+AT+'zuru.ai',                   pwd:'emp123', role:'employee', empId:'e36'},
+  {id:'u46',name:'K Ganesh',                    email:'ganeshk'+AT+'zuru.ai',                 pwd:'emp123', role:'employee', empId:'e37'},
+  {id:'u47',name:'Kiran Y',                     email:'kirany'+AT+'zuru.ai',                  pwd:'emp123', role:'employee', empId:'e38'},
+  {id:'u48',name:'Vishwas Reddy',               email:'vishwasreddy'+AT+'zuru.ai',            pwd:'emp123', role:'employee', empId:'e39'},
+  {id:'u49',name:'Sandhya K',                   email:'sandhya.k'+AT+'camcom.ai',             pwd:'emp123', role:'employee', empId:'e40'},
+  {id:'u50',name:'Venkatesh Chilukuri',         email:'venkatesh.chilukuri'+AT+'camcom.ai',   pwd:'emp123', role:'employee', empId:'e41'},
+  {id:'u51',name:'Abhil C Sasindran',           email:'abhil.sasindran'+AT+'camcom.ai',       pwd:'emp123', role:'manager',  empId:'e42'}
 ];
-// Fill demo login labels at runtime so no proxy can mangle them
-function fillDemoLabels(){
-  const roles={'admin':['admin'+AT+'camcom.ai','admin123'],'manager':['manager'+AT+'camcom.ai','mgr123'],'reviewer':['reviewer'+AT+'camcom.ai','rev123']};
-  Object.entries(roles).forEach(([r,[e,p]])=>{const el=document.getElementById('dlbl-'+r);if(el)el.textContent=e+' / '+p;});
-}
 let appUsers=[...DEFAULT_USERS];
 let currentUser=null;
 let editUserId=null;
@@ -1697,14 +1703,12 @@ async function loadProjects(){
   finally{document.getElementById('lovl').style.display='none';renderAll();}
 }
 
-let _saveProjDBRunning=new Set();
 async function saveProjDB(p){
-  if(_saveProjDBRunning.has(p.id)){return;} // hard recursion guard
+  if(_saveProjDBRunning.has(p.id))return;
   _saveProjDBRunning.add(p.id);
-  try{
-  // Track own saves for echo suppression
   _lastSave=Date.now();
   _ownSaves.set(p.id,Date.now());
+  try{
   // ── FULL row with all v5+ columns ──
   const fullRow={
     id:p.id, name:p.name, client:p.client||'', labellink:p.labellink||'',
@@ -1757,7 +1761,11 @@ function loadFeaturesLocal(){try{const s=localStorage.getItem('cc_features');if(
 function uid(){return crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);}
 function esc(s){return(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pct(a,b){return b>0?Math.round((a/b)*100):0;}
-function fmtD(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function fillDemoLabels(){
+  if(document.getElementById('dlbl-admin'))document.getElementById('dlbl-admin').textContent='admin'+AT+'camcom.ai / admin123';
+  if(document.getElementById('dlbl-manager'))document.getElementById('dlbl-manager').textContent='manager'+AT+'camcom.ai / mgr123';
+  if(document.getElementById('dlbl-reviewer'))document.getElementById('dlbl-reviewer').textContent='reviewer'+AT+'camcom.ai / rev123';
+}
 function fmtAgo(ts){
   if(!ts)return'';
   const diff=Date.now()-new Date(ts).getTime();
@@ -1768,6 +1776,7 @@ function fmtAgo(ts){
   if(d<7)return d+'d ago';
   return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
 }
+function fmtD(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
 function dlMeta(d){if(!d)return null;const dt=new Date(d+'T00:00:00'),diff=Math.ceil((dt-new Date())/86400000);return{label:fmtD(d),diff};}
 function initials(n){return(n||'?').split(' ').map(w=>w[0]||'').join('').substr(0,2).toUpperCase();}
 function getEmp(id){return employees.find(e=>e.id===id)||{name:'Unknown',gender:'male'};}
@@ -2150,11 +2159,8 @@ function renderDPBody(p){
     </div>
   </div>`;
   if(can('canAssign')){renderES(p.id);renderESRev(p.id);}
-  // Render threaded comments (DOM must exist first), then sync from DB
-  setTimeout(()=>{
-    renderThreadList(p.id);
-    loadCommentsFromDB(p.id); // fetch latest from Supabase and re-render on arrival
-  },0);
+  // Render threaded comments (DOM must exist first)
+  setTimeout(()=>{renderThreadList(p.id);loadCommentsFromDB(p.id);},0);
 }
 function renderES(projId){
   const q=(document.getElementById(`esrch-${projId}`)?.value||'').toLowerCase();
@@ -2272,18 +2278,9 @@ async function rmAsgn(projId,empId){
 }
 async function dpField(id,field,val){
   const p=projects.find(x=>x.id===id);if(!p)return;
-  const newVal=Math.max(0,parseInt(val)||0);
-  if(p[field]===newVal)return; // no change, avoid unnecessary save + re-render
-  p[field]=newVal;
-  // Update progress bars inline without full re-render (avoids re-trigger risk)
-  const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
-  const aP=Math.round(T>0?A/T*100:0),rP=Math.round(T>0?R/T*100:0);
-  const apEl=document.getElementById('dp-ap-'+id);
-  const rpEl=document.getElementById('dp-rp-'+id);
-  if(apEl)apEl.style.width=aP+'%';
-  if(rpEl)rpEl.style.width=rP+'%';
-  renderProjects(); // update cards/kanban
-  await saveProjDB(p); // saves to Supabase -> Realtime updates other browsers
+  p[field]=Math.max(0,parseInt(val)||0);
+  if(openProjId===id)renderDPBody(p);
+  renderProjects();await saveProjDB(p);
   logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,`${field==='total'?'Total images':field==='annotated'?'Annotated count':'Reviewed count'} updated to ${p[field]}`);
 }
 let _dpSaveTimers={};
@@ -2304,7 +2301,7 @@ async function dpUpd(id,field,val){
   _dpSaveTimers[id+'_'+field]=setTimeout(async()=>{
     await saveProjDB(p);
     logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated to '+val);
-  },500);
+  },1000);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
 
@@ -4067,16 +4064,15 @@ function startVisConfigPoll(){
 // ══════════════════════════════════════════════════════════════
 // SUPABASE REALTIME — project changes + access control sync
 // ══════════════════════════════════════════════════════════════
-let _rtChannel=null, _lastSave=0, _ownSaves=new Map();
+let _rtChannel=null, _lastSave=0;
 
 function startRealtime(){
   if(_rtChannel)return;
   try{
     _rtChannel=sb.channel('cc-realtime')
       .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(pl)=>{
-        // Echo suppression: skip if we just saved this exact project ourselves
         const {eventType,new:nr,old:or}=pl;
-        if(nr&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<3000)return;
+        if(nr&&_ownSaves&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<3000)return;
         if(eventType==='DELETE'){projects=projects.filter(p=>p.id!==or.id);renderAll();toast('Project deleted by another user','info');return;}
         const mapped={
           id:nr.id,name:nr.name,client:nr.client||'',labellink:nr.labellink||'',
@@ -4116,48 +4112,24 @@ function startRealtime(){
           }
         }catch(e){}
       })
+      .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(pl)=>{
+        const row=pl.new||pl.old;
+        if(!row||row.key!=='vis_config')return;
+        try{const remote=JSON.parse(row.value);if(JSON.stringify(remote)!==JSON.stringify(visConfig)){Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();if(currentUser?.role!=='admin')toast('Access settings updated','info');}}catch(e){}
+      })
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'project_comments'},(pl)=>{
-        // New comment from another user — merge into local state and re-render
-        const nr=pl.new;
-        if(!nr)return;
-        const cmt={
-          id:nr.id, parentId:nr.parent_id||null,
-          authorId:nr.author_id, author:nr.author, role:nr.role,
-          text:nr.text, ts:nr.ts, mentions:nr.mentions?JSON.parse(nr.mentions):[]
-        };
+        const nr=pl.new;if(!nr)return;
+        const cmt={id:nr.id,parentId:nr.parent_id||null,authorId:nr.author_id,author:nr.author,role:nr.role,text:nr.text,ts:nr.ts,mentions:nr.mentions?JSON.parse(nr.mentions):[]};
         if(!threadedComments[nr.proj_id])threadedComments[nr.proj_id]=[];
-        // Only add if not already present (avoid echo from own post)
         if(!threadedComments[nr.proj_id].find(c=>c.id===cmt.id)){
-          threadedComments[nr.proj_id].push(cmt);
-          saveThreadedComments();
-          // Update UI if the panel for this project is open
-          if(openProjId===nr.proj_id){
-            renderThreadList(nr.proj_id);
-            const cnt=document.getElementById('tc-count-'+nr.proj_id);
-            if(cnt)cnt.textContent='('+(threadedComments[nr.proj_id]||[]).filter(c=>!c.parentId).length+')';
-          }
-          // Create notification if current user was mentioned
-          if(currentUser&&(cmt.mentions||[]).some(id=>appUsers.find(u=>u.empId===id)?.id===currentUser.id)){
-            notifications.push({
-              id:'n'+Date.now()+Math.random().toString(36).substr(2,3),
-              userId:currentUser.id, projId:nr.proj_id, projName:(projects.find(p=>p.id===nr.proj_id)||{name:'?'}).name,
-              cmtId:cmt.id, author:cmt.author,
-              text:`${cmt.author} mentioned you: ${cmt.text.substr(0,70)}${cmt.text.length>70?'…':''}`,
-              ts:cmt.ts, read:false
-            });
-            saveNotifications();
-            updateNbDot();
-            toast(`💬 ${cmt.author} mentioned you`,'info');
-          }
+          threadedComments[nr.proj_id].push(cmt);saveThreadedComments();
+          if(openProjId===nr.proj_id){renderThreadList(nr.proj_id);const cnt=document.getElementById('tc-count-'+nr.proj_id);if(cnt)cnt.textContent='('+(threadedComments[nr.proj_id]||[]).filter(c=>!c.parentId).length+')';}
         }
       })
       .on('postgres_changes',{event:'DELETE',schema:'public',table:'project_comments'},(pl)=>{
-        const or=pl.old;if(!or)return;
-        if(threadedComments[or.proj_id]){
-          threadedComments[or.proj_id]=threadedComments[or.proj_id].filter(c=>c.id!==or.id&&c.parentId!==or.id);
-          saveThreadedComments();
-          if(openProjId===or.proj_id)renderThreadList(or.proj_id);
-        }
+        const or=pl.old;if(!or||!threadedComments[or.proj_id])return;
+        threadedComments[or.proj_id]=threadedComments[or.proj_id].filter(c=>c.id!==or.id&&c.parentId!==or.id);
+        saveThreadedComments();if(openProjId===or.proj_id)renderThreadList(or.proj_id);
       })
       .subscribe(status=>{
         const dot=document.getElementById('rt-dot');
@@ -4169,7 +4141,9 @@ function startRealtime(){
   }catch(e){console.warn('Realtime unavailable:',e);}
 }
 
-// _ownSaves tracking is now inside saveProjDB directly
+// Patch saveProjDB to record timestamp so echo suppression works
+const _origSaveProjDB=saveProjDB;
+async function saveProjDB(p){_lastSave=Date.now();return _origSaveProjDB(p);}
 
 // ══════════════════════════════════════════════════════════════
 // THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
@@ -4183,41 +4157,25 @@ const ROLE_COLORS={admin:'#dc2626',manager:'#2563eb',reviewer:'#d97706',employee
 
 function loadThreadedComments(){try{const s=localStorage.getItem('cc_threads');if(s)threadedComments=JSON.parse(s);}catch(e){}}
 function saveThreadedComments(){try{localStorage.setItem('cc_threads',JSON.stringify(threadedComments));}catch(e){}}
-function loadNotifications(){try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}}
-function saveNotifications(){try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}}
-
-// ── Supabase-backed comment sync ────────────────────────────────────────────
 async function loadCommentsFromDB(projId){
   try{
-    const{data,error}=await sb.from('project_comments')
-      .select('*').eq('proj_id',projId).order('ts',{ascending:true});
+    const{data,error}=await sb.from('project_comments').select('*').eq('proj_id',projId).order('ts',{ascending:true});
     if(error||!data)return;
-    threadedComments[projId]=data.map(r=>({
-      id:r.id, parentId:r.parent_id||null,
-      authorId:r.author_id, author:r.author, role:r.role,
-      text:r.text, ts:r.ts, mentions:r.mentions?JSON.parse(r.mentions):[]
-    }));
+    threadedComments[projId]=data.map(r=>({id:r.id,parentId:r.parent_id||null,authorId:r.author_id,author:r.author,role:r.role,text:r.text,ts:r.ts,mentions:r.mentions?JSON.parse(r.mentions):[]}));
     saveThreadedComments();
     renderThreadList(projId);
-    // Update unread badge
     const cnt=document.getElementById('tc-count-'+projId);
     if(cnt)cnt.textContent='('+(threadedComments[projId]||[]).filter(c=>!c.parentId).length+')';
-  }catch(e){ /* table may not exist yet */ }
+  }catch(e){}
 }
-
-async function saveCommentToDB(projId, cmt){
-  try{
-    await sb.from('project_comments').upsert({
-      id:cmt.id, proj_id:projId, parent_id:cmt.parentId||null,
-      author_id:cmt.authorId, author:cmt.author, role:cmt.role,
-      text:cmt.text, ts:cmt.ts, mentions:JSON.stringify(cmt.mentions||[])
-    },{onConflict:'id'});
-  }catch(e){ /* fallback: localStorage only */ }
+async function saveCommentToDB(projId,cmt){
+  try{await sb.from('project_comments').upsert({id:cmt.id,proj_id:projId,parent_id:cmt.parentId||null,author_id:cmt.authorId,author:cmt.author,role:cmt.role,text:cmt.text,ts:cmt.ts,mentions:JSON.stringify(cmt.mentions||[])},{onConflict:'id'});}catch(e){}
 }
-
 async function deleteCommentFromDB(cmtId){
-  try{ await sb.from('project_comments').delete().eq('id',cmtId); }catch(e){}
+  try{await sb.from('project_comments').delete().eq('id',cmtId);}catch(e){}
 }
+function loadNotifications(){try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}}
+function saveNotifications(){try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}}
 
 function avInit(name){return(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();}
 
@@ -4329,14 +4287,11 @@ async function postComment(projId){
   }
   saveNotifications();
   updateNbDot();
-
   inp.value='';
   inp.style.height='';
   cancelReply(projId);
-  // Render immediately for the poster — don't wait for Supabase echo
   renderThreadList(projId);
-  // Also persist to DB (other browsers get it via Realtime subscription)
-  saveCommentToDB(projId, cmt);
+  saveCommentToDB(projId,cmt);
 }
 
 function deleteComment(projId,cmtId){
@@ -4513,3 +4468,5 @@ tryRestoreSession();
       </select>
     </div>
     <div class="ff full" id="empLinkWrap" style="display:none;">
+      <label>Link to Employee Record</label>
+      <select id="fu-empId" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;"><option value="">— Select employee record —</option></select>
