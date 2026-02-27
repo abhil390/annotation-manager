@@ -553,15 +553,15 @@ tr:hover td{background:var(--sur2);}
     </div>
     <h2>Sign in to your account</h2>
     <p>Enter your credentials to access the platform</p>
-    <div class="lf"><label>Email</label><input type="email" id="li-email" placeholder="you@camcom.ai" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="lf"><label>Email</label><input type="email" id="li-email" placeholder="your email address" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div class="lf"><label>Password</label><input type="password" id="li-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <button class="lbtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
-      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub">admin@camcom.ai / admin123</span></button>
-      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub">manager@camcom.ai / mgr123</span></button>
-      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub">reviewer@camcom.ai / rev123</span></button>
+      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub" id="dlbl-admin">admin / admin123</span></button>
+      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub" id="dlbl-manager">manager / mgr123</span></button>
+      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub" id="dlbl-reviewer">reviewer / rev123</span></button>
       <button class="dbtn" onclick="quickLogin('employee')"><span class="dname">🟢 Employee</span><span class="dsub">My assigned projects only</span></button>
       <button class="dbtn" onclick="quickLogin('stakeholder')" style="grid-column:1/-1;"><span class="dname">🟣 Stakeholder</span><span class="dsub">Executive / investor view — admin configures what they see</span></button>
     </div>
@@ -963,7 +963,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE project_comments;</code>
   <div class="modal-title"><i class="fas fa-user-plus" style="color:var(--red)"></i><span id="eMTtl">Add Employee</span></div>
   <div class="fgrid">
     <div class="ff full"><label>Full Name *</label><input type="text" id="fe-name" placeholder="e.g. Ramyashree V R"></div>
-    <div class="ff full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="name@camcom.ai"></div>
+    <div class="ff full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="name at camcom.ai"></div>
     <div class="ff full"><label>Gender</label><select id="fe-gender"><option value="female">♀ Female</option><option value="male">♂ Male</option></select></div>
   </div>
   <div class="modal-foot">
@@ -985,45 +985,45 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 // ═══════════════════════
 let projects=[];
 let employees=[
-  {id:'e1',name:'Ramyashree V R',email:'ramyashree@camcom.ai',gender:'female'},
-  {id:'e2',name:'Manoj Kumar Devanga Kotha',email:'manoj.devanga@camcom.ai',gender:'male'},
-  {id:'e3',name:'Dande Kalyani',email:'dande.kalyani@camcom.ai',gender:'female'},
-  {id:'e4',name:'Dande Sandhya',email:'dande.sandhya@camcom.ai',gender:'female'},
-  {id:'e5',name:'Challa Koteswaramma',email:'challa.kotes@camcom.ai',gender:'female'},
-  {id:'e6',name:'Kadagandla Hariprasad',email:'kadagandla.hari@camcom.ai',gender:'male'},
-  {id:'e7',name:'Uma Krishnappa',email:'uma.krishnappa@camcom.ai',gender:'female'},
-  {id:'e8',name:'Manjunath Kalakappa Bandihal',email:'manjunath.kb@camcom.ai',gender:'male'},
-  {id:'e9',name:'Akshay Phatale',email:'akshay.phatale@camcom.ai',gender:'male'},
-  {id:'e10',name:'Maitra Salimath',email:'maitra.salimath@camcom.ai',gender:'female'},
-  {id:'e11',name:'Yathish Gowda K H',email:'yathish.gowda@camcom.ai',gender:'male'},
-  {id:'e12',name:'Pavan Kalyan Yeddala',email:'pavan.kalyan@camcom.ai',gender:'male'},
-  {id:'e13',name:'Sabharmathi Selvam',email:'sabharmathi@camcom.ai',gender:'female'},
-  {id:'e14',name:'G Umesh',email:'g.umesh@camcom.ai',gender:'male'},
-  {id:'e15',name:'Shilpa E',email:'shilpa.e@camcom.ai',gender:'female'},
-  {id:'e16',name:'Prema Joshi',email:'prema.joshi@camcom.ai',gender:'female'},
-  {id:'e17',name:'Keerti Doddwad',email:'keerti.doddwad@camcom.ai',gender:'female'},
-  {id:'e18',name:'Ajay Reddy H',email:'ajay.reddy@camcom.ai',gender:'male'},
-  {id:'e19',name:'Varun Kumar H N',email:'varun.kumar@camcom.ai',gender:'male'},
-  {id:'e20',name:'Sneha B V',email:'sneha.bv@camcom.ai',gender:'female'},
-  {id:'e21',name:'Fathima Reneesha',email:'fathima.reneesha@camcom.ai',gender:'female'},
-  {id:'e22',name:'Vishruthi Raghu',email:'vishruthi.raghu@camcom.ai',gender:'female'},
-  {id:'e23',name:'Sanjana G P',email:'sanjana.gp@camcom.ai',gender:'female'},
-  {id:'e24',name:'Dhanyasri A S',email:'dhanyasri.as@camcom.ai',gender:'female'},
-  {id:'e25',name:'Siddharth Anandan',email:'siddharth.anandan@camcom.ai',gender:'male'},
-  {id:'e26',name:'Bindusree S N',email:'bindusree.sn@camcom.ai',gender:'female'},
-  {id:'e27',name:'Anil Kumar Pasala',email:'anil.pasala@camcom.ai',gender:'male'},
-  {id:'e28',name:'Mihir',email:'mihir@camcom.ai',gender:'male'},
-  {id:'e29',name:'Suzan',email:'suzan@camcom.ai',gender:'female'},
-  {id:'e30',name:'Umesh Nagappa Barker',email:'umesh.barker@camcom.ai',gender:'male'},
-  {id:'e31',name:'Sunil Kumar',email:'sunil.kumar@camcom.ai',gender:'male'},
-  {id:'e32',name:'Shanta Mantri',email:'shanta.mantri@camcom.ai',gender:'female'},
-  {id:'e33',name:'Nandini Keni',email:'nandini.keni@camcom.ai',gender:'female'},
-  {id:'e34',name:'Shweta Kannagar',email:'shweta.kannagar@camcom.ai',gender:'female'},
-  {id:'e35',name:'Kishore Devaragudi',email:'kishore.dev@camcom.ai',gender:'male'},
-  {id:'e36',name:'Anil Gandreddi',email:'anil.gandreddi@camcom.ai',gender:'male'},
-  {id:'e37',name:'K Ganesh',email:'k.ganesh@camcom.ai',gender:'male'},
-  {id:'e38',name:'Kiran Y',email:'kiran.y@camcom.ai',gender:'male'},
-  {id:'e39',name:'Vishwas Reddy',email:'vishwas.reddy@camcom.ai',gender:'male'},
+  {id:'e1',name:'Ramyashree V R',email:'ramyashree\u0040camcom.ai',gender:'female'},
+  {id:'e2',name:'Manoj Kumar Devanga Kotha',email:'manoj.devanga\u0040camcom.ai',gender:'male'},
+  {id:'e3',name:'Dande Kalyani',email:'dande.kalyani\u0040camcom.ai',gender:'female'},
+  {id:'e4',name:'Dande Sandhya',email:'dande.sandhya\u0040camcom.ai',gender:'female'},
+  {id:'e5',name:'Challa Koteswaramma',email:'challa.kotes\u0040camcom.ai',gender:'female'},
+  {id:'e6',name:'Kadagandla Hariprasad',email:'kadagandla.hari\u0040camcom.ai',gender:'male'},
+  {id:'e7',name:'Uma Krishnappa',email:'uma.krishnappa\u0040camcom.ai',gender:'female'},
+  {id:'e8',name:'Manjunath Kalakappa Bandihal',email:'manjunath.kb\u0040camcom.ai',gender:'male'},
+  {id:'e9',name:'Akshay Phatale',email:'akshay.phatale\u0040camcom.ai',gender:'male'},
+  {id:'e10',name:'Maitra Salimath',email:'maitra.salimath\u0040camcom.ai',gender:'female'},
+  {id:'e11',name:'Yathish Gowda K H',email:'yathish.gowda\u0040camcom.ai',gender:'male'},
+  {id:'e12',name:'Pavan Kalyan Yeddala',email:'pavan.kalyan\u0040camcom.ai',gender:'male'},
+  {id:'e13',name:'Sabharmathi Selvam',email:'sabharmathi\u0040camcom.ai',gender:'female'},
+  {id:'e14',name:'G Umesh',email:'g.umesh\u0040camcom.ai',gender:'male'},
+  {id:'e15',name:'Shilpa E',email:'shilpa.e\u0040camcom.ai',gender:'female'},
+  {id:'e16',name:'Prema Joshi',email:'prema.joshi\u0040camcom.ai',gender:'female'},
+  {id:'e17',name:'Keerti Doddwad',email:'keerti.doddwad\u0040camcom.ai',gender:'female'},
+  {id:'e18',name:'Ajay Reddy H',email:'ajay.reddy\u0040camcom.ai',gender:'male'},
+  {id:'e19',name:'Varun Kumar H N',email:'varun.kumar\u0040camcom.ai',gender:'male'},
+  {id:'e20',name:'Sneha B V',email:'sneha.bv\u0040camcom.ai',gender:'female'},
+  {id:'e21',name:'Fathima Reneesha',email:'fathima.reneesha\u0040camcom.ai',gender:'female'},
+  {id:'e22',name:'Vishruthi Raghu',email:'vishruthi.raghu\u0040camcom.ai',gender:'female'},
+  {id:'e23',name:'Sanjana G P',email:'sanjana.gp\u0040camcom.ai',gender:'female'},
+  {id:'e24',name:'Dhanyasri A S',email:'dhanyasri.as\u0040camcom.ai',gender:'female'},
+  {id:'e25',name:'Siddharth Anandan',email:'siddharth.anandan\u0040camcom.ai',gender:'male'},
+  {id:'e26',name:'Bindusree S N',email:'bindusree.sn\u0040camcom.ai',gender:'female'},
+  {id:'e27',name:'Anil Kumar Pasala',email:'anil.pasala\u0040camcom.ai',gender:'male'},
+  {id:'e28',name:'Mihir',email:'mihir\u0040camcom.ai',gender:'male'},
+  {id:'e29',name:'Suzan',email:'suzan\u0040camcom.ai',gender:'female'},
+  {id:'e30',name:'Umesh Nagappa Barker',email:'umesh.barker\u0040camcom.ai',gender:'male'},
+  {id:'e31',name:'Sunil Kumar',email:'sunil.kumar\u0040camcom.ai',gender:'male'},
+  {id:'e32',name:'Shanta Mantri',email:'shanta.mantri\u0040camcom.ai',gender:'female'},
+  {id:'e33',name:'Nandini Keni',email:'nandini.keni\u0040camcom.ai',gender:'female'},
+  {id:'e34',name:'Shweta Kannagar',email:'shweta.kannagar\u0040camcom.ai',gender:'female'},
+  {id:'e35',name:'Kishore Devaragudi',email:'kishore.dev\u0040camcom.ai',gender:'male'},
+  {id:'e36',name:'Anil Gandreddi',email:'anil.gandreddi\u0040camcom.ai',gender:'male'},
+  {id:'e37',name:'K Ganesh',email:'k.ganesh\u0040camcom.ai',gender:'male'},
+  {id:'e38',name:'Kiran Y',email:'kiran.y\u0040camcom.ai',gender:'male'},
+  {id:'e39',name:'Vishwas Reddy',email:'vishwas.reddy\u0040camcom.ai',gender:'male'},
 ];
 
 // ══════════════════════════════════
@@ -1497,16 +1497,21 @@ function toggleStakeholderField(key,val){
 
 // Default users (persisted in localStorage so Admin can add more)
 const DEFAULT_USERS=[
-  {id:'u1',name:'CamCom Admin',  email:'admin@camcom.ai',    pwd:'admin123', role:'admin',       empId:null},
-  {id:'u2',name:'Priya Manager', email:'manager@camcom.ai',  pwd:'mgr123',   role:'manager',     empId:null},
-  {id:'u3',name:'Ravi Reviewer', email:'reviewer@camcom.ai', pwd:'rev123',   role:'reviewer',    empId:null},
-  {id:'u8',name:'Investor View', email:'stakeholder@camcom.ai',pwd:'stake123',role:'stakeholder',empId:null},
+  {id:'u1',name:'CamCom Admin',  email:'admin\u0040camcom.ai',    pwd:'admin123', role:'admin',       empId:null},
+  {id:'u2',name:'Priya Manager', email:'manager\u0040camcom.ai',  pwd:'mgr123',   role:'manager',     empId:null},
+  {id:'u3',name:'Ravi Reviewer', email:'reviewer\u0040camcom.ai', pwd:'rev123',   role:'reviewer',    empId:null},
+  {id:'u8',name:'Investor View', email:'stakeholder\u0040camcom.ai',pwd:'stake123',role:'stakeholder',empId:null},
   // Employee demo accounts linked to real emp records
-  {id:'u4',name:'Ramyashree V R',      email:'ramyashree@camcom.ai',       pwd:'emp123',role:'employee',empId:'e1'},
-  {id:'u5',name:'Akshay Phatale',      email:'akshay.phatale@camcom.ai',   pwd:'emp123',role:'employee',empId:'e9'},
-  {id:'u6',name:'Sneha B V',           email:'sneha.bv@camcom.ai',         pwd:'emp123',role:'employee',empId:'e20'},
-  {id:'u7',name:'Siddharth Anandan',   email:'siddharth.anandan@camcom.ai',pwd:'emp123',role:'employee',empId:'e25'},
-];
+  {id:'u4',name:'Ramyashree V R',      email:'ramyashree\u0040camcom.ai',       pwd:'emp123',role:'employee',empId:'e1'},
+  {id:'u5',name:'Akshay Phatale',      email:'akshay.phatale\u0040camcom.ai',   pwd:'emp123',role:'employee',empId:'e9'},
+  {id:'u6',name:'Sneha B V',           email:'sneha.bv\u0040camcom.ai',         pwd:'emp123',role:'employee',empId:'e20'},
+  {id:'u7',name:'Siddharth Anandan',   email:'siddharth.anandan\u0040camcom.ai',pwd:'emp123',role:'employee',empId:'e25'},
+];;
+// Fill demo login labels at runtime so no proxy can mangle them
+function fillDemoLabels(){
+  const m={'admin':'adm\u0069n\u0040camcom.a\u0069','manager':'manager\u0040camcom.a\u0069','reviewer':'reviewer\u0040camcom.a\u0069'};
+  Object.entries(m).forEach(([r,e])=>{const el=document.getElementById('dlbl-'+r);if(el)el.textContent=e+' / '+(r==='admin'?'admin123':r==='manager'?'mgr123':'rev123');});
+}
 let appUsers=[...DEFAULT_USERS];
 let currentUser=null;
 let editUserId=null;
@@ -4435,7 +4440,8 @@ function updateNbDot(){
   if(dot)dot.classList.toggle('on',count>0);
 }
 
-tryRestoreSession();
+fillDemoLabels();
+  tryRestoreSession();
 </script>
 
 <!-- ═══ MODAL: DAILY REPORT ═══ -->
@@ -4470,7 +4476,7 @@ tryRestoreSession();
   <div class="modal-title"><i class="fas fa-user-shield" style="color:var(--red)"></i><span id="uMTtl">Add User</span></div>
   <div class="fgrid">
     <div class="ff full"><label>Full Name *</label><input type="text" id="fu-name" placeholder="e.g. Priya Sharma"></div>
-    <div class="ff full"><label>Email *</label><input type="email" id="fu-email" placeholder="priya@camcom.ai"></div>
+    <div class="ff full"><label>Email *</label><input type="email" id="fu-email" placeholder="priya at camcom.ai"></div>
     <div class="ff"><label>Password *</label><input type="password" id="fu-pwd" placeholder="Set password"></div>
     <div class="ff"><label>Role</label>
       <select id="fu-role" onchange="onRoleChange()">
