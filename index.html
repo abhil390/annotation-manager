@@ -1698,6 +1698,9 @@ async function loadProjects(){
 }
 
 async function saveProjDB(p){
+  // Track own saves for echo suppression
+  _lastSave=Date.now();
+  _ownSaves.set(p.id,Date.now());
   // ── FULL row with all v5+ columns ──
   const fullRow={
     id:p.id, name:p.name, client:p.client||'', labellink:p.labellink||'',
@@ -1750,6 +1753,16 @@ function uid(){return crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'
 function esc(s){return(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pct(a,b){return b>0?Math.round((a/b)*100):0;}
 function fmtD(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
+function fmtAgo(ts){
+  if(!ts)return'';
+  const diff=Date.now()-new Date(ts).getTime();
+  const s=Math.floor(diff/1000),m=Math.floor(s/60),h=Math.floor(m/60),d=Math.floor(h/24);
+  if(s<60)return'just now';
+  if(m<60)return m+'m ago';
+  if(h<24)return h+'h ago';
+  if(d<7)return d+'d ago';
+  return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+}
 function dlMeta(d){if(!d)return null;const dt=new Date(d+'T00:00:00'),diff=Math.ceil((dt-new Date())/86400000);return{label:fmtD(d),diff};}
 function initials(n){return(n||'?').split(' ').map(w=>w[0]||'').join('').substr(0,2).toUpperCase();}
 function getEmp(id){return employees.find(e=>e.id===id)||{name:'Unknown',gender:'male'};}
@@ -2277,7 +2290,7 @@ async function dpUpd(id,field,val){
   _dpSaveTimers[id+'_'+field]=setTimeout(async()=>{
     await saveProjDB(p);
     logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated to '+val);
-  },1000);
+  },500);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
 
@@ -4142,9 +4155,7 @@ function startRealtime(){
   }catch(e){console.warn('Realtime unavailable:',e);}
 }
 
-// Patch saveProjDB to record timestamp so echo suppression works
-const _origSaveProjDB=saveProjDB;
-async function saveProjDB(p){_lastSave=Date.now();_ownSaves.set(p.id,Date.now());return _origSaveProjDB(p);}
+// _ownSaves tracking is now inside saveProjDB directly
 
 // ══════════════════════════════════════════════════════════════
 // THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
