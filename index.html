@@ -1030,8 +1030,12 @@ function can(perm){
 function visibleProjects(){
   if(!currentUser) return [];
   if(can('seeAll')) return projects;
-  if(currentUser.role==='stakeholder') return projects; // all but filtered display
-  return projects.filter(p=>(p.assignedEmployees||[]).includes(currentUser.empId));
+  if(currentUser.role==='stakeholder') return projects;
+  // Employees see projects they're assigned to (as annotator OR reviewer)
+  const eid=currentUser.empId;
+  return projects.filter(p=>
+    (p.assignedEmployees||[]).includes(eid)||(p.reviewEmployees||[]).includes(eid)
+  );
 }
 
 // ══════════════════════════════════
@@ -1754,6 +1758,8 @@ async function saveProjDB(p){
   _saveProjDBRunning.add(p.id);
   _lastSave=Date.now();
   _ownSaves.set(p.id,Date.now());
+  // Auto-expire echo suppression after 1200ms so other users' changes aren't blocked
+  setTimeout(()=>_ownSaves.delete(p.id),1300);
   try{
   // ── FULL row with all v5+ columns ──
   const fullRow={
@@ -1903,7 +1909,13 @@ function switchPage(p){
   if(p==='stakeholder')renderStakeholderDashboard();
   if(p==='access')renderAccessControl();
 }
-function renderAll(){renderProjects();renderStats();}
+function renderAll(){
+  renderProjects();
+  renderStats();
+  // Re-render gantt/burndown/analytics if those tabs are active
+  if(document.getElementById('page-analytics')?.classList.contains('active'))renderCharts();
+  if(document.getElementById('page-kanban')?.classList.contains('active'))renderKanban();
+}
 
 // ═══════════════════════
 // STATS
@@ -2383,7 +2395,7 @@ async function dpUpd(id,field,val){
   _dpSaveTimers[id+'_'+field]=setTimeout(async()=>{
     await saveProjDB(p);
     logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated to '+val);
-  },1000);
+  },400);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
 
@@ -4199,6 +4211,8 @@ function startVisConfigPoll(){
 // SUPABASE REALTIME — project changes + access control sync
 // ══════════════════════════════════════════════════════════════
 let _rtChannel=null, _lastSave=0;
+const _ownSaves=new Map();        // projId → timestamp of last OUR save (echo suppression)
+const _saveProjDBRunning=new Set(); // projId → currently saving (recursion guard)
 
 function startRealtime(){
   if(_rtChannel)return;
@@ -4206,8 +4220,7 @@ function startRealtime(){
     _rtChannel=sb.channel('cc-realtime')
       .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(pl)=>{
         const {eventType,new:nr,old:or}=pl;
-        if(nr&&_ownSaves&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<3000)return;
-        if(eventType==='DELETE'){projects=projects.filter(p=>p.id!==or.id);renderAll();toast('Project deleted by another user','info');return;}
+        if(nr&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<1200)return;
         const mapped={
           id:nr.id,name:nr.name,client:nr.client||'',labellink:nr.labellink||'',
           total:nr.total||0,annotated:nr.annotated||0,reviewed:nr.reviewed||0,
@@ -4219,18 +4232,53 @@ function startRealtime(){
           reviewEmployees:nr.review_employees?nr.review_employees.split(',').filter(Boolean):[],
           tags:nr.tags?nr.tags.split(',').filter(Boolean):[]
         };
-        if(eventType==='INSERT'){if(!projects.find(p=>p.id===mapped.id)){projects.unshift(mapped);renderAll();toast(`New project: "${mapped.name}"`,'ok');}}
+        if(eventType==='INSERT'){
+          if(!projects.find(p=>p.id===mapped.id)){
+            projects.unshift(mapped);
+            renderAll();
+            const eid=currentUser?.empId;
+            if(eid&&((mapped.assignedEmployees||[]).includes(eid)||(mapped.reviewEmployees||[]).includes(eid)))
+              toast(`📋 You were assigned to new project: "${mapped.name}"`,'ok');
+            else if(can('seeAll'))
+              toast(`New project added: "${mapped.name}"`,'ok');
+          }
+        }
         else if(eventType==='UPDATE'){
           const i=projects.findIndex(p=>p.id===mapped.id);
+          // If project not found locally, reload all projects (race condition on first load)
+          if(i<0){loadProjects();return;}
           if(i>=0){
             const prev=projects[i];
             projects[i]=mapped;
-            renderAll();
+            renderAll(); // re-renders project list, stats, badges
+            // Re-render open detail panel
             if(openProjId===mapped.id)renderDPBody(mapped);
-            if((mapped.assignedEmployees||[]).includes(currentUser?.empId)||(mapped.reviewEmployees||[]).includes(currentUser?.empId)){
-              if(prev.kanbanStatus!==mapped.kanbanStatus)toast(`"${mapped.name}" moved to ${KB_LABELS[mapped.kanbanStatus]||mapped.kanbanStatus}`,'info');
+            // Notify user of changes relevant to them
+            const eid=currentUser?.empId;
+            const wasAssigned=(prev.assignedEmployees||[]).includes(eid)||(prev.reviewEmployees||[]).includes(eid);
+            const nowAssigned=(mapped.assignedEmployees||[]).includes(eid)||(mapped.reviewEmployees||[]).includes(eid);
+            const isAnnotator=(mapped.assignedEmployees||[]).includes(eid);
+            const isReviewer=(mapped.reviewEmployees||[]).includes(eid);
+            // Newly assigned
+            if(!wasAssigned&&nowAssigned){
+              const role=isReviewer&&!isAnnotator?' (as reviewer)':isAnnotator&&isReviewer?' (annotator + reviewer)':'';
+              toast(`📋 You were assigned to "${mapped.name}"${role}`,'ok');
             }
-          }
+            // Unassigned
+            else if(wasAssigned&&!nowAssigned){
+              toast(`You were removed from "${mapped.name}"`,'info');
+            }
+            // Status change for assigned users
+            else if(nowAssigned&&prev.kanbanStatus!==mapped.kanbanStatus){
+              toast(`"${mapped.name}" → ${KB_LABELS[mapped.kanbanStatus]||mapped.kanbanStatus}`,'info');
+            }
+          } // end if i>=0
+        }
+        else if(eventType==='DELETE'){
+          projects=projects.filter(p=>p.id!==(or.id||or?.id));
+          renderAll();
+          if(can('seeAll'))toast('A project was deleted','info');
+          return;
         }
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(pl)=>{
