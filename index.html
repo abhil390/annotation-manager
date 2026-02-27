@@ -1697,7 +1697,11 @@ async function loadProjects(){
   finally{document.getElementById('lovl').style.display='none';renderAll();}
 }
 
+let _saveProjDBRunning=new Set();
 async function saveProjDB(p){
+  if(_saveProjDBRunning.has(p.id)){return;} // hard recursion guard
+  _saveProjDBRunning.add(p.id);
+  try{
   // Track own saves for echo suppression
   _lastSave=Date.now();
   _ownSaves.set(p.id,Date.now());
@@ -1735,6 +1739,7 @@ async function saveProjDB(p){
       console.error(error);
     }
   }
+  }finally{_saveProjDBRunning.delete(p.id);}
 }
 
 async function delProjDB(id){const{error}=await sb.from('projects').delete().eq('id',id);if(error)toast('Delete: '+error.message,'err');}
@@ -2267,9 +2272,18 @@ async function rmAsgn(projId,empId){
 }
 async function dpField(id,field,val){
   const p=projects.find(x=>x.id===id);if(!p)return;
-  p[field]=Math.max(0,parseInt(val)||0);
-  if(openProjId===id)renderDPBody(p);
-  renderProjects();await saveProjDB(p);
+  const newVal=Math.max(0,parseInt(val)||0);
+  if(p[field]===newVal)return; // no change, avoid unnecessary save + re-render
+  p[field]=newVal;
+  // Update progress bars inline without full re-render (avoids re-trigger risk)
+  const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+  const aP=Math.round(T>0?A/T*100:0),rP=Math.round(T>0?R/T*100:0);
+  const apEl=document.getElementById('dp-ap-'+id);
+  const rpEl=document.getElementById('dp-rp-'+id);
+  if(apEl)apEl.style.width=aP+'%';
+  if(rpEl)rpEl.style.width=rP+'%';
+  renderProjects(); // update cards/kanban
+  await saveProjDB(p); // saves to Supabase -> Realtime updates other browsers
   logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,`${field==='total'?'Total images':field==='annotated'?'Annotated count':'Reviewed count'} updated to ${p[field]}`);
 }
 let _dpSaveTimers={};
@@ -4062,7 +4076,7 @@ function startRealtime(){
       .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(pl)=>{
         // Echo suppression: skip if we just saved this exact project ourselves
         const {eventType,new:nr,old:or}=pl;
-        if(nr&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<1500)return;
+        if(nr&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<3000)return;
         if(eventType==='DELETE'){projects=projects.filter(p=>p.id!==or.id);renderAll();toast('Project deleted by another user','info');return;}
         const mapped={
           id:nr.id,name:nr.name,client:nr.client||'',labellink:nr.labellink||'',
