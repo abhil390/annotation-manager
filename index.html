@@ -399,6 +399,22 @@ tr:hover td{background:var(--sur2);}
 .migbanner p{color:rgba(199,210,254,.7);font-size:.78rem;margin-bottom:10px;}
 .migbanner code{display:block;background:rgba(0,0,0,.4);border-radius:7px;padding:10px 14px;
   font-size:.78rem;color:#a5b4fc;white-space:pre;overflow-x:auto;margin-bottom:10px;line-height:1.6;}
+
+/* ════ DATE RANGE FILTER BAR ════ */
+.dr-bar{display:flex;align-items:center;gap:8px;background:var(--yel-l);border:1px solid #fde68a;border-radius:var(--rsm);padding:9px 14px;margin-bottom:14px;flex-wrap:wrap;}
+.dr-bar label{font-size:.73rem;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.dr-bar input[type=date]{padding:5px 9px;border:1px solid #fde68a;border-radius:var(--rsm);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.78rem;outline:none;}
+.dr-result-pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:var(--rp);background:var(--yellow);color:#fff;font-size:.69rem;font-weight:700;}
+.dr-clear-btn{background:none;border:1px solid #fde68a;color:var(--yellow);cursor:pointer;font-size:.72rem;padding:4px 10px;border-radius:var(--rp);font-weight:600;}
+.dr-clear-btn:hover{background:var(--yellow);color:#fff;}
+.dr-result-banner{background:var(--blue-l);border:1px solid var(--blue);border-radius:var(--rsm);padding:9px 14px;font-size:.79rem;color:var(--blue);margin-bottom:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+/* ════ ACCESS CONTROL CHIPS ════ */
+.acc2-chip{display:inline-flex;align-items:center;gap:4px;padding:5px 11px;border-radius:var(--rp);font-size:.71rem;font-weight:600;cursor:pointer;border:1.5px solid var(--brd);background:var(--sur2);color:var(--tx3);transition:all .13s;user-select:none;margin:2px 2px 2px 0;}
+.acc2-chip.on{border-color:var(--green);background:var(--green-l);color:var(--green);}
+.acc2-chip.locked{cursor:not-allowed;opacity:.45;pointer-events:none;}
+.acc2-role-hdr{font-size:.75rem;font-weight:700;color:var(--tx2);margin:12px 0 5px;display:flex;align-items:center;gap:6px;}
+.acc2-section{margin-top:18px;padding-top:16px;border-top:1px solid var(--brd);}
+
 </style>
 </head>
 <body>
@@ -452,17 +468,17 @@ tr:hover td{background:var(--sur2);}
     <div class="logo-text"><strong>CamCom</strong><span>Annotation Tracker</span></div>
   </div>
   <div class="nav-grp">Main</div>
-  <button class="nav-btn active" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-th-large"></i> Dashboard</button>
-  <button class="nav-btn" data-page="projects" onclick="switchPage('projects')"><i class="fas fa-folder-open"></i> All Projects <span class="nbadge" id="nb-p">0</span></button>
-  <button class="nav-btn" data-page="kanban" onclick="switchPage('kanban')"><i class="fas fa-columns"></i> Kanban Board</button>
-  <button class="nav-btn" data-page="analytics" onclick="switchPage('analytics')"><i class="fas fa-chart-pie"></i> Analytics</button>
-  <button class="nav-btn" data-page="employees" onclick="switchPage('employees')"><i class="fas fa-users"></i> Employees <span class="nbadge" id="nb-e">0</span></button>
-  <button class="nav-btn" data-page="workload" onclick="switchPage('workload')"><i class="fas fa-chart-bar"></i> Workload</button>
+  <button class="nav-btn active" id="nav-dashboard" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-th-large"></i> Dashboard</button>
+  <button class="nav-btn" id="nav-projects" data-page="projects" onclick="switchPage('projects')"><i class="fas fa-folder-open"></i> All Projects <span class="nbadge" id="nb-p">0</span></button>
+  <button class="nav-btn" id="nav-kanban" data-page="kanban" onclick="switchPage('kanban')"><i class="fas fa-columns"></i> Kanban Board</button>
+  <button class="nav-btn" id="nav-analytics" data-page="analytics" onclick="switchPage('analytics')"><i class="fas fa-chart-pie"></i> Analytics</button>
+  <button class="nav-btn" id="nav-employees" data-page="employees" onclick="switchPage('employees')"><i class="fas fa-users"></i> Employees <span class="nbadge" id="nb-e">0</span></button>
+  <button class="nav-btn" id="nav-workload" data-page="workload" onclick="switchPage('workload')"><i class="fas fa-chart-bar"></i> Workload</button>
   <div class="nav-grp">Actions</div>
-  <button class="nav-btn" onclick="openNewProj()"><i class="fas fa-plus-circle"></i> New Project</button>
-  <button class="nav-btn" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
-  <button class="nav-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
-  <button class="nav-btn" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+  <button class="nav-btn" id="nav-newproj" onclick="openNewProj()"><i class="fas fa-plus-circle"></i> New Project</button>
+  <button class="nav-btn" id="nav-addemp" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
+  <button class="nav-btn" id="nav-exportcsv" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+  <button class="nav-btn" id="nav-exportpdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
   <div class="nav-divider"></div>
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
@@ -496,6 +512,17 @@ tr:hover td{background:var(--sur2);}
   </div>
   <div class="stat-grid" id="statGrid"></div>
   <div id="cBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="cTxt"></span><button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="switchPage('employees')">View →</button></div>
+  <!-- Date Range Filter Bar — shown only to roles with access -->
+  <div class="dr-bar" id="drBar" style="display:none;">
+    <i class="fas fa-calendar-alt" style="color:var(--yellow);font-size:.85rem;"></i>
+    <label>Date Range:</label>
+    <input type="date" id="drFrom" onchange="applyDateRange()">
+    <label>to</label>
+    <input type="date" id="drTo" onchange="applyDateRange()">
+    <button class="dr-clear-btn" onclick="clearDateRange()"><i class="fas fa-times"></i> Clear</button>
+    <span id="drResultPill" style="display:none;" class="dr-result-pill"><i class="fas fa-filter"></i> <span id="drResultTxt"></span></span>
+  </div>
+  <div class="dr-result-banner" id="drResultBanner" style="display:none;"></div>
   <div class="fbar">
     <span style="font-size:.67rem;color:var(--tx3);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Filter:</span>
     <button class="fc on" onclick="setFilter('all',this)">All</button>
@@ -808,28 +835,62 @@ function visibleProjects(){
 // ══════════════════════════════════
 // VISIBILITY CONFIG (Admin-controlled)
 // ══════════════════════════════════
-// What each role can see / do — admin can override
+// ─── VISIBILITY CONFIG — everything admin can control ─────────────────────────
+// pageAccess: which nav pages each role can see
+//   admin = always full; employee = fixed (only projects); stakeholder = fixed (only sh-dashboard)
+//   manager/reviewer = configurable
+// dateFilter: which roles can use the date range filter
+// actLogVisible: which roles can see the Activity Log page
+// stakeholderFields: which data fields show on the stakeholder dashboard
 let visConfig={
-  // Activity log visibility per role
-  actLogVisible:{admin:true, manager:true, reviewer:false, employee:false, stakeholder:false},
-  // Stakeholder dashboard — which fields to show
+  pageAccess:{
+    manager:  {dashboard:true, projects:true, kanban:true,  analytics:true, employees:true,  workload:true,  exportCSV:true,  exportPDF:true},
+    reviewer: {dashboard:true, projects:true, kanban:false, analytics:true, employees:false, workload:false, exportCSV:false, exportPDF:false},
+    stakeholder:{dashboard:false},  // stakeholder only sees their own page — not configurable
+  },
+  dateFilter:{manager:true, reviewer:true, employee:false, stakeholder:false},
+  actLogVisible:{manager:true, reviewer:false, employee:false, stakeholder:false},
   stakeholderFields:{
     totalProjects:true, totalImages:true, annotatedPct:true, reviewedPct:true,
     highPriorityCount:true, onTrackCount:true,
     projectTable:true, projectName:true, projectPriority:true, projectStatus:true,
     projectAnnotatedPct:true, projectReviewedPct:true, projectDeadline:true,
-    projectAssignedBy:false,   // sensitive — hidden by default
-    projectEmployeeCount:false, // sensitive — hidden by default
-    projectNotes:false,         // sensitive — hidden by default
-    analyticsCharts:false,      // show charts? off by default
+    projectAssignedBy:false, projectEmployeeCount:false, projectNotes:false, analyticsCharts:false,
   },
-  // Admin can toggle which role can view activity log
-  // (beyond defaults above)
-  roleCaps:{} // { manager: { canViewLog: true/false }, ... }
 };
 
-function loadVisConfig(){try{const s=localStorage.getItem('cc_vis');if(s)Object.assign(visConfig,JSON.parse(s));}catch(e){}}
+// Deep-merge saved config on top of defaults
+function loadVisConfig(){
+  try{
+    const s=localStorage.getItem('cc_vis');
+    if(!s)return;
+    const c=JSON.parse(s);
+    // merge nested objects
+    if(c.pageAccess){
+      if(c.pageAccess.manager)Object.assign(visConfig.pageAccess.manager,c.pageAccess.manager);
+      if(c.pageAccess.reviewer)Object.assign(visConfig.pageAccess.reviewer,c.pageAccess.reviewer);
+    }
+    if(c.dateFilter)Object.assign(visConfig.dateFilter,c.dateFilter);
+    if(c.actLogVisible)Object.assign(visConfig.actLogVisible,c.actLogVisible);
+    if(c.stakeholderFields)Object.assign(visConfig.stakeholderFields,c.stakeholderFields);
+  }catch(e){}
+}
 function saveVisConfig(){try{localStorage.setItem('cc_vis',JSON.stringify(visConfig));}catch(e){}}
+
+// ─── PAGE ACCESS HELPERS ──────────────────────────────────────────────────────
+function canSeePage(page){
+  if(!currentUser)return false;
+  const role=currentUser.role;
+  if(role==='admin')return true;                          // admin sees all
+  if(role==='employee')return page==='projects';          // employee: fixed — only "My Projects"
+  if(role==='stakeholder')return page==='stakeholder';    // stakeholder: only their dashboard
+  return !!(visConfig.pageAccess[role]&&visConfig.pageAccess[role][page]);
+}
+function canUseDateFilter(){
+  if(!currentUser)return false;
+  if(currentUser.role==='admin')return true;
+  return !!(visConfig.dateFilter[currentUser.role]);
+}
 
 // ══════════════════════════════════
 // ACTIVITY LOG
@@ -1030,75 +1091,157 @@ function renderStakeholderDashboard(){
 function renderAccessControl(){
   const sf=visConfig.stakeholderFields;
   const alv=visConfig.actLogVisible;
+  const pa=visConfig.pageAccess;
+  const df=visConfig.dateFilter;
 
-  const ACTLOG_ROLES=[
-    {key:'manager',   label:'Manager',   icon:'🔵'},
-    {key:'reviewer',  label:'Reviewer',  icon:'🟡'},
-    {key:'employee',  label:'Employee',  icon:'🟢'},
+  // Page definitions — pages admin can toggle per role
+  const PAGE_DEFS=[
+    {key:'dashboard',  label:'Dashboard',     icon:'fa-th-large'},
+    {key:'projects',   label:'All Projects',  icon:'fa-folder-open'},
+    {key:'kanban',     label:'Kanban Board',  icon:'fa-columns'},
+    {key:'analytics',  label:'Analytics',     icon:'fa-chart-pie'},
+    {key:'employees',  label:'Employees',     icon:'fa-users'},
+    {key:'workload',   label:'Workload',       icon:'fa-chart-bar'},
+    {key:'exportCSV',  label:'Export CSV',     icon:'fa-file-csv'},
+    {key:'exportPDF',  label:'Export PDF',     icon:'fa-file-pdf'},
   ];
+
+  const renderChips=(roleKey)=>PAGE_DEFS.map(pg=>{
+    const isOn=!!(pa[roleKey]&&pa[roleKey][pg.key]);
+    return`<span class="acc2-chip ${isOn?'on':'off'}" onclick="togglePageAccess('${roleKey}','${pg.key}',${!isOn})">
+      <i class="fas ${isOn?'fa-check-circle':'fa-times-circle'}" style="font-size:.62rem;"></i>
+      <i class="fas ${pg.icon}" style="font-size:.62rem;"></i> ${pg.label}
+    </span>`;
+  }).join('');
 
   const SH_FIELDS=[
-    {key:'totalProjects',    label:'Total Projects Count',  group:'Summary Cards'},
-    {key:'totalImages',      label:'Total Image Count',      group:'Summary Cards'},
-    {key:'annotatedPct',     label:'Annotation %',           group:'Summary Cards'},
-    {key:'reviewedPct',      label:'Review %',               group:'Summary Cards'},
-    {key:'highPriorityCount',label:'High Priority Count',    group:'Summary Cards'},
-    {key:'onTrackCount',     label:'Projects On Track',      group:'Summary Cards'},
-    {key:'projectTable',     label:'Show Project Table',     group:'Project Table'},
-    {key:'projectName',      label:'Project Name',           group:'Project Table'},
-    {key:'projectPriority',  label:'Priority Level',         group:'Project Table'},
-    {key:'projectStatus',    label:'Kanban Status',          group:'Project Table'},
-    {key:'projectAnnotatedPct',label:'Annotation %',         group:'Project Table'},
-    {key:'projectReviewedPct',label:'Review %',              group:'Project Table'},
-    {key:'projectDeadline',  label:'Deadline Date',          group:'Project Table'},
-    {key:'projectAssignedBy',label:'Assigned By (sensitive)',group:'Project Table'},
-    {key:'projectEmployeeCount',label:'Employee Count',      group:'Project Table'},
-    {key:'projectNotes',     label:'Notes (sensitive)',      group:'Project Table'},
-    {key:'analyticsCharts',  label:'Charts & Analytics',    group:'Summary Cards'},
+    {key:'totalProjects',label:'Total Projects',group:'Summary Stats'},
+    {key:'totalImages',label:'Total Images',group:'Summary Stats'},
+    {key:'annotatedPct',label:'Annotation %',group:'Summary Stats'},
+    {key:'reviewedPct',label:'Review %',group:'Summary Stats'},
+    {key:'highPriorityCount',label:'High Priority Count',group:'Summary Stats'},
+    {key:'onTrackCount',label:'On Track Count',group:'Summary Stats'},
+    {key:'analyticsCharts',label:'Charts & Analytics',group:'Summary Stats'},
+    {key:'projectTable',label:'Show Project Table',group:'Project Table'},
+    {key:'projectName',label:'Project Name',group:'Project Table'},
+    {key:'projectPriority',label:'Priority',group:'Project Table'},
+    {key:'projectStatus',label:'Status',group:'Project Table'},
+    {key:'projectAnnotatedPct',label:'Annotation %',group:'Project Table'},
+    {key:'projectReviewedPct',label:'Review %',group:'Project Table'},
+    {key:'projectDeadline',label:'Deadline',group:'Project Table'},
+    {key:'projectAssignedBy',label:'Assigned By ⚠ sensitive',group:'Project Table'},
+    {key:'projectEmployeeCount',label:'Employee Count ⚠ sensitive',group:'Project Table'},
+    {key:'projectNotes',label:'Notes ⚠ sensitive',group:'Project Table'},
   ];
 
-  const groups={};
-  SH_FIELDS.forEach(f=>{if(!groups[f.group])groups[f.group]=[];groups[f.group].push(f);});
+  const shGroups={};
+  SH_FIELDS.forEach(f=>{if(!shGroups[f.group])shGroups[f.group]=[];shGroups[f.group].push(f);});
 
   document.getElementById('visConfigGrid').innerHTML=`
-    <!-- Activity Log Access Card -->
-    <div class="vis-role-card">
-      <div class="vis-role-title"><i class="fas fa-history" style="color:var(--blue)"></i> Activity Log — Who Can View?</div>
-      <div class="vis-role-sub">Admin always has full access. Toggle access for other roles below.</div>
+  <!-- ══ SECTION 1: Page Access ══ -->
+  <div class="vis-role-card" style="grid-column:1/-1;">
+    <div class="vis-role-title"><i class="fas fa-door-open" style="color:var(--blue)"></i> Page Access — Control Who Sees What</div>
+    <div class="vis-role-sub">Toggle which pages each role can navigate to. Changes take effect immediately. Fixed roles (Employee, Stakeholder, Admin) cannot be edited.</div>
+    <div style="background:var(--blue-l);border:1px solid var(--blue);border-radius:var(--rsm);padding:9px 14px;margin-bottom:14px;font-size:.75rem;color:var(--blue);">
+      <strong>Fixed access:</strong> &nbsp;
+      👑 Admin — full access &nbsp;|&nbsp;
+      🟢 Employee — only "My Projects" (read-only) &nbsp;|&nbsp;
+      🟣 Stakeholder — only their executive dashboard
+    </div>
+    <div class="acc2-role-hdr"><span class="role-pill rp-manager">🔵 Manager</span> — click chips to toggle</div>
+    <div style="display:flex;flex-wrap:wrap;gap:0;margin-bottom:12px;">${renderChips('manager')}</div>
+    <div class="acc2-role-hdr"><span class="role-pill rp-reviewer">🟡 Reviewer</span> — click chips to toggle</div>
+    <div style="display:flex;flex-wrap:wrap;gap:0;">${renderChips('reviewer')}</div>
+  </div>
+
+  <!-- ══ SECTION 2: Activity Log + Date Filter ══ -->
+  <div class="vis-role-card">
+    <div class="vis-role-title"><i class="fas fa-history" style="color:var(--blue)"></i> Activity Log Access</div>
+    <div class="vis-role-sub">Who can view the activity log? Admin always has access. Employee never has access.</div>
+    <div class="vis-toggle-list">
+      <div class="vis-toggle-row" style="opacity:.4;pointer-events:none;">
+        <span class="vis-toggle-lbl">👑 Admin — always on</span>
+        <label class="toggle-sw"><input type="checkbox" checked disabled><span class="toggle-sl"></span></label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-toggle-lbl">🔵 Manager</span>
+        <label class="toggle-sw"><input type="checkbox" ${alv.manager?'checked':''} onchange="toggleActLogAccess('manager',this.checked)"><span class="toggle-sl"></span></label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-toggle-lbl">🟡 Reviewer</span>
+        <label class="toggle-sw"><input type="checkbox" ${alv.reviewer?'checked':''} onchange="toggleActLogAccess('reviewer',this.checked)"><span class="toggle-sl"></span></label>
+      </div>
+      <div class="vis-toggle-row">
+        <span class="vis-toggle-lbl">🟣 Stakeholder</span>
+        <label class="toggle-sw"><input type="checkbox" ${alv.stakeholder?'checked':''} onchange="toggleActLogAccess('stakeholder',this.checked)"><span class="toggle-sl"></span></label>
+      </div>
+      <div class="vis-toggle-row" style="opacity:.4;pointer-events:none;">
+        <span class="vis-toggle-lbl">🟢 Employee — always off</span>
+        <label class="toggle-sw"><input type="checkbox" disabled><span class="toggle-sl"></span></label>
+      </div>
+    </div>
+
+    <div class="acc2-section">
+      <div class="vis-role-title" style="font-size:.83rem;"><i class="fas fa-calendar-alt" style="color:var(--yellow)"></i> Date Range Filter Access</div>
+      <div class="vis-role-sub">Who can filter dashboard data by date range? Useful to see work done in a specific period.</div>
       <div class="vis-toggle-list">
-        ${ACTLOG_ROLES.map(r=>`
-        <div class="vis-toggle-row">
-          <span class="vis-toggle-lbl">${r.icon} ${r.label}</span>
-          <label class="toggle-sw"><input type="checkbox" ${alv[r.key]?'checked':''} onchange="toggleActLogAccess('${r.key}',this.checked)"><span class="toggle-sl"></span></label>
-        </div>`).join('')}
-        <div class="vis-toggle-row" style="opacity:.45;pointer-events:none;">
-          <span class="vis-toggle-lbl">👑 Admin</span>
+        <div class="vis-toggle-row" style="opacity:.4;pointer-events:none;">
+          <span class="vis-toggle-lbl">👑 Admin — always on</span>
           <label class="toggle-sw"><input type="checkbox" checked disabled><span class="toggle-sl"></span></label>
         </div>
-        <div class="vis-toggle-row" style="opacity:.45;pointer-events:none;">
-          <span class="vis-toggle-lbl">🟢 Employee</span>
+        <div class="vis-toggle-row">
+          <span class="vis-toggle-lbl">🔵 Manager</span>
+          <label class="toggle-sw"><input type="checkbox" ${df.manager?'checked':''} onchange="toggleDateFilter('manager',this.checked)"><span class="toggle-sl"></span></label>
+        </div>
+        <div class="vis-toggle-row">
+          <span class="vis-toggle-lbl">🟡 Reviewer</span>
+          <label class="toggle-sw"><input type="checkbox" ${df.reviewer?'checked':''} onchange="toggleDateFilter('reviewer',this.checked)"><span class="toggle-sl"></span></label>
+        </div>
+        <div class="vis-toggle-row">
+          <span class="vis-toggle-lbl">🟣 Stakeholder</span>
+          <label class="toggle-sw"><input type="checkbox" ${df.stakeholder?'checked':''} onchange="toggleDateFilter('stakeholder',this.checked)"><span class="toggle-sl"></span></label>
+        </div>
+        <div class="vis-toggle-row" style="opacity:.4;pointer-events:none;">
+          <span class="vis-toggle-lbl">🟢 Employee — always off</span>
           <label class="toggle-sw"><input type="checkbox" disabled><span class="toggle-sl"></span></label>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Stakeholder Fields Card -->
-    <div class="vis-role-card">
-      <div class="vis-role-title"><i class="fas fa-eye" style="color:var(--purple)"></i> Stakeholder Dashboard — Visible Fields</div>
-      <div class="vis-role-sub">Control exactly what data stakeholders (investors, executives) can see.</div>
-      <div class="vis-toggle-list">
-        ${Object.entries(groups).map(([grp,fields])=>`
-          <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);padding:8px 10px 4px;margin-top:4px;">${grp}</div>
-          ${fields.map(f=>`
-          <div class="vis-toggle-row">
-            <span class="vis-toggle-lbl">${f.label}</span>
-            <label class="toggle-sw"><input type="checkbox" ${sf[f.key]?'checked':''} onchange="toggleStakeholderField('${f.key}',this.checked)"><span class="toggle-sl"></span></label>
-          </div>`).join('')}
-        `).join('')}
-      </div>
-    </div>`;
+  <!-- ══ SECTION 3: Stakeholder Dashboard Fields ══ -->
+  <div class="vis-role-card">
+    <div class="vis-role-title"><i class="fas fa-eye" style="color:var(--purple)"></i> Stakeholder Dashboard — Visible Fields</div>
+    <div class="vis-role-sub">Control exactly what data stakeholders (investors, executives) can see. Sensitive fields are hidden by default.</div>
+    <div class="vis-toggle-list">
+      ${Object.entries(shGroups).map(([grp,fields])=>`
+        <div style="font-size:.6rem;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--tx3);padding:8px 0 3px;margin-top:6px;">${grp}</div>
+        ${fields.map(f=>{
+          const isSens=f.key.includes('Assigned')||f.key.includes('Notes')||f.key.includes('Count')&&f.key.includes('Employee');
+          return`<div class="vis-toggle-row" style="${isSens?'background:var(--yel-l);border-radius:5px;padding:5px 8px;':''}">
+          <span class="vis-toggle-lbl" style="${isSens?'color:var(--yellow);font-size:.76rem;':''}">${f.label}</span>
+          <label class="toggle-sw"><input type="checkbox" ${sf[f.key]?'checked':''} onchange="toggleStakeholderField('${f.key}',this.checked)"><span class="toggle-sl"></span></label>
+        </div>`;
+        }).join('')}
+      `).join('')}
+    </div>
+  </div>`;
 }
 
+function togglePageAccess(role,page,val){
+  if(!visConfig.pageAccess[role])visConfig.pageAccess[role]={};
+  visConfig.pageAccess[role][page]=val;
+  saveVisConfig();
+  renderAccessControl(); // re-render chips
+  applyRoleToUI();       // update nav for currently logged-in user if role matches
+  toast(`${role}: "${page}" access ${val?'enabled':'disabled'}`,'ok');
+}
+function toggleDateFilter(role,val){
+  visConfig.dateFilter[role]=val;
+  saveVisConfig();
+  applyRoleToUI();
+  toast(`Date filter ${val?'enabled for':'disabled for'} ${role}s`,'ok');
+}
 function toggleActLogAccess(role, val){
   visConfig.actLogVisible[role]=val;
   saveVisConfig();
@@ -1158,7 +1301,7 @@ function startSession(user){
 }
 function tryRestoreSession(){
   loadUsersLocal();
-  loadActivityLogs();
+  loadActLog();
   try{
     const s=localStorage.getItem('cc_sess');
     if(s){const sess=JSON.parse(s);const u=appUsers.find(x=>x.id===sess.id);
@@ -1176,22 +1319,69 @@ function doLogout(){
 
 function applyRoleToUI(){
   if(!currentUser)return;
-  const r=ROLES[currentUser.role];
-  // sidebar user chip
+  loadVisConfig(); // always use latest saved config
+  const role=currentUser.role;
+  const r=ROLES[role]||ROLES.employee;
+
+  // ─── User chip ────────────────────────────────────────────────────────────
   const initls=currentUser.name.split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();
   document.getElementById('userAv').textContent=initls;
   document.getElementById('userAv').style.background=r.color;
   document.getElementById('userName').textContent=currentUser.name;
   document.getElementById('userRole').innerHTML=`<span class="role-pill ${r.pill}">${r.icon} ${r.label}</span>`;
-  // nav visibility
-  const hide=(sel,show)=>{const el=document.querySelector(sel);if(el)el.style.display=show?'':'none';};
-  hide('[onclick="openNewProj()"]', can('canCreate'));
-  hide('[onclick="openEmpModal()"]', can('canManageUsers'));
-  hide('[data-page="settings"]', can('canManageFeatures'));
-  const nu=document.getElementById('nav-users');if(nu)nu.style.display=can('canManageUsers')?'':'none';
-  // Employee role — show a banner
-  if(currentUser.role==='employee'&&!currentUser.empId){
-    toast('⚠ Your account is not linked to an employee record. Contact an admin.','info');
+
+  // ─── Helper ───────────────────────────────────────────────────────────────
+  const showId=(id,show)=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';};
+
+  // ─── Main navigation pages ────────────────────────────────────────────────
+  showId('nav-dashboard', canSeePage('dashboard'));
+  showId('nav-projects',  canSeePage('projects'));
+  showId('nav-kanban',    canSeePage('kanban'));
+  showId('nav-analytics', canSeePage('analytics'));
+  showId('nav-employees', canSeePage('employees'));
+  showId('nav-workload',  canSeePage('workload'));
+
+  // ─── Action buttons ───────────────────────────────────────────────────────
+  showId('nav-newproj',   can('canCreate'));
+  showId('nav-addemp',    can('canManageUsers'));
+  showId('nav-exportcsv', canSeePage('exportCSV'));
+  showId('nav-exportpdf', canSeePage('exportPDF'));
+
+  // ─── Admin-only items ─────────────────────────────────────────────────────
+  showId('nav-access',  role==='admin');
+  showId('nav-users',   role==='admin');
+  showId('nav-settings', role==='admin');
+  // Feature Settings nav button (data-page="settings") — use querySelector since no ID
+  const settingsBtn=document.querySelector('[data-page="settings"]');
+  if(settingsBtn)settingsBtn.style.display=(role==='admin')?'':'none';
+
+  // ─── Activity Log nav ─────────────────────────────────────────────────────
+  const canLog=role==='admin'||!!(visConfig.actLogVisible[role]);
+  showId('nav-actlog', canLog);
+
+  // ─── Stakeholder-only nav ─────────────────────────────────────────────────
+  showId('nav-stakeholder', role==='stakeholder');
+
+  // ─── Date filter bar on dashboard ────────────────────────────────────────
+  showId('drBar', canUseDateFilter());
+
+  // ─── Rename "All Projects" label for employee ─────────────────────────────
+  const projBtn=document.getElementById('nav-projects');
+  if(projBtn){
+    if(role==='employee'){
+      projBtn.innerHTML='<i class="fas fa-folder-open"></i> My Projects <span class="nbadge" id="nb-p">0</span>';
+    } else {
+      projBtn.innerHTML='<i class="fas fa-folder-open"></i> All Projects <span class="nbadge" id="nb-p">0</span>';
+    }
+  }
+
+  // ─── Landing page after login ─────────────────────────────────────────────
+  if(role==='stakeholder')setTimeout(()=>switchPage('stakeholder'),80);
+  else if(role==='employee')setTimeout(()=>switchPage('projects'),80);
+
+  // ─── Warn unlinked employee ───────────────────────────────────────────────
+  if(role==='employee'&&!currentUser.empId){
+    setTimeout(()=>toast('⚠ Account not linked to an employee record — contact admin.','info'),600);
   }
 }
 
@@ -1212,7 +1402,7 @@ let dragSrcId=null;
 // INIT
 // ══════════════════════════════════
 function appInit(){
-  loadFeaturesLocal(); loadEmpsLocal(); loadDocsLocal();
+  loadFeaturesLocal(); loadEmpsLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
 }
@@ -1315,6 +1505,9 @@ function switchPage(p){
   if(p==='analytics'){renderCharts();renderGantt();populateBurndownSel();}
   if(p==='settings')renderSettings();
   if(p==='users')renderUsers();
+  if(p==='actlog')renderActivityLog();
+  if(p==='stakeholder')renderStakeholderDashboard();
+  if(p==='access')renderAccessControl();
 }
 function renderAll(){renderProjects();renderStats();}
 
@@ -1341,6 +1534,78 @@ function renderStats(){
   const cb=document.getElementById('cBanner');
   if(cc2.length>0){cb.style.display='flex';document.getElementById('cTxt').textContent=`⚠ ${cc2.length} employee(s) double-booked: ${cc2.map(id=>getEmp(id).name).join(', ')}`;}
   else cb.style.display='none';
+}
+
+// ══════════════════════════════════
+// DATE RANGE FILTER
+// ══════════════════════════════════
+let dateRange={active:false,from:'',to:''};
+
+function applyDateRange(){
+  const from=document.getElementById('drFrom')?.value||'';
+  const to=document.getElementById('drTo')?.value||'';
+  if(!from&&!to){clearDateRange();return;}
+  dateRange={active:true,from,to};
+  const pill=document.getElementById('drResultPill');
+  const pillTxt=document.getElementById('drResultTxt');
+  if(pill&&pillTxt){
+    const fmtFrom=from?new Date(from+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):'';
+    const fmtTo=to?new Date(to+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short'}):'';
+    pillTxt.textContent=fmtFrom+(fmtTo?' → '+fmtTo:'');
+    pill.style.display='';
+  }
+  renderDateFilterSummary();
+  renderProjects();
+}
+function clearDateRange(){
+  dateRange={active:false,from:'',to:''};
+  const drFrom=document.getElementById('drFrom');const drTo=document.getElementById('drTo');
+  if(drFrom)drFrom.value='';if(drTo)drTo.value='';
+  const pill=document.getElementById('drResultPill');if(pill)pill.style.display='none';
+  const banner=document.getElementById('drResultBanner');if(banner)banner.style.display='none';
+  renderProjects();
+}
+function renderDateFilterSummary(){
+  if(!dateRange.active)return;
+  const from=dateRange.from?new Date(dateRange.from+'T00:00:00'):null;
+  const to=dateRange.to?new Date(dateRange.to+'T23:59:59'):null;
+  // Count activity log entries in range
+  const entriesInRange=actLog.filter(e=>{
+    const d=new Date(e.ts);
+    return(!from||d>=from)&&(!to||d<=to);
+  });
+  // Sum annotated/reviewed changes from logs in range
+  let annotatedInRange=0,reviewedInRange=0;
+  entriesInRange.forEach(e=>{
+    const am=e.msg.match(/Annotated count updated to (\d+)/);
+    const rm=e.msg.match(/Reviewed count updated to (\d+)/);
+    if(am)annotatedInRange+=parseInt(am[1]);
+    if(rm)reviewedInRange+=parseInt(rm[1]);
+  });
+  const fmtFrom=dateRange.from?new Date(dateRange.from+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'';
+  const fmtTo=dateRange.to?new Date(dateRange.to+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'';
+  const banner=document.getElementById('drResultBanner');
+  if(banner){
+    banner.style.display='';
+    banner.innerHTML=`<i class="fas fa-calendar-check" style="font-size:1rem;"></i>
+      <span><strong>Date Filter Active</strong>: ${fmtFrom||'—'}${fmtTo?' → '+fmtTo:''} &nbsp;|&nbsp;
+      <strong>${entriesInRange.length}</strong> activity entries &nbsp;|&nbsp;
+      Projects with deadline in range shown below. Activity log entries in this period: <strong>${entriesInRange.length}</strong></span>
+      <button class="dr-clear-btn" style="margin-left:auto;" onclick="clearDateRange()"><i class="fas fa-times"></i> Clear filter</button>`;
+  }
+}
+function dateFilterProjects(list){
+  if(!dateRange.active)return list;
+  const from=dateRange.from?new Date(dateRange.from+'T00:00:00'):null;
+  const to=dateRange.to?new Date(dateRange.to+'T23:59:59'):null;
+  return list.filter(p=>{
+    // Show projects that have been modified in the range (have activity log entries)
+    // OR have start/deadline overlapping the range
+    const hasActivity=actLog.some(e=>e.projId===p.id&&(()=>{const d=new Date(e.ts);return(!from||d>=from)&&(!to||d<=to);})());
+    const startOk=!p.startdate||!to||new Date(p.startdate+'T00:00:00')<=to;
+    const deadOk=!p.deadline||!from||new Date(p.deadline+'T23:59:59')>=from;
+    return hasActivity||(startOk&&deadOk);
+  });
 }
 
 // ═══════════════════════
@@ -1389,6 +1654,7 @@ function buildCard(p){
 function getFiltered(){
   const sort=document.getElementById('sortSel')?.value||'default';
   let list=[...visibleProjects()];  // ← role-filtered
+  list=dateFilterProjects(list);    // ← date range filter
   if(currentFilter!=='all')list=list.filter(p=>p.priority===currentFilter);
   if(searchQ){const q=searchQ.toLowerCase();list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.assignedby||'').toLowerCase().includes(q)||(p.notes||'').toLowerCase().includes(q)||(p.assignedEmployees||[]).some(id=>getEmp(id).name.toLowerCase().includes(q)));}
   if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name));
@@ -1434,44 +1700,61 @@ function renderDPBody(p){
   const asgn=p.assignedEmployees||[];
   const am=aMap();
   const docs=projDocs[p.id]||[];
-  const aTags=asgn.map(id=>{const e=getEmp(id);const isC=(am.get(id)||0)>1;return`<span class="atag ${isC?'cc':''}">
-    ${isC?'⚠ ':''}${esc(e.name)}<button onclick="rmAsgn('${p.id}','${id}')"><i class="fas fa-times"></i></button></span>`;}).join('');
-  const docHtml=docs.map((d,i)=>`<div class="docitem"><i class="fas fa-file-alt"></i><span class="doc-n">${esc(d.name)}</span><span class="doc-s">${d.size}</span><button class="doc-rm" onclick="rmDoc('${p.id}',${i})"><i class="fas fa-trash"></i></button></div>`).join('');
+  const isRO=!can('canEdit'); // read-only if cannot edit
+
+  // ── Build assignment tags (no remove button when read-only) ──
+  const aTags=asgn.map(id=>{
+    const e=getEmp(id);const isC=(am.get(id)||0)>1;
+    return`<span class="atag ${isC?'cc':''}">${isC?'⚠ ':''}${esc(e.name)}${can('canAssign')?`<button onclick="rmAsgn('${p.id}','${id}')"><i class="fas fa-times"></i></button>`:''}</span>`;
+  }).join('');
+  const docHtml=docs.map((d,i)=>`<div class="docitem"><i class="fas fa-file-alt"></i><span class="doc-n">${esc(d.name)}</span><span class="doc-s">${d.size}</span>${!isRO?`<button class="doc-rm" onclick="rmDoc('${p.id}',${i})"><i class="fas fa-trash"></i></button>`:''}</div>`).join('');
+
+  // ── Read-only display helpers ──
+  const roFld=(label,val,extra='')=>`<div class="inf"><label>${label}</label><div style="padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);font-size:.83rem;color:var(--tx2);min-height:33px;${extra}">${esc(String(val||'—'))}</div></div>`;
+  const SL={todo:'📋 To Do',inprog:'⚡ In Progress',review:'🔍 Review',done:'✅ Done'};
+  const PL={high:'🔥 High',medium:'⚡ Medium',low:'🌿 Low'};
 
   document.getElementById('dpBody').innerHTML=`
+  ${isRO?`<div style="display:flex;align-items:center;gap:7px;background:var(--blue-l);border:1px solid var(--blue);border-radius:var(--rsm);padding:8px 14px;margin:12px 20px 0;font-size:.75rem;color:var(--blue);">
+    <i class="fas fa-lock"></i> <strong>View-only access.</strong>&nbsp; Contact a Manager or Admin to make changes.
+  </div>`:''}
+
   <div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-info-circle"></i> Project Info</div>
     <div class="info-grid">
-      <div class="inf"><label>Assigned By</label><input type="text" value="${esc(p.assignedby||'')}" placeholder="Manager" onchange="dpUpd('${p.id}','assignedby',this.value)"></div>
-      <div class="inf"><label>Kanban Status</label>
-        <select onchange="dpUpd('${p.id}','kanbanStatus',this.value)">
-          <option value="todo" ${(p.kanbanStatus||'todo')==='todo'?'selected':''}>📋 To Do</option>
-          <option value="inprog" ${p.kanbanStatus==='inprog'?'selected':''}>⚡ In Progress</option>
-          <option value="review" ${p.kanbanStatus==='review'?'selected':''}>🔍 Review</option>
-          <option value="done" ${p.kanbanStatus==='done'?'selected':''}>✅ Completed</option>
-        </select>
-      </div>
-      <div class="inf"><label>Start Date</label><input type="date" value="${p.startdate||''}" onchange="dpUpd('${p.id}','startdate',this.value)"></div>
-      <div class="inf"><label>Deadline</label><input type="date" value="${p.deadline||''}" onchange="dpUpd('${p.id}','deadline',this.value)"></div>
-      <div class="inf"><label>Priority</label>
-        <select onchange="dpUpd('${p.id}','priority',this.value)">
-          <option value="high" ${p.priority==='high'?'selected':''}>🔥 High</option>
-          <option value="medium" ${p.priority==='medium'?'selected':''}>⚡ Medium</option>
-          <option value="low" ${p.priority==='low'?'selected':''}>🌿 Low</option>
-        </select>
-      </div>
+      ${isRO
+        ? roFld('Assigned By', p.assignedby||'—') + roFld('Status', SL[p.kanbanStatus||'todo']) + roFld('Start Date', fmtD(p.startdate)) + roFld('Deadline', fmtD(p.deadline)) + roFld('Priority', PL[p.priority||'medium'])
+        : `<div class="inf"><label>Assigned By</label><input type="text" value="${esc(p.assignedby||'')}" placeholder="Manager" onchange="dpUpd('${p.id}','assignedby',this.value)"></div>
+           <div class="inf"><label>Kanban Status</label><select onchange="dpUpd('${p.id}','kanbanStatus',this.value)">
+             <option value="todo" ${(p.kanbanStatus||'todo')==='todo'?'selected':''}>📋 To Do</option>
+             <option value="inprog" ${p.kanbanStatus==='inprog'?'selected':''}>⚡ In Progress</option>
+             <option value="review" ${p.kanbanStatus==='review'?'selected':''}>🔍 Review</option>
+             <option value="done" ${p.kanbanStatus==='done'?'selected':''}>✅ Completed</option>
+           </select></div>
+           <div class="inf"><label>Start Date</label><input type="date" value="${p.startdate||''}" onchange="dpUpd('${p.id}','startdate',this.value)"></div>
+           <div class="inf"><label>Deadline</label><input type="date" value="${p.deadline||''}" onchange="dpUpd('${p.id}','deadline',this.value)"></div>
+           <div class="inf"><label>Priority</label><select onchange="dpUpd('${p.id}','priority',this.value)">
+             <option value="high" ${p.priority==='high'?'selected':''}>🔥 High</option>
+             <option value="medium" ${p.priority==='medium'?'selected':''}>⚡ Medium</option>
+             <option value="low" ${p.priority==='low'?'selected':''}>🌿 Low</option>
+           </select></div>`}
     </div>
   </div>
+
   <div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-images"></i> Image Counts</div>
     <div class="num-grid">
-      <div class="nc"><input type="number" value="${T}" min="0" onchange="dpField('${p.id}','total',this.value)"><div class="nc-l">Total</div></div>
-      <div class="nc"><input type="number" value="${A}" min="0" onchange="dpField('${p.id}','annotated',this.value)"><div class="nc-l">Annotated</div></div>
-      <div class="nc"><input type="number" value="${R}" min="0" onchange="dpField('${p.id}','reviewed',this.value)"><div class="nc-l">Reviewed</div></div>
+      ${isRO
+        ? `<div class="nc"><div class="ncv">${T}</div><div class="nc-l">Total</div></div>
+           <div class="nc"><div class="ncv">${A}</div><div class="nc-l">Annotated</div></div>
+           <div class="nc"><div class="ncv">${R}</div><div class="nc-l">Reviewed</div></div>`
+        : `<div class="nc"><input type="number" value="${T}" min="0" onchange="dpField('${p.id}','total',this.value)"><div class="nc-l">Total</div></div>
+           <div class="nc"><input type="number" value="${A}" min="0" onchange="dpField('${p.id}','annotated',this.value)"><div class="nc-l">Annotated</div></div>
+           <div class="nc"><input type="number" value="${R}" min="0" onchange="dpField('${p.id}','reviewed',this.value)"><div class="nc-l">Reviewed</div></div>`}
       <div class="nc comp"><div class="ncv">${Math.max(T-A,0)}</div><div class="nc-l">Pend.Ann</div></div>
       <div class="nc comp2"><div class="ncv">${Math.max(A-R,0)}</div><div class="nc-l">Pend.Rev</div></div>
     </div>
-    ${p.hasTarget&&p.dailyTarget?`<div class="tgt-row"><i class="fas fa-bullseye"></i><label>Daily Target</label><input type="number" value="${p.dailyTarget}" min="1" onchange="dpField('${p.id}','dailyTarget',this.value)"><span style="font-size:.7rem;color:var(--yellow);">imgs/day${p.dailyTarget>0&&Math.max(T-A,0)>0?' · Est. '+Math.ceil(Math.max(T-A,0)/p.dailyTarget)+'d left':''}</span></div>`:''}
+    ${!isRO&&p.hasTarget&&p.dailyTarget?`<div class="tgt-row"><i class="fas fa-bullseye"></i><label>Daily Target</label><input type="number" value="${p.dailyTarget}" min="1" onchange="dpField('${p.id}','dailyTarget',this.value)"><span style="font-size:.7rem;color:var(--yellow);">imgs/day${p.dailyTarget>0&&Math.max(T-A,0)>0?' · Est. '+Math.ceil(Math.max(T-A,0)/p.dailyTarget)+'d left':''}</span></div>`:''}
     <div style="margin-top:11px;">
       <div class="prog-r"><span class="prog-l">Annotation</span><span class="prog-p">${pct(A,T)}%</span></div>
       <div class="pbar" style="height:7px;margin-bottom:7px;"><div class="pf pf-a" style="width:${pct(A,T)}%"></div></div>
@@ -1479,34 +1762,38 @@ function renderDPBody(p){
       <div class="pbar" style="height:7px;"><div class="pf pf-r" style="width:${pct(R,T)}%"></div></div>
     </div>
   </div>
+
   <div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-users"></i> Assigned Employees (${asgn.length})</div>
-    ${can('canAssign')?`<div class="esbox"><i class="fas fa-search" style="color:var(--tx3);font-size:.8rem;"></i><input type="text" placeholder="Search employee to assign..." id="esrch-${p.id}" oninput="renderES('${p.id}')"></div>
-    <div class="e-results" id="eres-${p.id}"></div>`:'<div style="font-size:.72rem;color:var(--tx3);margin-bottom:6px;">Contact a Manager or Admin to change assignments.</div>'}
+    ${can('canAssign')?`<div class="esbox"><i class="fas fa-search" style="color:var(--tx3);font-size:.8rem;"></i><input type="text" placeholder="Search employee to assign..." id="esrch-${p.id}" oninput="renderES('${p.id}')"></div><div class="e-results" id="eres-${p.id}"></div>`:''}
     <div class="atags" style="margin-top:9px;">${aTags||'<span style="font-size:.74rem;color:var(--tx3);">No employees assigned yet</span>'}</div>
   </div>
-  ${features.fileUpload?`<div class="dp-sec">
+
+  ${features.fileUpload&&!isRO?`<div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-paperclip"></i> Documents (${docs.length})</div>
     <div class="upzone"><input type="file" multiple onchange="handleUpload('${p.id}',this)"><i class="fas fa-cloud-upload-alt"></i><p><strong>Click or drag</strong> to upload files</p></div>
     ${docs.length>0?`<div class="doclist">${docHtml}</div>`:''}
-  </div>`:''}
+  </div>`:docs.length>0?`<div class="dp-sec"><div class="ds-hdr"><i class="fas fa-paperclip"></i> Documents (${docs.length})</div><div class="doclist">${docHtml}</div></div>`:''}
+
   <div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-sticky-note"></i> Notes</div>
-    <textarea class="cmt-ta" onchange="dpUpd('${p.id}','notes',this.value)">${esc(p.notes||'')}</textarea>
+    ${isRO
+      ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.notes||'—')}</div>`
+      :`<textarea class="cmt-ta" onchange="dpUpd('${p.id}','notes',this.value)">${esc(p.notes||'')}</textarea>`}
   </div>
   <div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-comments"></i> Comments</div>
-    <textarea class="cmt-ta" id="cmt-${p.id}" onchange="dpUpd('${p.id}','comments',this.value)">${esc(p.comments||'')}</textarea>
+    ${isRO
+      ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.comments||'—')}</div>`
+      :`<textarea class="cmt-ta" id="cmt-${p.id}" onchange="dpUpd('${p.id}','comments',this.value)">${esc(p.comments||'')}</textarea>`}
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:''}
-      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:''}
-      ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:''}
-      ${!can('canEdit')?`<span style="font-size:.74rem;color:var(--tx3);align-self:center;"><i class="fas fa-lock"></i> Read-only view</span>`:''}
+      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:``}
+      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:``}
+      ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:``}
     </div>
   </div>`;
   if(can('canAssign'))renderES(p.id);
 }
-
 function renderES(projId){
   const q=(document.getElementById(`esrch-${projId}`)?.value||'').toLowerCase();
   const p=projects.find(x=>x.id===projId);if(!p)return;
@@ -2018,211 +2305,6 @@ function deleteUser(id){
   saveUsersLocal();renderUsers();toast('User removed','info');
 }
 
-// ══════════════════════════════════
-// ACTIVITY LOG
-// ══════════════════════════════════
-// In-memory activity log (keyed by projectId). In a real app this would be in Supabase.
-let activityLogs = {}; // { projId: [{type, msg, who, ts}] }
-
-function logActivity(projId, type, msg){
-  if(!activityLogs[projId]) activityLogs[projId]=[];
-  const who = currentUser ? currentUser.name : 'System';
-  activityLogs[projId].unshift({type, msg, who, ts: Date.now()});
-  // Keep max 50 entries per project
-  if(activityLogs[projId].length > 50) activityLogs[projId] = activityLogs[projId].slice(0,50);
-  saveActivityLogs();
-  // Refresh log in open panel
-  const el = document.getElementById(`actlog-${projId}`);
-  if(el) el.innerHTML = renderActivityLog(projId);
-}
-function saveActivityLogs(){ try{localStorage.setItem('cc_actlogs', JSON.stringify(activityLogs));}catch(e){} }
-function loadActivityLogs(){ try{const s=localStorage.getItem('cc_actlogs');if(s)activityLogs=JSON.parse(s);}catch(e){} }
-
-const ACT_ICONS={ create:'fa-plus', edit:'fa-pen', assign:'fa-user-plus', status:'fa-exchange-alt', delete:'fa-trash', comment:'fa-comment' };
-const ACT_COLORS={ create:'act-create', edit:'act-edit', assign:'act-assign', status:'act-status', delete:'act-delete', comment:'act-comment' };
-
-function renderActivityLog(projId){
-  const log = activityLogs[projId]||[];
-  if(!log.length) return '<div class="actlog-empty"><i class="fas fa-history"></i> No activity recorded yet.</div>';
-  return log.map(e=>{
-    const dt = new Date(e.ts);
-    const ago = fmtAgo(e.ts);
-    return`<div class="actlog-entry">
-      <div class="act-icon ${ACT_COLORS[e.type]||'act-edit'}"><i class="fas ${ACT_ICONS[e.type]||'fa-circle'}"></i></div>
-      <div class="act-body">
-        <div class="act-msg">${esc(e.msg)}</div>
-        <div class="act-footer">
-          <span class="act-time">${ago} · ${dt.toLocaleDateString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</span>
-          <span class="act-who"><i class="fas fa-user" style="font-size:.55rem;"></i> ${esc(e.who)}</span>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-function fmtAgo(ts){
-  const s=Math.floor((Date.now()-ts)/1000);
-  if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';
-  if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
-}
-
-// Hook activity logging into save functions
-const _origDpUpd = dpUpd;
-async function dpUpd(id, field, val){
-  const p=projects.find(x=>x.id===id);if(!p)return;
-  const oldVal=p[field];
-  p[field]=val; renderProjects(); await saveProjDB(p);
-  if(field==='kanbanStatus') logActivity(id,'status',`Status changed to "${{todo:'To Do',inprog:'In Progress',review:'Review',done:'Completed'}[val]||val}"`);
-  else if(field==='priority') logActivity(id,'edit',`Priority changed to ${val}`);
-  else if(field==='assignedby') logActivity(id,'edit',`Assigned By set to "${val}"`);
-  if(field==='kanbanStatus'&&openProjId===id)renderDPBody(p);
-}
-
-// ══════════════════════════════════
-// STAKEHOLDER DASHBOARD
-// ══════════════════════════════════
-function renderStakeholder(){
-  const sc = accessConfig.stakeholder;
-  const allProj = projects; // stakeholders see all projects (but limited fields)
-  const tI = allProj.reduce((s,p)=>s+(+p.total||0),0);
-  const tA = allProj.reduce((s,p)=>s+(+p.annotated||0),0);
-  const tR = allProj.reduce((s,p)=>s+(+p.reviewed||0),0);
-  const done = allProj.filter(p=>p.kanbanStatus==='done').length;
-
-  const logoSVG=`<svg viewBox="36 37 397 397" xmlns="http://www.w3.org/2000/svg" style="width:36px;height:36px;border-radius:5px;"><rect fill="#df1e26" x="36.8" y="37.3" width="395.7" height="395.7"/><path fill="#fff" d="M139,216.4c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.7c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.8,4.2-4.2,9.1-7.6,14.7-10,5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2-.7,1.5-1.9,2.3-3.4,2.7-1.5.4-2.9.2-4.3-.5-2.6-1.6-5.5-2.7-8.4-3.5s-6-1.2-9.3-1.2c-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5.8,1.4,1.1,2.7.7,4.2s-1.2,2.6-2.5,3.6c-7.6,4.4-15.9,6.8-24.9,6.8"/></svg>`;
-
-  // Build KPI strip
-  const kpis=[];
-  if(sc.totalImages) kpis.push({val:tI.toLocaleString(), lbl:'Total Images'});
-  if(sc.annotationProgress) kpis.push({val:pct(tA,tI)+'%', lbl:'Annotated'});
-  if(sc.reviewProgress) kpis.push({val:pct(tR,tI)+'%', lbl:'Reviewed'});
-  kpis.push({val:allProj.length, lbl:'Projects'});
-  if(sc.kanbanStatus) kpis.push({val:done, lbl:'Completed'});
-
-  // Build project cards
-  const projCards = allProj.map(p=>{
-    const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
-    const dl=dlMeta(p.deadline);
-    const chips=[];
-    if(sc.priority) chips.push(`<span class="sh-chip"><span class="badge b${(p.priority||'m')[0]}">${{high:'🔥 High',medium:'⚡ Medium',low:'🌿 Low'}[p.priority]||'—'}</span></span>`);
-    if(sc.kanbanStatus) chips.push(`<span class="sh-chip"><i class="fas fa-circle" style="color:${{todo:'var(--tx3)',inprog:'var(--blue)',review:'var(--yellow)',done:'var(--green)'}[p.kanbanStatus||'todo']}"></i> ${{todo:'To Do',inprog:'In Progress',review:'Review',done:'Completed'}[p.kanbanStatus||'todo']}</span>`);
-    if(sc.deadline&&dl) chips.push(`<span class="sh-chip"><i class="fas fa-calendar-alt"></i> ${dl.label}</span>`);
-    if(sc.assignedBy&&p.assignedby) chips.push(`<span class="sh-chip"><i class="fas fa-user-tie"></i> ${esc(p.assignedby)}</span>`);
-    if(sc.employeeCount) chips.push(`<span class="sh-chip"><i class="fas fa-users"></i> ${(p.assignedEmployees||[]).length} employees</span>`);
-    if(sc.employeeNames&&(p.assignedEmployees||[]).length) chips.push(`<span class="sh-chip"><i class="fas fa-id-badge"></i> ${(p.assignedEmployees||[]).map(id=>getEmp(id).name).join(', ')}</span>`);
-    return`<div class="sh-proj-card">
-      <div class="sh-proj-name">${esc(p.name)}</div>
-      ${sc.annotationProgress?`<div class="sh-prog-row"><div class="sh-prog-labels"><span>Annotation</span><span style="font-weight:700;">${pct(A,T)}%</span></div><div class="sh-bar"><div class="sh-bar-fill" style="width:${pct(A,T)}%;background:var(--blue);"></div></div></div>`:''}
-      ${sc.reviewProgress?`<div class="sh-prog-row"><div class="sh-prog-labels"><span>Review</span><span style="font-weight:700;">${pct(R,T)}%</span></div><div class="sh-bar"><div class="sh-bar-fill" style="width:${pct(R,T)}%;background:var(--green);"></div></div></div>`:''}
-      ${sc.notes&&p.notes?`<div style="font-size:.76rem;color:var(--tx2);margin-top:8px;padding-top:8px;border-top:1px solid var(--brd);">${esc(p.notes)}</div>`:''}
-      ${chips.length?`<div class="sh-chips">${chips.join('')}</div>`:''}
-    </div>`;
-  }).join('');
-
-  document.getElementById('shView').innerHTML=`
-    <div class="sh-header">
-      <div class="sh-brand">${logoSVG}<div class="sh-brand-txt"><strong>CamCom Annotation Tracker</strong><span>Stakeholder Summary — ${new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'})}</span></div></div>
-      <div class="sh-kpis">${kpis.map(k=>`<div class="sh-kpi"><span class="sh-kpi-val">${k.val}</span><span class="sh-kpi-lbl">${k.lbl}</span></div>`).join('')}</div>
-    </div>
-    <div class="sh-section-title"><i class="fas fa-folder-open" style="color:var(--red)"></i> Project Overview</div>
-    ${allProj.length?`<div class="sh-proj-grid">${projCards}</div>`:'<div class="actlog-empty"><i class="fas fa-folder-open"></i> No projects available.</div>'}
-    <p style="font-size:.68rem;color:var(--tx3);margin-top:8px;"><i class="fas fa-lock"></i> This view is configured by your Admin. Some information may be intentionally hidden.</p>`;
-}
-
-// ══════════════════════════════════
-// ACCESS CONTROL ADMIN PAGE
-// ══════════════════════════════════
-function renderAccessControl(){
-  // ── Activity Log Visibility ──
-  const actRoles=[
-    {key:'manager',   label:'Manager',   icon:'🔵', desc:'Managers can see all project activity logs'},
-    {key:'reviewer',  label:'Reviewer',  icon:'🟡', desc:'Reviewers can see project activity logs (read-only)'},
-  ];
-  document.getElementById('accActLog').innerHTML=actRoles.map(r=>`
-    <div class="acc-row">
-      <div class="acc-row-lbl"><strong>${r.icon} ${r.label}</strong><span>${r.desc}</span></div>
-      <label class="toggle-sw"><input type="checkbox" ${accessConfig.activityLog[r.key]?'checked':''} onchange="toggleAccess('activityLog','${r.key}',this.checked)"><span class="toggle-sl"></span></label>
-    </div>`).join('');
-
-  // ── Stakeholder Visible Fields ──
-  const shFields=[
-    {key:'priority',          label:'Priority',            desc:'High / Medium / Low badge'},
-    {key:'deadline',          label:'Deadline Date',       desc:'Project deadline'},
-    {key:'annotationProgress',label:'Annotation Progress', desc:'% of images annotated'},
-    {key:'reviewProgress',    label:'Review Progress',     desc:'% of images reviewed'},
-    {key:'kanbanStatus',      label:'Kanban Status',       desc:'To Do / In Progress / Review / Done'},
-    {key:'totalImages',       label:'Total Image Count',   desc:'How many images in the project'},
-    {key:'assignedBy',        label:'Assigned By',         desc:'Manager who assigned the project'},
-    {key:'employeeCount',     label:'Employee Count',      desc:'Number of employees assigned (no names)'},
-    {key:'employeeNames',     label:'Employee Names',      desc:'⚠ Shows individual employee names'},
-    {key:'notes',             label:'Project Notes',       desc:'⚠ Internal notes field'},
-    {key:'comments',          label:'Comments',            desc:'⚠ Internal comments'},
-  ];
-  document.getElementById('accStakeholder').innerHTML=shFields.map(f=>{
-    const isSensitive=f.key==='employeeNames'||f.key==='notes'||f.key==='comments';
-    const isLocked=f.key==='projectName'; // always on
-    return`<div class="acc-row">
-      <div class="acc-row-lbl">
-        <strong>${f.label}${isSensitive?' <span style="color:var(--yellow);font-size:.65rem;">Sensitive</span>':''}</strong>
-        <span>${f.desc}</span>
-      </div>
-      <label class="toggle-sw"${isLocked?' title="Always visible"':''}>
-        <input type="checkbox" ${accessConfig.stakeholder[f.key]?'checked':''} ${isLocked?'disabled':''} onchange="toggleAccess('stakeholder','${f.key}',this.checked)">
-        <span class="toggle-sl"></span>
-      </label>
-    </div>`;
-  }).join('');
-
-  // ── Role Capabilities ──
-  const capDefs=[
-    {key:'canCreate',  label:'Create Projects', desc:'Can create new projects'},
-    {key:'canEdit',    label:'Edit Projects',   desc:'Can edit project fields'},
-    {key:'canDelete',  label:'Delete Projects', desc:'Can delete projects'},
-    {key:'canAssign',  label:'Assign Employees',desc:'Can assign/unassign employees'},
-    {key:'canExport',  label:'Export Data',     desc:'Can export CSV / PDF reports'},
-    {key:'canViewAnalytics',label:'View Analytics',desc:'Can access the Analytics page'},
-  ];
-  const roleRows=['manager','reviewer'].map(role=>{
-    const roleInfo=ROLES[role];
-    return`<div style="margin-bottom:12px;">
-      <div style="font-size:.8rem;font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:6px;">
-        <span class="role-pill ${roleInfo.pill}">${roleInfo.icon} ${roleInfo.label}</span>
-      </div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px;">
-        ${capDefs.map(c=>{
-          const isOn=accessConfig.roleCaps[role]?.[c.key]??false;
-          return`<span class="acc-chip ${isOn?'on':''}" onclick="toggleRoleCap('${role}','${c.key}',${!isOn})" title="${c.desc}">
-            <i class="fas ${isOn?'fa-check':'fa-times'}" style="font-size:.6rem;"></i> ${c.label}
-          </span>`;
-        }).join('')}
-      </div>
-    </div>`;
-  }).join('');
-  document.getElementById('accRoleCaps').innerHTML=roleRows;
-}
-
-function toggleAccess(section, key, val){
-  accessConfig[section][key]=val;
-  saveAccessConfig();
-  toast(`Updated: ${key} → ${val?'on':'off'}`, 'ok');
-}
-function toggleRoleCap(role, cap, val){
-  accessConfig.roleCaps[role][cap]=val;
-  saveAccessConfig();
-  renderAccessControl();
-  toast(`${ROLES[role].label}: ${cap} → ${val?'enabled':'disabled'}`, 'ok');
-}
-
-// ══════════════════════════════════
-// THEME
-// ══════════════════════════════════
-function toggleTheme(){
-  const dark=document.documentElement.getAttribute('data-theme')==='dark';
-  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
-  document.getElementById('tIco').className=dark?'fas fa-moon':'fas fa-sun';
-  document.getElementById('tLbl').textContent=dark?'Dark mode':'Light mode';
-}
-
-// ══════════════════════════════════
 // START — restore session or show login
 // ══════════════════════════════════
 tryRestoreSession();
