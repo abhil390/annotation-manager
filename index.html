@@ -662,7 +662,9 @@ tr:hover td{background:var(--sur2);}
     </div>
   </div>
   <div id="wlSummaryGrid" class="wl-summary-grid"></div>
-  <div class="wl-section-title" style="margin-top:4px;"><i class="fas fa-folder-open" style="color:var(--blue)"></i> Team Loading by Project</div>
+  <div class="wl-section-title" style="margin-top:4px;"><i class="fas fa-building" style="color:var(--purple)"></i> Team Loading by Client / Task</div>
+  <div id="wlClientGrid" class="wl-proj-grid"></div>
+  <div class="wl-section-title"><i class="fas fa-folder-open" style="color:var(--blue)"></i> Team Loading by Project</div>
   <div id="wlProjGrid" class="wl-proj-grid"></div>
   <div class="wl-section-title"><i class="fas fa-user" style="color:var(--purple)"></i> Employee Assignments</div>
   <div class="wl-card"><div id="wlList"></div></div>
@@ -773,6 +775,8 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   <div class="modal-title"><i class="fas fa-folder-plus" style="color:var(--red)"></i><span id="pMTtl">New Project</span></div>
   <div class="fgrid">
     <div class="ff full"><label>Project name *</label><input type="text" id="np-name" placeholder="e.g. Road Extraction"></div>
+    <div class="ff"><label>Client / Task name</label><input type="text" id="np-client" placeholder="e.g. Acme Corp – Detection"></div>
+    <div class="ff"><label><i class="fas fa-external-link-alt" style="color:var(--blue);margin-right:4px;"></i>LabelStudio Link</label><input type="url" id="np-link" placeholder="https://labelstudio.example.com/projects/..."></div>
     <div class="ff"><label>Priority</label><select id="np-pri"><option value="medium">⚡ Medium</option><option value="high">🔥 High</option><option value="low">🌿 Low</option></select></div>
     <div class="ff"><label>Assigned By</label><input type="text" id="np-by" placeholder="Manager name"></div>
     <div class="ff"><label>Start Date</label><input type="date" id="np-start"></div>
@@ -1508,7 +1512,8 @@ async function loadProjects(){
     const{data,error}=await sb.from('projects').select('*').order('created_at',{ascending:false});
     if(error)throw error;
     projects=(data||[]).map(r=>({
-      id:r.id, name:r.name, total:r.total||0, annotated:r.annotated||0, reviewed:r.reviewed||0,
+      id:r.id, name:r.name, client:r.client||'', labellink:r.labellink||'',
+      total:r.total||0, annotated:r.annotated||0, reviewed:r.reviewed||0,
       priority:r.priority||'medium', startdate:r.startdate||'', deadline:r.deadline||'',
       assignedby:r.assignedby||'', notes:r.notes||'', comments:r.comments||'',
       hasTarget:r.has_target||false, dailyTarget:r.daily_target||null,
@@ -1525,7 +1530,8 @@ async function loadProjects(){
 async function saveProjDB(p){
   // ── FULL row with all v5+ columns ──
   const fullRow={
-    id:p.id, name:p.name, total:p.total, annotated:p.annotated, reviewed:p.reviewed,
+    id:p.id, name:p.name, client:p.client||'', labellink:p.labellink||'',
+    total:p.total, annotated:p.annotated, reviewed:p.reviewed,
     priority:p.priority, startdate:p.startdate||null, deadline:p.deadline||null,
     assignedby:p.assignedby||'', notes:p.notes||'', comments:p.comments||'',
     has_target:p.hasTarget||false, daily_target:p.dailyTarget||null,
@@ -1749,6 +1755,7 @@ function buildCard(p){
     <div class="pcard-stripe ${p.priority}"></div>
     <div class="pcard-body">
       <div class="pcard-title">${esc(p.name)}</div>
+      ${p.client?`<div style="font-size:.67rem;color:var(--blue);font-weight:600;margin-top:1px;opacity:.85;"><i class="fas fa-building" style="margin-right:3px;opacity:.7;"></i>${esc(p.client)}</div>`:''}
       <div class="pcard-meta">
         <span class="badge b${p.priority[0]}">${pLbl}</span>
         <span class="badge" style="background:${ksColor}22;color:${ksColor};border:1px solid ${ksColor}44;font-size:.6rem;">${KB_LABELS[p.kanbanStatus||'todo']||'📋 To Do'}</span>
@@ -1767,7 +1774,10 @@ function buildCard(p){
     </div>
     <div class="pcard-foot">
       <div class="avatars">${avs+extra||'<span style="font-size:.65rem;color:var(--tx3)">No assignments</span>'}</div>
-      <span class="hint-txt"><i class="fas fa-arrow-right"></i> Details</span>
+      <div style="display:flex;align-items:center;gap:6px;">
+        ${p.labellink?`<a href="${esc(p.labellink)}" target="_blank" rel="noopener" onclick="event.stopPropagation()" title="Open in LabelStudio" style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;background:var(--blue);border-radius:var(--rp);color:#fff;font-size:.6rem;font-weight:700;text-decoration:none;"><i class="fas fa-external-link-alt"></i> LabelStudio</a>`:''}
+        <span class="hint-txt"><i class="fas fa-arrow-right"></i> Details</span>
+      </div>
     </div>
   </div>`;
 }
@@ -1792,7 +1802,7 @@ function renderProjects(){
 function renderProjFull(){
   const q=(document.getElementById('projSearch')?.value||'').toLowerCase();
   let list=[...visibleProjects()];  // ← role-filtered
-  if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.assignedby||'').toLowerCase().includes(q)||(p.assignedEmployees||[]).some(id=>getEmp(id).name.toLowerCase().includes(q)));
+  if(q)list=list.filter(p=>p.name.toLowerCase().includes(q)||(p.assignedby||'').toLowerCase().includes(q)||(p.client||'').toLowerCase().includes(q)||(p.assignedEmployees||[]).some(id=>getEmp(id).name.toLowerCase().includes(q)));
   document.getElementById('projGridFull').innerHTML=list.length===0?`<div class="empty-st" style="grid-column:1/-1"><i class="fas fa-folder-open"></i><p>No projects found.</p></div>`:list.map(buildCard).join('');
 }
 function setFilter(v,el){currentFilter=v;document.querySelectorAll('.fc').forEach(c=>c.classList.remove('on'));el.classList.add('on');renderProjects();}
@@ -1844,8 +1854,15 @@ function renderDPBody(p){
     <div class="ds-hdr"><i class="fas fa-info-circle"></i> Project Info</div>
     <div class="info-grid">
       ${isRO
-        ? roFld('Assigned By', p.assignedby||'—') + roFld('Status', SL[p.kanbanStatus||'todo']) + roFld('Start Date', fmtD(p.startdate)) + roFld('Deadline', fmtD(p.deadline)) + roFld('Priority', PL[p.priority||'medium'])
-        : `<div class="inf"><label>Assigned By</label><input type="text" value="${esc(p.assignedby||'')}" placeholder="Manager" onchange="dpUpd('${p.id}','assignedby',this.value)"></div>
+        ? (p.client?roFld('Client / Task', p.client):'') + (p.labellink?`<div class="inf"><label><i class="fas fa-external-link-alt" style="color:var(--blue);margin-right:4px;"></i>LabelStudio Link</label><div style="padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);font-size:.83rem;"><a href="${esc(p.labellink)}" target="_blank" rel="noopener" style="color:var(--blue);word-break:break-all;">${esc(p.labellink)}</a></div></div>`:'') + roFld('Assigned By', p.assignedby||'—') + roFld('Status', SL[p.kanbanStatus||'todo']) + roFld('Start Date', fmtD(p.startdate)) + roFld('Deadline', fmtD(p.deadline)) + roFld('Priority', PL[p.priority||'medium'])
+        : `<div class="inf"><label>Client / Task name</label><input type="text" value="${esc(p.client||'')}" placeholder="e.g. Acme Corp" onchange="dpUpd('${p.id}','client',this.value)"></div>
+           <div class="inf full"><label><i class="fas fa-external-link-alt" style="color:var(--blue);margin-right:4px;"></i>LabelStudio Link</label>
+             <div style="display:flex;gap:6px;align-items:center;">
+               <input type="url" style="flex:1;" value="${esc(p.labellink||'')}" placeholder="https://labelstudio..." onchange="dpUpd('${p.id}','labellink',this.value)">
+               ${p.labellink?`<a href="${esc(p.labellink)}" target="_blank" rel="noopener" title="Open in LabelStudio" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;background:var(--blue);border-radius:var(--rsm);color:#fff;font-size:.8rem;flex-shrink:0;"><i class="fas fa-external-link-alt"></i></a>`:''}
+             </div>
+           </div>
+           <div class="inf"><label>Assigned By</label><input type="text" value="${esc(p.assignedby||'')}" placeholder="Manager" onchange="dpUpd('${p.id}','assignedby',this.value)"></div>
            <div class="inf"><label>Kanban Status</label><select onchange="dpUpd('${p.id}','kanbanStatus',this.value)">
              <option value="todo" ${(p.kanbanStatus||'todo')==='todo'?'selected':''}>📋 To Do</option>
              <option value="inprog" ${p.kanbanStatus==='inprog'?'selected':''}>⚡ In Progress</option>
@@ -2051,12 +2068,21 @@ async function dpField(id,field,val){
 let _dpSaveTimers={};
 async function dpUpd(id,field,val){
   const p=projects.find(x=>x.id===id);if(!p)return;
+  const prevVal=p[field];
+  // Auto-unassign BEFORE updating the field, so markCompleted sees old status
+  if(field==='kanbanStatus'&&val==='done'&&prevVal!=='done'){
+    await markCompleted(p);
+  }
   p[field]=val;
+  if(field==='kanbanStatus'&&val==='done'&&prevVal!=='done'){
+    // Re-render the detail panel so assigned lists clear immediately
+    renderDPBody(p);
+  }
   renderProjects();
   clearTimeout(_dpSaveTimers[id+'_'+field]);
   _dpSaveTimers[id+'_'+field]=setTimeout(async()=>{
     await saveProjDB(p);
-    logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated');
+    logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated to '+val);
   },1000);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
@@ -2096,7 +2122,7 @@ function tglTgtField(prefix){document.getElementById(`${prefix}-tgtFw`).classLis
 
 function openNewProj(){
   editProjId=null;document.getElementById('pMTtl').textContent='New Project';
-  ['name','by'].forEach(f=>document.getElementById(`np-${f}`).value='');
+  ['name','by','client','link'].forEach(f=>document.getElementById(`np-${f}`).value='');
   ['start','dead'].forEach(f=>document.getElementById(`np-${f}`).value='');
   document.getElementById('np-total').value='1000';document.getElementById('np-ann').value='0';document.getElementById('np-rev').value='0';
   document.getElementById('np-pri').value='medium';document.getElementById('np-status').value='todo';
@@ -2106,7 +2132,7 @@ function openNewProj(){
 function openEditProj(id){
   const p=projects.find(x=>x.id===id);if(!p)return;
   editProjId=id;document.getElementById('pMTtl').textContent='Edit Project';
-  document.getElementById('np-name').value=p.name;document.getElementById('np-by').value=p.assignedby||'';
+  document.getElementById('np-name').value=p.name;document.getElementById('np-client').value=p.client||'';document.getElementById('np-link').value=p.labellink||'';document.getElementById('np-by').value=p.assignedby||'';
   document.getElementById('np-start').value=p.startdate||'';document.getElementById('np-dead').value=p.deadline||'';
   document.getElementById('np-total').value=p.total;document.getElementById('np-ann').value=p.annotated;document.getElementById('np-rev').value=p.reviewed;
   document.getElementById('np-pri').value=p.priority||'medium';document.getElementById('np-status').value=p.kanbanStatus||'todo';
@@ -2120,15 +2146,34 @@ async function saveProject(){
   const name=document.getElementById('np-name').value.trim();
   if(!name){toast('Name required','err');return;}
   const ht=document.getElementById('np-tgtOn').checked;
-  const data={name,priority:document.getElementById('np-pri').value,assignedby:document.getElementById('np-by').value.trim(),
+  const data={name,client:document.getElementById('np-client').value.trim(),labellink:document.getElementById('np-link').value.trim(),priority:document.getElementById('np-pri').value,assignedby:document.getElementById('np-by').value.trim(),
     startdate:document.getElementById('np-start').value,deadline:document.getElementById('np-dead').value,
     total:parseInt(document.getElementById('np-total').value)||0,annotated:parseInt(document.getElementById('np-ann').value)||0,reviewed:parseInt(document.getElementById('np-rev').value)||0,
     notes:document.getElementById('np-notes').value.trim(),
     kanbanStatus:document.getElementById('np-status').value,
     hasTarget:ht,dailyTarget:ht?(parseInt(document.getElementById('np-target').value)||null):null};
   let proj;
-  if(editProjId){const idx=projects.findIndex(p=>p.id===editProjId);if(idx>-1){Object.assign(projects[idx],data);proj=projects[idx];toast('Updated ✓','ok');logActivity('edit',proj.id,proj.name,'Project details updated');}}
-  else{proj={id:uid(),assignedEmployees:[],reviewEmployees:[],tags:[],comments:'',...data};projects.push(proj);toast('Created ✓','ok');logActivity('create',proj.id,proj.name,`Project created`);}
+  if(editProjId){
+    const idx=projects.findIndex(p=>p.id===editProjId);
+    if(idx>-1){
+      const prev=projects[idx];
+      const wasNotDone=prev.kanbanStatus!=='done';
+      const becomingDone=data.kanbanStatus==='done'&&wasNotDone;
+      // Unassign BEFORE overwriting project data so markCompleted sees old status
+      if(becomingDone) await markCompleted(prev);
+      Object.assign(projects[idx],data);
+      proj=projects[idx];
+      // Preserve the cleared assignments from markCompleted if project just completed
+      if(becomingDone){proj.assignedEmployees=[];proj.reviewEmployees=[];}
+      toast('Updated ✓','ok');
+      logActivity('edit',proj.id,proj.name,'Project details updated');
+    }
+  } else{
+    proj={id:uid(),assignedEmployees:[],reviewEmployees:[],tags:[],comments:'',...data};
+    projects.push(proj);
+    toast('Created ✓','ok');
+    logActivity('create',proj.id,proj.name,`Project created`);
+  }
   closeProjModal();renderProjects();if(proj)await saveProjDB(proj);
   if(openProjId===proj?.id){const p2=projects.find(x=>x.id===openProjId);if(p2)renderDPBody(p2);}
 }
@@ -2270,6 +2315,80 @@ function renderWorkload(){
     </div>`;
   });
   document.getElementById('wlProjGrid').innerHTML=projCards.join('')||'<div class="empty-st"><i class="fas fa-folder-open"></i><p>No projects yet.</p></div>';
+
+  // ── Client / Task breakdown ─────────────────────────────────────────────────
+  // Group projects by client name (blank client → "Untagged")
+  const clientMap=new Map();
+  projects.forEach(p=>{
+    const key=p.client&&p.client.trim()?p.client.trim():'(No Client / Task)';
+    if(!clientMap.has(key))clientMap.set(key,{projects:[],empSet:new Set(),annSet:new Set(),revSet:new Set(),dualSet:new Set()});
+    const g=clientMap.get(key);
+    g.projects.push(p);
+    const ann=p.assignedEmployees||[];
+    const rev=p.reviewEmployees||[];
+    ann.forEach(id=>{g.empSet.add(id);g.annSet.add(id);});
+    rev.forEach(id=>{g.empSet.add(id);g.revSet.add(id);});
+    ann.filter(id=>rev.includes(id)).forEach(id=>g.dualSet.add(id));
+  });
+
+  const clientCards=[...clientMap.entries()].sort((a,b)=>b[1].empSet.size-a[1].empSet.size).map(([clientName,g])=>{
+    const totalPeople=g.empSet.size;
+    const annOnly=[...g.annSet].filter(id=>!g.revSet.has(id));
+    const revOnly=[...g.revSet].filter(id=>!g.annSet.has(id));
+    const dual=[...g.dualSet];
+    const isUntagged=clientName==='(No Client / Task)';
+
+    // Unique employees with their roles across all projects in this client
+    const empRoles=new Map();
+    g.projects.forEach(p=>{
+      (p.assignedEmployees||[]).forEach(id=>{
+        if(!empRoles.has(id))empRoles.set(id,{ann:new Set(),rev:new Set()});
+        empRoles.get(id).ann.add(p.name);
+      });
+      (p.reviewEmployees||[]).forEach(id=>{
+        if(!empRoles.has(id))empRoles.set(id,{ann:empRoles.get(id)?.ann||new Set(),rev:new Set(),...(empRoles.get(id)||{})});
+        if(!empRoles.has(id))empRoles.set(id,{ann:new Set(),rev:new Set()});
+        empRoles.get(id).rev.add(p.name);
+      });
+    });
+
+    const memberRows=[...empRoles.entries()].map(([id,roles])=>{
+      const e=getEmp(id);
+      const isAnn=roles.ann.size>0;
+      const isRev=roles.rev.size>0;
+      const isDual2=isAnn&&isRev;
+      const bg=e.gender==='male'?'var(--blue)':'var(--purple)';
+      const roleCls=isDual2?'wl-role-dual':isAnn?'wl-role-ann':'wl-role-rev';
+      const roleTxt=isDual2?'Ann & Rev':isAnn?'Annotating':'Reviewing';
+      const projTip=[...new Set([...roles.ann,...roles.rev])].join(', ');
+      return`<div class="wl-member-row">
+        <div class="wl-member-av" style="background:${bg};">${initials(e.name)}</div>
+        <div class="wl-member-name" title="${esc(projTip)}">${esc(e.name)}</div>
+        <span class="wl-role-pill ${roleCls}">${roleTxt}</span>
+      </div>`;
+    }).join('');
+
+    return`<div class="wl-proj-card">
+      <div class="wl-proj-hdr" style="background:${isUntagged?'var(--sur2)':'var(--blue)10'};">
+        <i class="fas fa-building" style="color:${isUntagged?'var(--tx3)':'var(--blue)'};font-size:.8rem;flex-shrink:0;"></i>
+        <div class="wl-proj-name" title="${esc(clientName)}" style="color:${isUntagged?'var(--tx3)':''};">${esc(clientName)}</div>
+        <span class="wl-proj-count" style="background:var(--blue)22;color:var(--blue);">${totalPeople} people</span>
+        <span class="wl-proj-count" style="background:var(--sur2);color:var(--tx2);">${g.projects.length} proj</span>
+        ${dual.length>0?`<span class="wl-proj-count" style="background:#fee2e2;color:#dc2626;">⚠ ${dual.length} dual</span>`:''}
+      </div>
+      <div style="padding:5px 14px 3px;display:flex;gap:14px;border-bottom:1px solid var(--brd);">
+        <span style="font-size:.67rem;color:var(--blue);font-weight:600;"><i class="fas fa-pen-nib" style="margin-right:3px;"></i>${annOnly.length} annotating</span>
+        <span style="font-size:.67rem;color:var(--yellow);font-weight:600;"><i class="fas fa-eye" style="margin-right:3px;"></i>${revOnly.length} reviewing</span>
+        ${dual.length>0?`<span style="font-size:.67rem;color:#dc2626;font-weight:600;"><i class="fas fa-exclamation-triangle" style="margin-right:3px;"></i>${dual.length} both</span>`:''}
+      </div>
+      <div class="wl-proj-body">
+        <div style="font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tx3);margin-bottom:5px;">Projects: ${g.projects.map(p=>`<span style="color:var(--tx2);">${esc(p.name)}</span>`).join(', ')}</div>
+        ${memberRows||'<div class="wl-empty-proj">No members assigned</div>'}
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('wlClientGrid').innerHTML=clientCards.join('')||'<div class="empty-st"><i class="fas fa-building"></i><p>No client data yet.</p></div>';
 
   // ── Employee rows ──────────────────────────────────────────────────────────
   const active=[...allActiveIds].map(id=>[id,am.get(id)||0]).sort((a,b)=>b[1]-a[1]);
@@ -2614,11 +2733,37 @@ function buildKBCard(p){
 function kbDragStart(e,id){dragSrcId=id;e.currentTarget.classList.add('dragging');e.dataTransfer.effectAllowed='move';}
 function kbDragOver(e,colId){e.preventDefault();e.dataTransfer.dropEffect='move';document.getElementById(`kbc-${colId}`)?.classList.add('drag-over');}
 function kbDragLeave(e){e.currentTarget.classList.remove('drag-over');}
+// ── Auto-unassign all employees when project marked as Completed ─────────────
+async function markCompleted(p){
+  if(!p)return;
+  // Note: callers already ensure we only call this when transitioning TO done
+  const annCount=(p.assignedEmployees||[]).length;
+  const revCount=(p.reviewEmployees||[]).length;
+  const total=annCount+revCount;
+  if(total===0)return; // nobody assigned, nothing to do
+
+  const names=[...new Set([
+    ...(p.assignedEmployees||[]).map(id=>getEmp(id).name),
+    ...(p.reviewEmployees||[]).map(id=>getEmp(id).name)
+  ])];
+  // Unassign everyone
+  p.assignedEmployees=[];
+  p.reviewEmployees=[];
+  toast(`✅ Project completed — ${names.join(', ')} removed from this project`,'ok');
+  logActivity('status',p.id,p.name,`Marked as Completed; ${names.join(', ')} unassigned`);
+}
+
 async function kbDrop(e,colId){
   e.preventDefault();e.currentTarget.classList.remove('drag-over');
   if(!dragSrcId)return;
   const p=projects.find(x=>x.id===dragSrcId);
-  if(p&&p.kanbanStatus!==colId){p.kanbanStatus=colId;renderKanban();toast(`Moved to ${KB_LABELS[colId]}`,'ok');await saveProjDB(p);}
+  if(p&&p.kanbanStatus!==colId){
+    if(colId==='done') await markCompleted(p);
+    p.kanbanStatus=colId;
+    renderKanban();renderProjects();
+    toast(`Moved to ${KB_LABELS[colId]}`,'ok');
+    await saveProjDB(p);
+  }
   dragSrcId=null;
 }
 
