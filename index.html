@@ -176,78 +176,74 @@ select.fsel{padding:5px 11px;border-radius:var(--rp);font-size:.75rem;border:1px
 /* comments */
 .cmt-ta{width:100%;padding:8px 11px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-family:'Inter',sans-serif;font-size:.81rem;resize:vertical;min-height:65px;outline:none;}
 .cmt-ta:focus{border-color:var(--red);}
-/* threaded comments */
-.thread-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:10px;}
-.thread-msg{background:var(--sur2);border:1px solid var(--brd);border-radius:var(--rp);padding:9px 12px;position:relative;}
-.thread-msg.mine{border-color:var(--red);background:rgba(220,38,38,.04);}
-.thread-msg .tm-hdr{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.thread-msg .tm-av{width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.thread-msg .tm-name{font-size:.72rem;font-weight:600;color:var(--tx);}
-.thread-msg .tm-time{font-size:.67rem;color:var(--tx3);margin-left:auto;}
-.thread-msg .tm-body{font-size:.8rem;color:var(--tx2);line-height:1.55;white-space:pre-wrap;word-break:break-word;}
-.thread-msg .tm-body .mention{color:var(--blue);font-weight:600;background:rgba(37,99,235,.1);border-radius:3px;padding:0 3px;}
-.thread-msg .tm-del{position:absolute;top:6px;right:8px;background:none;border:none;color:var(--tx3);cursor:pointer;font-size:.7rem;opacity:0;transition:opacity .2s;}
-.thread-msg:hover .tm-del{opacity:1;}
-.thread-msg .tm-del:hover{color:var(--red);}
-.cmt-compose{display:flex;gap:7px;align-items:flex-end;margin-top:6px;}
-.cmt-compose textarea{flex:1;padding:8px 11px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-family:'Inter',sans-serif;font-size:.8rem;resize:none;height:60px;outline:none;transition:border-color .2s;}
-.cmt-compose textarea:focus{border-color:var(--red);}
-.cmt-compose .send-btn{padding:8px 14px;background:var(--red);color:#fff;border:none;border-radius:var(--rsm);font-size:.78rem;font-weight:600;cursor:pointer;flex-shrink:0;height:36px;display:flex;align-items:center;gap:5px;}
-.cmt-compose .send-btn:hover{opacity:.85;}
-.mention-dropdown{position:absolute;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rsm);box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:200;max-height:180px;overflow-y:auto;min-width:180px;}
-.mention-item{padding:7px 12px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;gap:7px;}
-.mention-item:hover{background:var(--sur2);}
-.mention-item .m-av{width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;font-size:.58rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* ── Threaded comments ── */
+.tc-list{display:flex;flex-direction:column;}
+.tc-item{padding:14px 16px;border-bottom:1px solid var(--brd);transition:background .15s;}
+.tc-item:last-child{border-bottom:none;}
+.tc-item.tc-mine{background:rgba(220,38,38,.03);}
+.tc-item.tc-unread{background:rgba(37,99,235,.05);}
+.tc-item:hover{background:var(--sur2);}
+.tc-hdr{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.tc-av{width:30px;height:30px;border-radius:50%;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tc-meta{display:flex;flex-direction:column;gap:1px;}
+.tc-name{font-size:.8rem;font-weight:700;color:var(--tx);}
+.tc-role{font-size:.64rem;font-weight:600;padding:1px 6px;border-radius:8px;}
+.tc-time{font-size:.67rem;color:var(--tx3);margin-left:auto;white-space:nowrap;}
+.tc-body{font-size:.84rem;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;padding-left:39px;margin-bottom:8px;}
+.tc-mention{color:var(--blue);font-weight:600;background:rgba(37,99,235,.1);border-radius:4px;padding:1px 5px;}
+.tc-actions{display:flex;gap:8px;padding-left:39px;}
+.tc-btn{background:none;border:none;color:var(--tx3);font-size:.7rem;cursor:pointer;padding:3px 8px;border-radius:5px;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+.tc-btn:hover{background:var(--sur2);color:var(--tx);}
+.tc-btn.del:hover{background:rgba(220,38,38,.08);color:var(--red);}
+.tc-replies{border-left:3px solid var(--brd);margin:10px 0 0 15px;}
+.tc-replies .tc-item{padding-left:12px;}
+/* reply banner */
+.tc-reply-banner{display:flex;align-items:center;justify-content:space-between;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:var(--rsm);padding:7px 12px;margin-bottom:10px;font-size:.76rem;color:var(--blue);}
+/* compose area */
+.tc-compose{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:var(--sur2);border-top:1px solid var(--brd);}
+.tc-compose-av{width:30px;height:30px;border-radius:50%;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.tc-compose-right{flex:1;display:flex;flex-direction:column;gap:6px;}
+.tc-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--brd);border-radius:10px;background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;resize:none;min-height:48px;max-height:200px;outline:none;transition:border-color .2s;line-height:1.55;box-sizing:border-box;}
+.tc-textarea:focus{border-color:var(--red);}
+.tc-compose-foot{display:flex;align-items:center;justify-content:space-between;}
+.tc-hint{font-size:.64rem;color:var(--tx3);}
+.tc-send{padding:7px 16px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s;}
+.tc-send:hover{opacity:.82;}
+/* @mention popup */
+.mention-pop{position:fixed;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:9999;max-height:240px;overflow-y:auto;min-width:210px;}
+.mention-row{padding:9px 14px;cursor:pointer;font-size:.81rem;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--brd);}
+.mention-row:last-child{border-bottom:none;}
+.mention-row:hover,.mention-row.active{background:var(--sur2);}
+.mention-row .m-av{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mention-row .m-info{display:flex;flex-direction:column;gap:1px;}
+.mention-row .m-name{font-size:.79rem;font-weight:600;color:var(--tx);}
+.mention-row .m-email{font-size:.64rem;color:var(--tx3);}
 /* notification bell */
-.notif-bell{position:relative;cursor:pointer;padding:5px 8px;border-radius:var(--rsm);border:none;background:none;color:var(--tx2);font-size:.95rem;display:flex;align-items:center;}
-.notif-bell:hover{background:var(--sur2);}
-.notif-dot{position:absolute;top:2px;right:2px;width:8px;height:8px;background:#dc2626;border-radius:50%;display:none;}
-.notif-dot.has,.notif-dot.show{display:block;}
-.notif-panel{position:fixed;top:54px;right:16px;width:340px;max-height:480px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:500;display:none;flex-direction:column;}
+.nb-btn{position:relative;background:none;border:none;color:var(--tx2);cursor:pointer;padding:5px 7px;border-radius:var(--rsm);font-size:.95rem;}
+.nb-btn:hover{background:var(--sur2);}
+.nb-dot{position:absolute;top:3px;right:3px;width:8px;height:8px;background:#dc2626;border-radius:50%;display:none;}
+.nb-dot.on{display:block;}
+.notif-panel{position:fixed;top:56px;right:16px;width:340px;max-height:480px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:600;display:none;flex-direction:column;}
 .notif-panel.open{display:flex;}
-.notif-hdr{padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;}
-.notif-hdr strong{font-size:.88rem;}
-.notif-hdr button{background:none;border:none;color:var(--tx3);font-size:.72rem;cursor:pointer;padding:3px 7px;border-radius:var(--rsm);}
-.notif-hdr button:hover{background:var(--sur2);color:var(--tx);}
-.notif-list{overflow-y:auto;flex:1;}
-.notif-item{padding:11px 14px;border-bottom:1px solid var(--brd);cursor:pointer;display:flex;gap:9px;align-items:flex-start;transition:background .15s;}
-.notif-item:hover{background:var(--sur2);}
-.notif-item.unread{background:rgba(37,99,235,.05);}
-.notif-item.unread::before{content:'';width:7px;height:7px;background:var(--blue);border-radius:50%;flex-shrink:0;margin-top:4px;}
-.notif-item:not(.unread)::before{content:'';width:7px;flex-shrink:0;}
-.notif-item .ni-body{flex:1;}
-.notif-item .ni-proj{font-size:.72rem;font-weight:700;color:var(--red);margin-bottom:2px;}
-.notif-item .ni-text{font-size:.78rem;color:var(--tx2);line-height:1.45;}
-.notif-item .ni-time{font-size:.67rem;color:var(--tx3);margin-top:3px;}
-.notif-empty{padding:30px;text-align:center;color:var(--tx3);font-size:.82rem;}
-/* threaded comment display */
-.thread-box{display:flex;flex-direction:column;gap:0;}
-.thread-comment{padding:9px 12px;border-bottom:1px solid var(--brd);position:relative;transition:background .15s;}
-.thread-comment:last-child{border-bottom:none;}
-.thread-comment.mine{background:rgba(220,38,38,.03);}
-.thread-comment.unread-cmt{background:rgba(37,99,235,.05);}
-.thread-comment:hover{background:var(--sur2);}
-.tc-hdr{display:flex;align-items:center;gap:6px;margin-bottom:5px;}
-.tc-av{width:22px;height:22px;border-radius:50%;background:var(--red);color:#fff;font-size:.58rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.tc-name{font-size:.75rem;font-weight:600;color:var(--tx);}
-.tc-time{font-size:.65rem;color:var(--tx3);margin-left:auto;}
-.tc-body{font-size:.8rem;color:var(--tx2);line-height:1.55;white-space:pre-wrap;word-break:break-word;}
-.tc-mention{color:var(--blue);font-weight:600;background:rgba(37,99,235,.1);border-radius:3px;padding:0 3px;cursor:default;}
-.tc-actions{display:flex;gap:8px;margin-top:5px;}
-.tc-reply-btn,.tc-del-btn{background:none;border:none;color:var(--tx3);font-size:.68rem;cursor:pointer;padding:2px 5px;border-radius:3px;display:flex;align-items:center;gap:3px;}
-.tc-reply-btn:hover{background:var(--sur2);color:var(--blue);}
-.tc-del-btn:hover{background:rgba(220,38,38,.08);color:var(--red);}
-.tc-replies{border-left:2px solid var(--brd);margin-top:4px;}
-.cmt-input-wrap{padding:10px 0 4px;}
-.cmt-reply-banner{display:flex;align-items:center;justify-content:space-between;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:var(--rsm);padding:5px 10px;margin-bottom:6px;font-size:.74rem;color:var(--blue);}
-.cmt-input-row{display:flex;align-items:flex-end;gap:7px;}
-.cmt-inp{flex:1;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-family:'Inter',sans-serif;font-size:.8rem;resize:none;min-height:36px;max-height:120px;outline:none;transition:border-color .2s;overflow-y:hidden;}
-.cmt-inp:focus{border-color:var(--red);}
-.cmt-send-btn{width:34px;height:34px;background:var(--red);color:#fff;border:none;border-radius:var(--rsm);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.82rem;flex-shrink:0;}
-.cmt-send-btn:hover{opacity:.85;}
-/* realtime status */
-.rt-status{position:fixed;bottom:14px;right:14px;z-index:300;opacity:0;transition:opacity .4s;}
-.rt-status.visible{opacity:1;}
+.np-hdr{padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;}
+.np-hdr strong{font-size:.88rem;}
+.np-hdr button{background:none;border:none;color:var(--tx3);font-size:.72rem;cursor:pointer;padding:3px 8px;border-radius:var(--rsm);}
+.np-hdr button:hover{background:var(--sur2);color:var(--tx);}
+.np-list{overflow-y:auto;flex:1;}
+.np-item{padding:11px 14px 11px 12px;border-bottom:1px solid var(--brd);cursor:pointer;display:flex;gap:0;transition:background .12s;}
+.np-item:hover{background:var(--sur2);}
+.np-item.unread{background:rgba(37,99,235,.05);}
+.np-unread-dot{width:7px;height:7px;background:var(--blue);border-radius:50%;flex-shrink:0;margin-top:5px;margin-right:7px;}
+.np-read-dot{width:7px;flex-shrink:0;margin-right:7px;}
+.np-body{flex:1;}
+.np-proj{font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:2px;}
+.np-text{font-size:.78rem;color:var(--tx2);line-height:1.45;}
+.np-time{font-size:.65rem;color:var(--tx3);margin-top:3px;}
+.np-empty{padding:36px 20px;text-align:center;color:var(--tx3);font-size:.82rem;}
+/* realtime indicator */
+.rt-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:600;background:rgba(22,163,74,.1);color:#16a34a;border:1px solid rgba(22,163,74,.25);}
+.rt-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:rtP 1.8s infinite;}
+@keyframes rtP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 
 /* ════ KANBAN ════ */
 .kanban-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-height:500px;}
@@ -553,7 +549,7 @@ tr:hover td{background:var(--sur2);}
         <path fill="#fff" d="M139,348.5c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.8c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.7s9.1-7.6,14.7-10c5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2s-1.9,2.3-3.4,2.7-2.9.2-4.3-.5c-2.6-1.6-5.5-2.7-8.4-3.5-2.9-.7-6-1.2-9.3-1.2-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5s1.1,2.7.7,4.2-1.2,2.6-2.5,3.6c-7.6,4.5-15.9,6.8-24.9,6.8"/>
         <path fill="#fff" d="M371.3,348.2c-1.5,0-2.7-.5-3.8-1.7-1.1-1.1-1.6-2.4-1.6-3.9v-56.7l-25.1,58.9c-.4,1.1-1.1,1.8-1.9,2.4-.8.6-1.9.9-2.9,1.1-1.1,0-2.1-.3-3-.8-.9-.6-1.6-1.4-2-2.2l-29.2-61.6v59.3c0,1.5-.5,2.7-1.6,3.8s-2.3,1.6-3.8,1.6-2.8-.5-3.9-1.6c-1.1-1.1-1.7-2.3-1.7-3.8v-83.5c0-1.3.4-2.4,1.2-3.4.7-.9,1.8-1.7,3-1.9,1.3-.2,2.4-.1,3.6.4s2,1.4,2.5,2.5l34.4,72.4,30.8-72.2c.5-1.2,1.4-2,2.5-2.6s2.4-.7,3.6-.5c1.3.2,2.3.8,3.2,1.9s1.3,2.1,1.3,3.4v83.4c0,1.5-.5,2.8-1.6,3.9-1.1.9-2.4,1.6-3.9,1.6"/>
       </svg>
-      <div class="lcard-logo-txt"><strong>CamCom</strong><span>Annotation Tracker</span></div>
+      <div class="lcard-logo-txt"><strong>CamCom</strong><span>Annotation Tracker <span class="rt-badge" id="rt-badge" style="display:none;"><span class="rt-dot" id="rt-dot"></span>Live</span></span></div>
     </div>
     <h2>Sign in to your account</h2>
     <p>Enter your credentials to access the platform</p>
@@ -563,9 +559,9 @@ tr:hover td{background:var(--sur2);}
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
-      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="80e1e4ede9eec0e3e1ede3efedaee1e9">[email&#160;protected]</a> / admin123</span></button>
-      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b5d8d4dbd4d2d0c7f5d6d4d8d6dad89bd4dc">[email&#160;protected]</a> / mgr123</span></button>
-      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1b697e6d727e6c7e695b787a76787476357a72">[email&#160;protected]</a> / rev123</span></button>
+      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="2d4c494044436d4e4c404e4240034c44">[email&#160;protected]</a> / admin123</span></button>
+      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dbb6bab5babcbea99bb8bab6b8b4b6f5bab2">[email&#160;protected]</a> / mgr123</span></button>
+      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="96e4f3e0fff3e1f3e4d6f5f7fbf5f9fbb8f7ff">[email&#160;protected]</a> / rev123</span></button>
       <button class="dbtn" onclick="quickLogin('employee')"><span class="dname">🟢 Employee</span><span class="dsub">My assigned projects only</span></button>
       <button class="dbtn" onclick="quickLogin('stakeholder')" style="grid-column:1/-1;"><span class="dname">🟣 Stakeholder</span><span class="dsub">Executive / investor view — admin configures what they see</span></button>
     </div>
@@ -585,7 +581,7 @@ tr:hover td{background:var(--sur2);}
       <path fill="#fff" d="M139,348.5c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.8c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.7s9.1-7.6,14.7-10c5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2s-1.9,2.3-3.4,2.7-2.9.2-4.3-.5c-2.6-1.6-5.5-2.7-8.4-3.5-2.9-.7-6-1.2-9.3-1.2-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5s1.1,2.7.7,4.2-1.2,2.6-2.5,3.6c-7.6,4.5-15.9,6.8-24.9,6.8"/>
       <path fill="#fff" d="M371.3,348.2c-1.5,0-2.7-.5-3.8-1.7-1.1-1.1-1.6-2.4-1.6-3.9v-56.7l-25.1,58.9c-.4,1.1-1.1,1.8-1.9,2.4-.8.6-1.9.9-2.9,1.1-1.1,0-2.1-.3-3-.8-.9-.6-1.6-1.4-2-2.2l-29.2-61.6v59.3c0,1.5-.5,2.7-1.6,3.8s-2.3,1.6-3.8,1.6-2.8-.5-3.9-1.6c-1.1-1.1-1.7-2.3-1.7-3.8v-83.5c0-1.3.4-2.4,1.2-3.4.7-.9,1.8-1.7,3-1.9,1.3-.2,2.4-.1,3.6.4s2,1.4,2.5,2.5l34.4,72.4,30.8-72.2c.5-1.2,1.4-2,2.5-2.6s2.4-.7,3.6-.5c1.3.2,2.3.8,3.2,1.9s1.3,2.1,1.3,3.4v83.4c0,1.5-.5,2.8-1.6,3.9-1.1.9-2.4,1.6-3.9,1.6"/>
     </svg>
-    <div class="logo-text"><strong>CamCom</strong><span>Annotation Tracker <span class="rt-dot" id="rt-status-dot" style="display:none;vertical-align:middle;" title="Live sync active"></span></span></div>
+    <div class="logo-text"><strong>CamCom</strong><span>Annotation Tracker <span class="rt-badge" id="rt-badge" style="display:none;"><span class="rt-dot" id="rt-dot"></span>Live</span></span></div>
   </div>
   <div class="nav-grp">Main</div>
   <button class="nav-btn active" id="nav-dashboard" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-th-large"></i> Dashboard</button>
@@ -604,12 +600,7 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
   <button class="nav-btn" data-page="users" id="nav-users" style="display:none" onclick="switchPage('users')"><i class="fas fa-user-shield"></i> Manage Users</button>
-  <button class="notif-btn" id="notifBtn" onclick="toggleNotifPanel()">
-    <i class="fas fa-bell"></i><span>Notifications</span>
-    <span class="nbadge" id="nb-notif" style="display:none">0</span>
-    <span class="notif-dot" id="notifDot"></span>
-  </button>
-  <button class="nav-btn" data-page="actlog" id="nav-actlog"  style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
+  <button class="nav-btn" data-page="actlog" id="nav-actlog" style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
   <button class="nav-btn" data-page="stakeholder" id="nav-stakeholder" style="display:none" onclick="switchPage('stakeholder')"><i class="fas fa-eye"></i> My Dashboard</button>
   <div class="sidebar-foot">
     <div class="user-chip" id="userChip">
@@ -618,36 +609,12 @@ tr:hover td{background:var(--sur2);}
         <div class="user-name" id="userName">—</div>
         <div id="userRole"></div>
       </div>
-      <button class="notif-bell" id="notifBell" onclick="toggleNotifPanel()" title="Notifications">
-        <i class="fas fa-bell"></i>
-        <span class="notif-dot" id="notifDot"></span>
-      </button>
+      <button class="nb-btn" id="nbBtn" onclick="toggleNotifPanel()" title="Notifications"><i class="fas fa-bell"></i><span class="nb-dot" id="nbDot"></span></button>
       <button class="logout-btn" onclick="doLogout()" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>
     </div>
     <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="tIco"></i><span id="tLbl">Dark mode</span></button>
   </div>
 </aside>
-
-<!-- ═══ NOTIFICATION PANEL ═══ -->
-<div class="notif-panel" id="notifPanel">
-  <div class="notif-hdr">
-    <strong><i class="fas fa-bell" style="color:var(--red);margin-right:5px;"></i>Notifications</strong>
-    <div style="display:flex;gap:6px;">
-      <button onclick="markAllNotifsRead()">Mark all read</button>
-      <button onclick="clearNotifs()">Clear all</button>
-      <button onclick="toggleNotifPanel()" style="font-size:.85rem;">✕</button>
-    </div>
-  </div>
-  <div class="notif-list" id="notifList"></div>
-</div>
-
-<!-- @Mention autocomplete popup -->
-<div id="mentionPopupEl" class="mention-dropdown" style="display:none;position:fixed;"></div>
-
-<!-- Realtime sync status -->
-<div class="rt-status" id="rtStatus">
-  <div class="rt-pill"><div class="rt-dot"></div><span id="rt-status-txt">Live</span></div>
-</div>
 
 <!-- ═══ MAIN ═══ -->
 <main class="main">
@@ -780,6 +747,21 @@ tr:hover td{background:var(--sur2);}
 </div>
 
 
+<!-- ═══ NOTIFICATION PANEL ═══ -->
+<div class="notif-panel" id="notifPanel">
+  <div class="np-hdr">
+    <strong><i class="fas fa-bell" style="color:var(--red);margin-right:6px;"></i>Notifications</strong>
+    <div style="display:flex;gap:4px;">
+      <button onclick="markAllNotifsRead()">Mark all read</button>
+      <button onclick="clearNotifs()">Clear all</button>
+      <button onclick="toggleNotifPanel()" style="font-size:.9rem;padding:3px 7px;">✕</button>
+    </div>
+  </div>
+  <div class="np-list" id="np-list"></div>
+</div>
+
+<!-- realtime indicator in logo area -->
+
 <!-- ═══ MODAL: WORKLOAD PDF OPTIONS ═══ -->
 <div class="overlay" id="wlPdfOvl" onclick="if(event.target===this)closeWLPdfModal()">
 <div class="modal" style="width:460px;">
@@ -833,23 +815,7 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS startdate TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS assignedby TEXT DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS comments TEXT DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS review_employees TEXT DEFAULT '';
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';
-
--- For threaded comments (optional - app works without this, stores in localStorage)
-CREATE TABLE IF NOT EXISTS project_comments (
-  id TEXT PRIMARY KEY,
-  proj_id TEXT REFERENCES projects(id) ON DELETE CASCADE,
-  parent_id TEXT,
-  author TEXT, author_id TEXT, role TEXT,
-  text TEXT, mentions TEXT DEFAULT '',
-  ts TIMESTAMPTZ DEFAULT now()
-);
--- For realtime access control sync
-CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT);
--- Enable realtime for projects table:
-ALTER PUBLICATION supabase_realtime ADD TABLE projects;
--- Enable realtime for access control sync:
-ALTER PUBLICATION supabase_realtime ADD TABLE app_settings;</code>
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('migBanner').style.display='none'">Dismiss</button>
   </div>
   <div class="settings-grid" id="settingsGrid"></div>
@@ -1477,26 +1443,26 @@ function renderAccessControl(){
 function togglePageAccess(role,page,val){
   if(!visConfig.pageAccess[role])visConfig.pageAccess[role]={};
   visConfig.pageAccess[role][page]=val;
-  saveVisConfig();
-  renderAccessControl(); // re-render chips
-  applyRoleToUI();       // update nav for currently logged-in user if role matches
-  toast(`${role}: "${page}" access ${val?'enabled':'disabled'}`,'ok');
+  saveVisConfigDB(); // saves locally + broadcasts to all browsers
+  renderAccessControl();
+  applyRoleToUI();
+  toast(`${role}: "${page}" ${val?'enabled':'disabled'}`,'ok');
 }
 function toggleDateFilter(role,val){
   visConfig.dateFilter[role]=val;
-  saveVisConfig();
+  saveVisConfigDB();
   applyRoleToUI();
-  toast(`Date filter ${val?'enabled for':'disabled for'} ${role}s`,'ok');
+  toast(`Date filter ${val?'on':'off'} for ${role}s`,'ok');
 }
-function toggleActLogAccess(role, val){
+function toggleActLogAccess(role,val){
   visConfig.actLogVisible[role]=val;
-  saveVisConfig();
-  applyRoleToUI(); // re-apply nav visibility
+  saveVisConfigDB();
+  applyRoleToUI();
   toast(`Activity Log ${val?'visible to':'hidden from'} ${role}s`,'ok');
 }
-function toggleStakeholderField(key, val){
+function toggleStakeholderField(key,val){
   visConfig.stakeholderFields[key]=val;
-  saveVisConfig();
+  saveVisConfigDB();
   toast(`Stakeholder field "${key}" ${val?'enabled':'disabled'}`,'ok');
 }
 
@@ -1666,10 +1632,10 @@ function appInit(){
   loadFeaturesLocal(); loadEmpsLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
   loadThreadedComments(); loadNotifications();
   loadProjects();
+  if(can('canManageFeatures'))renderSettings();
   startRealtime();
   startVisConfigPoll();
-  updateNotifBadge();
-  if(can('canManageFeatures'))renderSettings();
+  updateNbDot();
 }
 
 // ══════════════════════════════════
@@ -1697,7 +1663,6 @@ async function loadProjects(){
 }
 
 async function saveProjDB(p){
-  lastOwnUpdate=Date.now(); // suppress realtime echo
   // ── FULL row with all v5+ columns ──
   const fullRow={
     id:p.id, name:p.name, client:p.client||'', labellink:p.labellink||'',
@@ -2101,16 +2066,39 @@ function renderDPBody(p){
       ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.notes||'—')}</div>`
       :`<textarea class="cmt-ta" oninput="dpUpd('${p.id}','notes',this.value)">${esc(p.notes||'')}</textarea>`}
   </div>
-  <div class="dp-sec">
-    <div class="ds-hdr"><i class="fas fa-comments"></i> Comments</div>
-    ${buildCommentSection(p)}
-    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:``}
-      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:``}
-      ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:``}
+  <div class="dp-sec" style="padding:0;">
+    <div class="ds-hdr" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);margin:0;">
+      <span><i class="fas fa-comments" style="color:var(--blue);margin-right:6px;"></i>Comments <span id="tc-count-${p.id}" style="font-size:.72rem;color:var(--tx3);font-weight:400;">(${(threadedComments[p.id]||[]).filter(c=>!c.parentId).length})</span></span>
+      ${notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===p.id).length?`<span class="nbadge" style="font-size:.68rem;">${notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===p.id).length} new</span>`:''}
+    </div>
+    <div class="tc-list" id="tc-list-${p.id}" style="max-height:340px;overflow-y:auto;"></div>
+    <div class="tc-compose">
+      <div class="tc-compose-av" style="background:${ROLE_COLORS[currentUser?.role]||'#64748b'};">${avInit(currentUser?.name||'?')}</div>
+      <div class="tc-compose-right">
+        <div id="tc-reply-banner-${p.id}" class="tc-reply-banner" style="display:none;">
+          <span id="tc-reply-label-${p.id}">Replying to …</span>
+          <button style="background:none;border:none;cursor:pointer;color:var(--blue);font-size:.75rem;" onclick="cancelReply('${p.id}')"><i class="fas fa-times"></i></button>
+        </div>
+        <textarea class="tc-textarea" id="tc-inp-${p.id}"
+          placeholder="Write a comment… type @ to mention someone"
+          oninput="onCmtInput(event,'${p.id}')"
+          onkeydown="onCmtKey(event,'${p.id}')"
+          onblur="setTimeout(hideMentionPop,160)"></textarea>
+        <div class="tc-compose-foot">
+          <span class="tc-hint">Enter&nbsp;=&nbsp;send &nbsp;·&nbsp; Shift+Enter&nbsp;=&nbsp;new line &nbsp;·&nbsp; @Name&nbsp;=&nbsp;mention</span>
+          <button class="tc-send" onclick="postComment('${p.id}')"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--brd);flex-wrap:wrap;">
+      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:''}
+      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:''}
+      ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:''}
     </div>
   </div>`;
   if(can('canAssign')){renderES(p.id);renderESRev(p.id);}
+  // Render threaded comments (DOM must exist first)
+  setTimeout(()=>renderThreadList(p.id),0);
 }
 function renderES(projId){
   const q=(document.getElementById(`esrch-${projId}`)?.value||'').toLowerCase();
@@ -3087,32 +3075,32 @@ function destroyChart(id){if(chartInstances[id]){chartInstances[id].destroy();de
 
 function renderCharts(){
   if(!projects.length)return;
-  // Exclude completed projects from distribution/progress charts
-  const activeProj=projects.filter(p=>(p.kanbanStatus||'todo')!=='done');
+  const active=projects.filter(p=>(p.kanbanStatus||'todo')!=='done');
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tx=isDark?'#8b949e':'#475569';
-  const txColor=getComputedStyle(document.body).getPropertyValue('--tx')||'#0f172a';
+  const txMain=getComputedStyle(document.body).getPropertyValue('--tx')||'#0f172a';
+  const subtitle=active.length<projects.length?`Active only (${active.length}/${projects.length})`:'';
 
   // Priority pie — active only
   destroyChart('pri');
-  const h=activeProj.filter(p=>p.priority==='high').length;
-  const m=activeProj.filter(p=>p.priority==='medium').length;
-  const l=activeProj.filter(p=>p.priority==='low').length;
-  chartInstances.pri=new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[h,m,l],backgroundColor:['#dc2626','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:activeProj.length<projects.length,text:`Active projects only (${activeProj.length} of ${projects.length})`,font:{size:9},color:tx,padding:{bottom:4}},legend:{position:'bottom',labels:{font:{size:11},color:txColor}}}}});
+  const h=active.filter(p=>p.priority==='high').length;
+  const m=active.filter(p=>p.priority==='medium').length;
+  const l=active.filter(p=>p.priority==='low').length;
+  chartInstances.pri=new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[h,m,l],backgroundColor:['#dc2626','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:!!subtitle,text:subtitle,font:{size:9},color:tx},legend:{position:'bottom',labels:{font:{size:11},color:txMain}}}}});
 
-  // Annotation Progress — active only
+  // Annotation progress — active only
   destroyChart('prog');
-  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:activeProj.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:activeProj.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:activeProj.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:activeProj.length<projects.length,text:`Active projects only (${activeProj.length} of ${projects.length})`,font:{size:9},color:tx,padding:{bottom:4}},legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:active.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:active.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:active.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:!!subtitle,text:subtitle,font:{size:9},color:tx},legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
 
-  // Status donut — all projects (shows completed count is fine here)
+  // Status donut — all projects
   destroyChart('status');
-  const statCounts={todo:0,inprog:0,review:0,done:0};
-  projects.forEach(p=>{statCounts[p.kanbanStatus||'todo']++;});
-  chartInstances.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:['To Do','In Progress','Review','Done'],datasets:[{data:[statCounts.todo,statCounts.inprog,statCounts.review,statCounts.done],backgroundColor:['#94a3b8','#3b82f6','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:tx}}}}});
+  const sc={todo:0,inprog:0,review:0,done:0};
+  projects.forEach(p=>{sc[p.kanbanStatus||'todo']++;});
+  chartInstances.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:['To Do','In Progress','Review','Done'],datasets:[{data:[sc.todo,sc.inprog,sc.review,sc.done],backgroundColor:['#94a3b8','#3b82f6','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:tx}}}}});
 
   // Employees per project — active only
   destroyChart('emp');
-  chartInstances.emp=new Chart(document.getElementById('empChart'),{type:'bar',data:{labels:activeProj.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Employees',data:activeProj.map(p=>(p.assignedEmployees||[]).length),backgroundColor:'#7c3aed',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+  chartInstances.emp=new Chart(document.getElementById('empChart'),{type:'bar',data:{labels:active.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Employees',data:active.map(p=>(p.assignedEmployees||[]).length),backgroundColor:'#7c3aed',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
 }
 
 // ═══════════════════════
@@ -3981,462 +3969,18 @@ function loadTheme(){
   if(lbl)lbl.textContent=t==='dark'?'Light mode':'Dark mode';
 }
 loadTheme();
-// ═══════════════════════════════════════════════════════════════
-// THREADED COMMENTS  +  @MENTIONS  +  NOTIFICATIONS
-// ═══════════════════════════════════════════════════════════════
-let threadedComments = {};       // { projId: [{id,parentId,author,authorId,role,text,ts,mentions:[]}] }
-let notifications    = [];       // [{id,userId,projId,projName,cmtId,text,ts,read}]
-let replyingTo       = null;     // {projId, cmtId, authorName}
-let mentionQuery     = null;     // current @search string
-let mentionActive    = false;
-let mentionInputRef  = null;
-let mentionCursorPos = 0;
 
-const ROLE_COLORS = {admin:'#dc2626',manager:'#2563eb',reviewer:'#d97706',employee:'#16a34a',stakeholder:'#7c3aed'};
-
-function loadThreadedComments(){
-  try{const s=localStorage.getItem('cc_threads');if(s)threadedComments=JSON.parse(s);}catch(e){}
-}
-function saveThreadedComments(){
-  try{localStorage.setItem('cc_threads',JSON.stringify(threadedComments));}catch(e){}
-}
-function loadNotifications(){
-  try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}
-}
-function saveNotifications(){
-  try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
-}
-
-// ─── Parse @mentions from text ───
-function parseMentions(text){
-  const re=/@([\w\s]+?)(?=\s@|\s*$|[^\w\s])/g;
-  const found=[];
-  let m;
-  while((m=re.exec(text))!==null){
-    const name=m[1].trim();
-    const emp=employees.find(e=>e.name.toLowerCase()===name.toLowerCase());
-    if(emp)found.push(emp.id);
-  }
-  return found;
-}
-
-// ─── Render text with highlighted @mentions ───
-function renderCommentText(text){
-  return esc(text).replace(/@([\w][\w\s]*[\w])/g,(match,name)=>{
-    const emp=employees.find(e=>e.name.toLowerCase()===name.toLowerCase());
-    return emp?`<span class="tc-mention">@${esc(name)}</span>`:match;
-  });
-}
-
-// ─── Avatar initials ───
-function avInit(name){return name.split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();}
-
-// ─── Post a comment ───
-async function postComment(projId){
-  if(!currentUser)return;
-  const inp=document.getElementById('cmt-inp-'+projId);
-  if(!inp)return;
-  const text=inp.value.trim();
-  if(!text)return;
-
-  const p=projects.find(x=>x.id===projId);
-  if(!p)return;
-  const mentions=parseMentions(text);
-  const cmt={
-    id:'c_'+Date.now()+'_'+Math.random().toString(36).substr(2,5),
-    parentId:replyingTo?.projId===projId?replyingTo.cmtId:null,
-    author:currentUser.name,
-    authorId:currentUser.id,
-    role:currentUser.role,
-    text,
-    ts:new Date().toISOString(),
-    mentions
-  };
-
-  if(!threadedComments[projId])threadedComments[projId]=[];
-  threadedComments[projId].push(cmt);
-  saveThreadedComments();
-
-  // ── Create notifications for @mentioned users ──
-  mentions.forEach(empId=>{
-    const emp=employees.find(e=>e.id===empId);
-    if(!emp)return;
-    // find the user account linked to this employee
-    const u=appUsers.find(u=>u.empId===empId);
-    if(!u)return;
-    const notif={
-      id:'n_'+Date.now()+'_'+Math.random().toString(36).substr(2,4),
-      userId:u.id,
-      projId,projName:p.name,
-      cmtId:cmt.id,
-      author:currentUser.name,
-      text:`${currentUser.name} mentioned you in "${p.name}": ${text.substr(0,60)}${text.length>60?'…':''}`,
-      ts:new Date().toISOString(),
-      read:false
-    };
-    notifications.push(notif);
-  });
-
-  // Also notify project creator / assigned manager if someone comments
-  if(p.assignedby&&currentUser.name!==p.assignedby){
-    const mgr=appUsers.find(u=>u.name===p.assignedby);
-    if(mgr){
-      const exists=mentions.includes(mgr.empId||'');
-      if(!exists){
-        notifications.push({
-          id:'n_'+Date.now()+'_m',
-          userId:mgr.id,projId,projName:p.name,
-          cmtId:cmt.id,author:currentUser.name,
-          text:`${currentUser.name} commented on "${p.name}": ${text.substr(0,60)}${text.length>60?'…':''}`,
-          ts:new Date().toISOString(),read:false
-        });
-      }
-    }
-  }
-  saveNotifications();
-  updateNotifBadge();
-
-  // Also push to Supabase notifications table for cross-browser
-  await pushNotifsToDB(projId, cmt);
-
-  inp.value='';
-  inp.style.height='36px';
-  cancelReply(projId);
-  renderThreadedComments(projId);
-  logActivity(projId,'comment',`${currentUser.name} commented on project`);
-}
-
-async function pushNotifsToDB(projId, cmt){
-  // Store comment in DB via project's comments_thread column
-  try{
-    await sb.from('project_comments').upsert({
-      id:cmt.id, proj_id:projId, parent_id:cmt.parentId||null,
-      author:cmt.author, author_id:cmt.authorId, role:cmt.role,
-      text:cmt.text, mentions:cmt.mentions.join(','), ts:cmt.ts
-    });
-  }catch(e){/* comments table may not exist yet - gracefully ignore */}
-}
-
-function deleteComment(projId, cmtId){
-  if(!currentUser)return;
-  const cmts=threadedComments[projId]||[];
-  const cmt=cmts.find(c=>c.id===cmtId);
-  if(!cmt)return;
-  if(cmt.authorId!==currentUser.id&&currentUser.role!=='admin'){toast('You can only delete your own comments','err');return;}
-  // Remove comment and its replies
-  threadedComments[projId]=cmts.filter(c=>c.id!==cmtId&&c.parentId!==cmtId);
-  saveThreadedComments();
-  renderThreadedComments(projId);
-}
-
-function startReply(projId, cmtId, authorName){
-  replyingTo={projId,cmtId,authorName};
-  const banner=document.getElementById('reply-banner-'+projId);
-  if(banner){banner.style.display='flex';banner.querySelector('span').textContent='Replying to '+authorName;}
-  const inp=document.getElementById('cmt-inp-'+projId);
-  if(inp)inp.focus();
-}
-
-function cancelReply(projId){
-  replyingTo=null;
-  const banner=document.getElementById('reply-banner-'+projId);
-  if(banner)banner.style.display='none';
-}
-
-// ─── Render threaded comments for a project ───
-function renderThreadedComments(projId){
-  const wrap=document.getElementById('thread-wrap-'+projId);
-  if(!wrap)return;
-  const cmts=threadedComments[projId]||[];
-  const roots=cmts.filter(c=>!c.parentId);
-  const myNotifs=notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===projId);
-  const unreadIds=new Set(myNotifs.map(n=>n.cmtId));
-
-  function buildComment(cmt,depth){
-    const isMe=cmt.authorId===currentUser?.id;
-    const replies=cmts.filter(c=>c.parentId===cmt.id);
-    const roleColor=ROLE_COLORS[cmt.role]||'#64748b';
-    const unread=unreadIds.has(cmt.id);
-    const tAgo=fmtAgo(cmt.ts);
-    const canDel=isMe||currentUser?.role==='admin';
-    return `<div class="thread-comment${isMe?' mine':''}${unread?' unread-cmt':''}" style="padding-left:${Math.min(depth*10,30)+12}px">
-      <div class="tc-hdr">
-        <div class="tc-av" style="background:${roleColor}">${avInit(cmt.author)}</div>
-        <span class="tc-name">${esc(cmt.author)}</span>
-        <span style="font-size:.64rem;padding:1px 6px;border-radius:10px;background:${roleColor}22;color:${roleColor};font-weight:600;">${cmt.role}</span>
-        <span class="tc-time">${tAgo}</span>
-      </div>
-      <div class="tc-body">${renderCommentText(cmt.text)}</div>
-      <div class="tc-actions">
-        <button class="tc-reply-btn" onclick="startReply('${projId}','${cmt.id}','${esc(cmt.author)}')"><i class="fas fa-reply"></i> Reply</button>
-        ${canDel?`<button class="tc-del-btn" onclick="deleteComment('${projId}','${cmt.id}')"><i class="fas fa-trash"></i></button>`:''}
-      </div>
-      ${replies.length?`<div class="tc-replies">${replies.map(r=>buildComment(r,depth+1)).join('')}</div>`:''}
-    </div>`;
-  }
-
-  wrap.innerHTML = roots.length
-    ? `<div class="thread-box">${roots.map(c=>buildComment(c,0)).join('')}</div>`
-    : '<div style="font-size:.75rem;color:var(--tx3);padding:4px 0;">No comments yet. Be the first!</div>';
-
-  // Mark related notifs as read once viewed
-  const viewed=notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===projId);
-  if(viewed.length){
-    viewed.forEach(n=>n.read=true);
-    saveNotifications();
-    updateNotifBadge();
-    renderNotifList();
-  }
-}
-
-// ─── @Mention autocomplete ───
-function handleCmtInput(e,projId){
-  const inp=e.target;
-  const val=inp.value;
-  const pos=inp.selectionStart;
-  // find last @ before cursor
-  const before=val.substring(0,pos);
-  const atIdx=before.lastIndexOf('@');
-  if(atIdx>=0){
-    const query=before.substring(atIdx+1);
-    if(!query.includes(' ')||query.length<20){
-      showMentionPopup(inp,query,projId);
-      return;
-    }
-  }
-  hideMentionPopup();
-}
-
-function showMentionPopup(inp, query, projId){
-  const popup=document.getElementById('mentionPopupEl');
-  if(!popup)return;
-  const filtered=employees.filter(e=>e.name.toLowerCase().includes(query.toLowerCase())).slice(0,8);
-  if(!filtered.length){hideMentionPopup();return;}
-  const rect=inp.getBoundingClientRect();
-  popup.style.display='block';
-  popup.style.top=(rect.bottom+4)+'px';
-  popup.style.left=rect.left+'px';
-  popup.innerHTML=filtered.map(e=>`<div class="mention-item" onclick="insertMention('${projId}','${esc(e.name)}')">
-    <div class="m-av">${avInit(e.name)}</div>
-    <span>${esc(e.name)}</span>
-  </div>`).join('');
-  mentionActive=true;
-  mentionInputRef=inp;
-}
-
-function hideMentionPopup(){
-  const popup=document.getElementById('mentionPopupEl');
-  if(popup)popup.style.display='none';
-  mentionActive=false;
-}
-
-function insertMention(projId,name){
-  const inp=document.getElementById('cmt-inp-'+projId);
-  if(!inp)return;
-  const val=inp.value;
-  const pos=inp.selectionStart;
-  const before=val.substring(0,pos);
-  const atIdx=before.lastIndexOf('@');
-  inp.value=val.substring(0,atIdx)+'@'+name+' '+val.substring(pos);
-  inp.focus();
-  hideMentionPopup();
-}
-
-// ─── Notification panel ───
-function toggleNotifPanel(){
-  const panel=document.getElementById('notifPanel');
-  if(panel){panel.classList.toggle('open');if(panel.classList.contains('open'))renderNotifList();}
-}
-
-function renderNotifList(){
-  if(!currentUser)return;
-  const list=document.getElementById('notifList');
-  if(!list)return;
-  const mine=notifications.filter(n=>n.userId===currentUser.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
-  if(!mine.length){list.innerHTML='<div class="notif-empty"><i class="fas fa-check-circle" style="color:var(--green);font-size:1.3rem;display:block;margin-bottom:7px;"></i>All caught up!</div>';return;}
-  list.innerHTML=mine.map(n=>`<div class="notif-item${n.read?'':' unread'}" onclick="openNotif('${n.projId}','${n.id}')">
-    <div class="ni-body">
-      <div class="ni-proj"><i class="fas fa-folder" style="margin-right:4px"></i>${esc(n.projName)}</div>
-      <div class="ni-text">${esc(n.text)}</div>
-      <div class="ni-time">${fmtAgo(n.ts)}</div>
-    </div>
-  </div>`).join('');
-}
-
-function clearNotifs(){
-  if(!currentUser)return;
-  notifications=notifications.filter(n=>n.userId!==currentUser.id);
-  saveNotifications();updateNotifBadge();renderNotifList();
-  toast('Notifications cleared','info');
-}
-function openNotif(projId, notifId){
-  // mark read
-  const n=notifications.find(x=>x.id===notifId);
-  if(n)n.read=true;
-  saveNotifications();
-  updateNotifBadge();
-  renderNotifList();
-  // open the project
-  const p=projects.find(x=>x.id===projId);
-  if(p){toggleNotifPanel();openDP(p);}
-}
-
-function markAllNotifsRead(){
-  if(!currentUser)return;
-  notifications.filter(n=>n.userId===currentUser.id).forEach(n=>n.read=true);
-  saveNotifications();
-  updateNotifBadge();
-  renderNotifList();
-}
-
-function updateNotifBadge(){
-  if(!currentUser)return;
-  const count=notifications.filter(n=>n.userId===currentUser.id&&!n.read).length;
-  const dot=document.getElementById('notifDot');
-  const badge=document.getElementById('nb-notif');
-  if(dot){dot.classList.toggle('show',count>0);}
-  if(badge){badge.style.display=count>0?'':'none';badge.textContent=count;}
-}
-
-// ─── Build the comment section for renderDPBody ───
-function buildCommentSection(p){
-  const isRO=currentUser?.role==='employee';
-  const cmts=threadedComments[p.id]||[];
-  const myUnread=notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===p.id).length;
-  return `
-    <div class="ds-hdr"><i class="fas fa-comments" style="color:var(--blue)"></i>
-      Comments (${cmts.length})${myUnread?`<span class="nbadge" style="margin-left:6px">${myUnread} new</span>`:''}
-    </div>
-    <div id="thread-wrap-${p.id}"></div>
-    <div class="cmt-input-wrap" id="cmt-wrap-${p.id}">
-      <div class="cmt-reply-banner" id="reply-banner-${p.id}" style="display:none">
-        <span>Replying to …</span>
-        <button onclick="cancelReply('${p.id}')" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:.75rem;"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="cmt-input-row">
-        <div class="tc-av" style="background:${ROLE_COLORS[currentUser?.role]||'#64748b'};flex-shrink:0;">${avInit(currentUser?.name||'?')}</div>
-        <div style="flex:1;position:relative;">
-          <textarea class="cmt-inp" id="cmt-inp-${p.id}" placeholder="Write a comment… use @Name to mention someone" rows="1"
-            oninput="handleCmtInput(event,'${p.id}');this.style.height='36px';this.style.height=this.scrollHeight+'px';"
-            onkeydown="if(event.key==='Enter'&&!event.shiftKey&&!mentionActive){event.preventDefault();postComment('${p.id}');}"></textarea>
-        </div>
-        <button class="cmt-send-btn" onclick="postComment('${p.id}')"><i class="fas fa-paper-plane"></i></button>
-      </div>
-      <div style="font-size:.66rem;color:var(--tx3);margin-top:2px;">Press Enter to send · Shift+Enter for new line · Type @Name to mention</div>
-    </div>`;
-  // Render threaded comments (needs DOM to be ready)
-  setTimeout(()=>{ renderThreadedComments(p.id); updateNotifBadge(); },0);
-}
-
-// ═══════════════════════════════════════════════════════════════
-// SUPABASE REALTIME — push changes to all connected browsers
-// ═══════════════════════════════════════════════════════════════
-let realtimeChannel = null;
-let lastOwnUpdate   = 0;  // timestamp of last change WE made (to avoid double-apply)
-
-function startRealtime(){
-  if(realtimeChannel)return; // already running
-  try{
-    realtimeChannel = sb.channel('camcom-sync')
-      .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(payload)=>{
-        const lag=Date.now()-lastOwnUpdate;
-        if(lag<800)return; // skip if we just saved (our own update echoed back)
-        handleRealtimeChange(payload);
-      })
-      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'app_settings',filter:'key=eq.vis_config'},(payload)=>{
-        // visConfig changed by admin on another machine — pull it
-        try{
-          const newVis=JSON.parse(payload.new.value);
-          const oldStr=JSON.stringify(visConfig);
-          Object.assign(visConfig,newVis);
-          saveVisConfig();
-          if(JSON.stringify(visConfig)!==oldStr){
-            applyRoleToUI();
-            if(currentUser?.role!=='admin')toast('Access settings updated by admin','info');
-          }
-        }catch(e){}
-      })
-      .subscribe((status)=>{
-        const dot=document.getElementById('rt-status-dot');
-        const pill=document.getElementById('rtStatus');
-        const live=status==='SUBSCRIBED';
-        if(dot)dot.style.display=live?'inline-block':'none';
-        if(pill)pill.classList.toggle('visible',live);
-      });
-    console.log('[Realtime] Subscribed to projects + settings changes');
-  }catch(e){console.warn('[Realtime] Could not subscribe:',e);}
-}
-
-function handleRealtimeChange(payload){
-  const {eventType, new:newRow, old:oldRow} = payload;
-  if(eventType==='DELETE'){
-    projects=projects.filter(p=>p.id!==oldRow.id);
-    renderAll();
-    toast('A project was deleted by another user','info');
-    return;
-  }
-  // Map DB row → project object
-  const mapped={
-    id:newRow.id, name:newRow.name, client:newRow.client||'', labellink:newRow.labellink||'',
-    total:newRow.total||0, annotated:newRow.annotated||0, reviewed:newRow.reviewed||0,
-    priority:newRow.priority||'medium', startdate:newRow.startdate||'', deadline:newRow.deadline||'',
-    assignedby:newRow.assignedby||'', notes:newRow.notes||'', comments:newRow.comments||'',
-    hasTarget:newRow.has_target||false, dailyTarget:newRow.daily_target||null,
-    kanbanStatus:newRow.kanban_status||'todo',
-    assignedEmployees:newRow.assigned_employees?newRow.assigned_employees.split(',').filter(Boolean):[],
-    reviewEmployees:newRow.review_employees?newRow.review_employees.split(',').filter(Boolean):[],
-    tags:newRow.tags?newRow.tags.split(',').filter(Boolean):[],
-    visConfig:newRow.vis_config?JSON.parse(newRow.vis_config):undefined
-  };
-
-  if(eventType==='INSERT'){
-    if(!projects.find(p=>p.id===mapped.id)){
-      projects.unshift(mapped);
-      renderAll();
-      toast(`New project added: "${mapped.name}"`, 'ok');
-    }
-  } else if(eventType==='UPDATE'){
-    const idx=projects.findIndex(p=>p.id===mapped.id);
-    if(idx>=0){
-      const oldVis=projects[idx].kanbanStatus;
-      projects[idx]=mapped;
-      renderAll();
-      // If currently open project was updated, refresh detail panel
-      if(openProjId===mapped.id)renderDPBody(mapped);
-      // Notify user if a project they're assigned to changed
-      if((mapped.assignedEmployees||[]).includes(currentUser?.empId)||
-         (mapped.reviewEmployees||[]).includes(currentUser?.empId)){
-        if(oldVis!==mapped.kanbanStatus){
-          toast(`"${mapped.name}" moved to ${KB_LABELS[mapped.kanbanStatus]||mapped.kanbanStatus}`,'info');
-        }
-      }
-    }
-  }
-
-  // Also reload visConfig if it changed (so access control updates live)
-  if(newRow.vis_config){
-    try{
-      const newVis=JSON.parse(newRow.vis_config);
-      Object.assign(visConfig,newVis);
-      applyRoleToUI();
-    }catch(e){}
-  }
-}
-
-// saveVisConfigDB: saves to localStorage AND broadcasts to all browsers via Supabase
-
-// Patch visConfig saves to broadcast via a special DB record
+// ══════════════════════════════════════════════════════════════
+// VIS-CONFIG REALTIME SYNC
+// ══════════════════════════════════════════════════════════════
 async function saveVisConfigDB(){
+  saveVisConfig(); // always save locally first
   try{
-    // Store visConfig in a settings table or as a special project row
-    // For now: store in localStorage AND broadcast via a notification ping
-    saveVisConfig();
-    // Broadcast to other browsers by updating a sync row in Supabase
-    await sb.from('app_settings').upsert({key:'vis_config',value:JSON.stringify(visConfig)});
-  }catch(e){saveVisConfig();} // fallback to localStorage only
+    await sb.from('app_settings').upsert({key:'vis_config',value:JSON.stringify(visConfig)},{onConflict:'key'});
+  }catch(e){ /* table may not exist yet — fallback is localStorage */ }
 }
 
-// Poll for visConfig changes every 10 seconds (fallback for access control sync)
+// Poll every 5s as fallback for environments where WebSocket is blocked
 function startVisConfigPoll(){
   setInterval(async()=>{
     if(!currentUser)return;
@@ -4444,16 +3988,337 @@ function startVisConfigPoll(){
       const{data}=await sb.from('app_settings').select('value').eq('key','vis_config').single();
       if(data?.value){
         const remote=JSON.parse(data.value);
-        // Only update if it differs
         if(JSON.stringify(remote)!==JSON.stringify(visConfig)){
           Object.assign(visConfig,remote);
           saveVisConfig();
           applyRoleToUI();
-          toast('Access settings updated by admin','info');
+          if(currentUser.role!=='admin')toast('⚙️ Access settings updated','info');
         }
       }
     }catch(e){}
-  },10000);
+  },5000);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUPABASE REALTIME — project changes + access control sync
+// ══════════════════════════════════════════════════════════════
+let _rtChannel=null, _lastSave=0;
+
+function startRealtime(){
+  if(_rtChannel)return;
+  try{
+    _rtChannel=sb.channel('cc-realtime')
+      .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(pl)=>{
+        if(Date.now()-_lastSave<900)return; // echo suppression
+        const {eventType,new:nr,old:or}=pl;
+        if(eventType==='DELETE'){projects=projects.filter(p=>p.id!==or.id);renderAll();toast('Project deleted by another user','info');return;}
+        const mapped={
+          id:nr.id,name:nr.name,client:nr.client||'',labellink:nr.labellink||'',
+          total:nr.total||0,annotated:nr.annotated||0,reviewed:nr.reviewed||0,
+          priority:nr.priority||'medium',startdate:nr.startdate||'',deadline:nr.deadline||'',
+          assignedby:nr.assignedby||'',notes:nr.notes||'',comments:nr.comments||'',
+          hasTarget:nr.has_target||false,dailyTarget:nr.daily_target||null,
+          kanbanStatus:nr.kanban_status||'todo',
+          assignedEmployees:nr.assigned_employees?nr.assigned_employees.split(',').filter(Boolean):[],
+          reviewEmployees:nr.review_employees?nr.review_employees.split(',').filter(Boolean):[],
+          tags:nr.tags?nr.tags.split(',').filter(Boolean):[]
+        };
+        if(eventType==='INSERT'){if(!projects.find(p=>p.id===mapped.id)){projects.unshift(mapped);renderAll();toast(`New project: "${mapped.name}"`,'ok');}}
+        else if(eventType==='UPDATE'){
+          const i=projects.findIndex(p=>p.id===mapped.id);
+          if(i>=0){
+            const prev=projects[i];
+            projects[i]=mapped;
+            renderAll();
+            if(openProjId===mapped.id)renderDPBody(mapped);
+            if((mapped.assignedEmployees||[]).includes(currentUser?.empId)||(mapped.reviewEmployees||[]).includes(currentUser?.empId)){
+              if(prev.kanbanStatus!==mapped.kanbanStatus)toast(`"${mapped.name}" moved to ${KB_LABELS[mapped.kanbanStatus]||mapped.kanbanStatus}`,'info');
+            }
+          }
+        }
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(pl)=>{
+        const row=pl.new||pl.old;
+        if(!row||row.key!=='vis_config'||pl.eventType==='DELETE')return;
+        try{
+          const remote=JSON.parse(row.value);
+          if(JSON.stringify(remote)!==JSON.stringify(visConfig)){
+            Object.assign(visConfig,remote);
+            saveVisConfig();
+            applyRoleToUI();
+            if(currentUser?.role!=='admin')toast('⚙️ Access settings updated','info');
+          }
+        }catch(e){}
+      })
+      .subscribe(status=>{
+        const dot=document.getElementById('rt-dot');
+        const badge=document.getElementById('rt-badge');
+        const on=status==='SUBSCRIBED';
+        if(dot)dot.style.display=on?'inline-block':'none';
+        if(badge)badge.style.display=on?'':'none';
+      });
+  }catch(e){console.warn('Realtime unavailable:',e);}
+}
+
+// Patch saveProjDB to record timestamp so echo suppression works
+const _origSaveProjDB=saveProjDB;
+async function saveProjDB(p){_lastSave=Date.now();return _origSaveProjDB(p);}
+
+// ══════════════════════════════════════════════════════════════
+// THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════
+let threadedComments={};   // { projId: [{id,parentId,authorId,author,role,text,ts,mentions:[]}] }
+let notifications=[];      // [{id,userId,projId,projName,cmtId,author,text,ts,read}]
+let _replyTo=null;         // {projId,cmtId,authorName}
+let _mentionActive=false;
+
+const ROLE_COLORS={admin:'#dc2626',manager:'#2563eb',reviewer:'#d97706',employee:'#16a34a',stakeholder:'#7c3aed'};
+
+function loadThreadedComments(){try{const s=localStorage.getItem('cc_threads');if(s)threadedComments=JSON.parse(s);}catch(e){}}
+function saveThreadedComments(){try{localStorage.setItem('cc_threads',JSON.stringify(threadedComments));}catch(e){}}
+function loadNotifications(){try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}}
+function saveNotifications(){try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}}
+
+function avInit(name){return(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();}
+
+function renderCommentText(text){
+  // highlight @mentions
+  return esc(text).replace(/@([\w][\w\s]*[\w])/g,(match,name)=>{
+    const e=employees.find(e=>e.name.toLowerCase()===name.toLowerCase());
+    return e?`<span class="tc-mention">@${esc(name)}</span>`:match;
+  });
+}
+
+function parseMentions(text){
+  const re=/@([\w][\w\s]{0,40}[\w])/g;
+  const found=[];let m;
+  while((m=re.exec(text))!==null){
+    const emp=employees.find(e=>e.name.toLowerCase()===m[1].trim().toLowerCase());
+    if(emp&&!found.includes(emp.id))found.push(emp.id);
+  }
+  return found;
+}
+
+// ── Render the thread list into #tc-list-{projId} ──
+function renderThreadList(projId){
+  const wrap=document.getElementById('tc-list-'+projId);
+  if(!wrap)return;
+  const cmts=threadedComments[projId]||[];
+  const roots=cmts.filter(c=>!c.parentId);
+  const unreadIds=new Set(notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===projId).map(n=>n.cmtId));
+
+  if(!roots.length){wrap.innerHTML='<div style="padding:20px 16px;font-size:.8rem;color:var(--tx3);text-align:center;"><i class="fas fa-comments" style="display:block;font-size:1.4rem;margin-bottom:7px;opacity:.35;"></i>No comments yet. Be the first!</div>';return;}
+
+  function build(cmt,depth){
+    const isMe=cmt.authorId===currentUser?.id;
+    const replies=cmts.filter(c=>c.parentId===cmt.id);
+    const rc=ROLE_COLORS[cmt.role]||'#64748b';
+    const unread=unreadIds.has(cmt.id);
+    const canDel=isMe||currentUser?.role==='admin';
+    return `<div class="tc-item${isMe?' tc-mine':''}${unread?' tc-unread':''}">
+      <div class="tc-hdr">
+        <div class="tc-av" style="background:${rc}">${avInit(cmt.author)}</div>
+        <div class="tc-meta">
+          <span class="tc-name">${esc(cmt.author)}</span>
+          <span class="tc-role" style="background:${rc}22;color:${rc}">${cmt.role}</span>
+        </div>
+        <span class="tc-time">${fmtAgo(cmt.ts)}</span>
+      </div>
+      <div class="tc-body">${renderCommentText(cmt.text)}</div>
+      <div class="tc-actions">
+        <button class="tc-btn" onclick="startReply('${projId}','${cmt.id}','${esc(cmt.author)}')"><i class="fas fa-reply"></i> Reply</button>
+        ${canDel?`<button class="tc-btn del" onclick="deleteComment('${projId}','${cmt.id}')"><i class="fas fa-trash"></i></button>`:''}
+      </div>
+      ${replies.length?`<div class="tc-replies">${replies.map(r=>build(r,depth+1)).join('')}</div>`:''}
+    </div>`;
+  }
+
+  wrap.innerHTML=roots.map(c=>build(c,0)).join('');
+
+  // Mark as read when viewed
+  const toRead=notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===projId);
+  if(toRead.length){toRead.forEach(n=>n.read=true);saveNotifications();updateNbDot();renderNotifList();}
+
+  // Update count header
+  const cnt=document.getElementById('tc-count-'+projId);
+  if(cnt)cnt.textContent=`(${roots.length})`;
+}
+
+// ── Post a new comment ──
+async function postComment(projId){
+  if(!currentUser)return;
+  const inp=document.getElementById('tc-inp-'+projId);
+  if(!inp)return;
+  const text=inp.value.trim();
+  if(!text)return;
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+
+  const mentions=parseMentions(text);
+  const cmt={
+    id:'c'+Date.now()+Math.random().toString(36).substr(2,4),
+    parentId:_replyTo?.projId===projId?_replyTo.cmtId:null,
+    authorId:currentUser.id, author:currentUser.name, role:currentUser.role,
+    text, ts:new Date().toISOString(), mentions
+  };
+  if(!threadedComments[projId])threadedComments[projId]=[];
+  threadedComments[projId].push(cmt);
+  saveThreadedComments();
+
+  // Create notifications for mentioned employees
+  mentions.forEach(empId=>{
+    const u=appUsers.find(u=>u.empId===empId);
+    if(!u)return;
+    notifications.push({
+      id:'n'+Date.now()+Math.random().toString(36).substr(2,3),
+      userId:u.id, projId, projName:p.name, cmtId:cmt.id, author:currentUser.name,
+      text:`${currentUser.name} mentioned you in "${p.name}": ${text.substr(0,70)}${text.length>70?'…':''}`,
+      ts:new Date().toISOString(), read:false
+    });
+  });
+  // Notify project assignor if someone else comments
+  if(p.assignedby&&currentUser.name!==p.assignedby){
+    const mgr=appUsers.find(u=>u.name===p.assignedby);
+    if(mgr&&!mentions.includes(mgr.empId||'')){
+      notifications.push({
+        id:'n'+Date.now()+'m',
+        userId:mgr.id, projId, projName:p.name, cmtId:cmt.id, author:currentUser.name,
+        text:`${currentUser.name} commented on "${p.name}": ${text.substr(0,70)}${text.length>70?'…':''}`,
+        ts:new Date().toISOString(), read:false
+      });
+    }
+  }
+  saveNotifications();
+  updateNbDot();
+
+  inp.value='';
+  inp.style.height='';
+  cancelReply(projId);
+  renderThreadList(projId);
+}
+
+function deleteComment(projId,cmtId){
+  const cmts=threadedComments[projId]||[];
+  const cmt=cmts.find(c=>c.id===cmtId);
+  if(!cmt)return;
+  if(cmt.authorId!==currentUser?.id&&currentUser?.role!=='admin'){toast('Can only delete your own comments','err');return;}
+  threadedComments[projId]=cmts.filter(c=>c.id!==cmtId&&c.parentId!==cmtId);
+  saveThreadedComments();
+  renderThreadList(projId);
+}
+
+function startReply(projId,cmtId,authorName){
+  _replyTo={projId,cmtId,authorName};
+  const banner=document.getElementById('tc-reply-banner-'+projId);
+  const label=document.getElementById('tc-reply-label-'+projId);
+  if(banner)banner.style.display='flex';
+  if(label)label.textContent='Replying to '+authorName;
+  const inp=document.getElementById('tc-inp-'+projId);
+  if(inp)inp.focus();
+}
+
+function cancelReply(projId){
+  _replyTo=null;
+  const banner=document.getElementById('tc-reply-banner-'+projId);
+  if(banner)banner.style.display='none';
+}
+
+// ── @Mention autocomplete ──
+function onCmtInput(e,projId){
+  const inp=e.target;
+  const val=inp.value,pos=inp.selectionStart;
+  const before=val.substring(0,pos);
+  const atIdx=before.lastIndexOf('@');
+  if(atIdx>=0){
+    const q=before.substring(atIdx+1);
+    if(!q.includes('  ')&&q.length<32){showMentionPop(inp,q,projId);return;}
+  }
+  hideMentionPop();
+}
+
+function onCmtKey(e,projId){
+  if(e.key==='Escape'){hideMentionPop();return;}
+  if(e.key==='Enter'&&!e.shiftKey&&!_mentionActive){e.preventDefault();postComment(projId);}
+}
+
+function showMentionPop(inp,query,projId){
+  let pop=document.getElementById('_mentionPop');
+  if(!pop){pop=document.createElement('div');pop.id='_mentionPop';pop.className='mention-pop';document.body.appendChild(pop);}
+  const list=employees.filter(e=>e.name.toLowerCase().includes(query.toLowerCase())).slice(0,8);
+  if(!list.length){hideMentionPop();return;}
+  const rect=inp.getBoundingClientRect();
+  const above=window.innerHeight-rect.bottom<200&&rect.top>200;
+  pop.style.cssText=`display:block;left:${Math.max(8,Math.min(rect.left,window.innerWidth-220))}px;${above?'bottom:'+(window.innerHeight-rect.top+4)+'px;':'top:'+(rect.bottom+4)+'px;'}`;
+  pop.innerHTML=list.map(e=>`<div class="mention-row" onmousedown="event.preventDefault();insertMention('${projId}','${e.name.replace(/'/g,"\'")}')">
+    <div class="m-av">${avInit(e.name)}</div>
+    <div class="m-info"><div class="m-name">${esc(e.name)}</div><div class="m-email">${esc(e.email||'')}</div></div>
+  </div>`).join('');
+  _mentionActive=true;
+}
+
+function hideMentionPop(){
+  const pop=document.getElementById('_mentionPop');
+  if(pop)pop.style.display='none';
+  _mentionActive=false;
+}
+
+function insertMention(projId,name){
+  const inp=document.getElementById('tc-inp-'+projId);
+  if(!inp)return;
+  const val=inp.value,pos=inp.selectionStart;
+  const before=val.substring(0,pos);
+  const atIdx=before.lastIndexOf('@');
+  inp.value=val.substring(0,atIdx)+'@'+name+' '+val.substring(pos);
+  inp.focus();
+  hideMentionPop();
+}
+
+// ── Notification panel ──
+function toggleNotifPanel(){
+  const p=document.getElementById('notifPanel');
+  if(p){p.classList.toggle('open');if(p.classList.contains('open'))renderNotifList();}
+}
+
+function renderNotifList(){
+  const list=document.getElementById('np-list');
+  if(!list||!currentUser)return;
+  const mine=notifications.filter(n=>n.userId===currentUser.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  if(!mine.length){list.innerHTML='<div class="np-empty"><i class="fas fa-check-circle" style="font-size:1.5rem;color:var(--green);display:block;margin-bottom:8px;"></i>All caught up!</div>';return;}
+  list.innerHTML=mine.map(n=>`<div class="np-item${n.read?'':' unread'}" onclick="openNotif('${n.projId}','${n.id}')">
+    <div class="${n.read?'np-read-dot':'np-unread-dot'}"></div>
+    <div class="np-body">
+      <div class="np-proj"><i class="fas fa-folder" style="margin-right:4px;"></i>${esc(n.projName)}</div>
+      <div class="np-text">${esc(n.text)}</div>
+      <div class="np-time">${fmtAgo(n.ts)}</div>
+    </div>
+  </div>`).join('');
+}
+
+function openNotif(projId,notifId){
+  const n=notifications.find(x=>x.id===notifId);
+  if(n)n.read=true;
+  saveNotifications();updateNbDot();renderNotifList();
+  toggleNotifPanel();
+  const p=projects.find(x=>x.id===projId);if(p)openDP(p);
+}
+
+function markAllNotifsRead(){
+  if(!currentUser)return;
+  notifications.filter(n=>n.userId===currentUser.id).forEach(n=>n.read=true);
+  saveNotifications();updateNbDot();renderNotifList();
+}
+
+function clearNotifs(){
+  if(!currentUser)return;
+  notifications=notifications.filter(n=>n.userId!==currentUser.id);
+  saveNotifications();updateNbDot();renderNotifList();
+  toast('Notifications cleared','info');
+}
+
+function updateNbDot(){
+  if(!currentUser)return;
+  const count=notifications.filter(n=>n.userId===currentUser.id&&!n.read).length;
+  const dot=document.getElementById('nbDot');
+  if(dot)dot.classList.toggle('on',count>0);
 }
 
 tryRestoreSession();
