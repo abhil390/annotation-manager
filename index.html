@@ -815,7 +815,36 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS startdate TEXT;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS assignedby TEXT DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS comments TEXT DEFAULT '';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS review_employees TEXT DEFAULT '';
-ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS client TEXT DEFAULT '';
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS labellink TEXT DEFAULT '';
+
+CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT);
+ALTER TABLE app_settings ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='app_settings' AND policyname='settings_read') THEN
+    CREATE POLICY "settings_read" ON app_settings FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='app_settings' AND policyname='settings_write') THEN
+    CREATE POLICY "settings_write" ON app_settings FOR ALL USING (true);
+  END IF;
+END $$;
+
+CREATE TABLE IF NOT EXISTS project_comments (
+  id TEXT PRIMARY KEY, proj_id TEXT NOT NULL, parent_id TEXT,
+  author_id TEXT, author TEXT, role TEXT, text TEXT, ts TEXT,
+  mentions TEXT, created_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE project_comments ENABLE ROW LEVEL SECURITY;
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename='project_comments' AND policyname='comments_all') THEN
+    CREATE POLICY "comments_all" ON project_comments FOR ALL USING (true);
+  END IF;
+END $$;
+
+ALTER PUBLICATION supabase_realtime ADD TABLE projects;
+ALTER PUBLICATION supabase_realtime ADD TABLE app_settings;
+ALTER PUBLICATION supabase_realtime ADD TABLE project_comments;</code>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('migBanner').style.display='none'">Dismiss</button>
   </div>
   <div class="settings-grid" id="settingsGrid"></div>
@@ -2097,8 +2126,11 @@ function renderDPBody(p){
     </div>
   </div>`;
   if(can('canAssign')){renderES(p.id);renderESRev(p.id);}
-  // Render threaded comments (DOM must exist first)
-  setTimeout(()=>renderThreadList(p.id),0);
+  // Render threaded comments (DOM must exist first), then sync from DB
+  setTimeout(()=>{
+    renderThreadList(p.id);
+    loadCommentsFromDB(p.id); // fetch latest from Supabase and re-render on arrival
+  },0);
 }
 function renderES(projId){
   const q=(document.getElementById(`esrch-${projId}`)?.value||'').toLowerCase();
@@ -4002,14 +4034,16 @@ function startVisConfigPoll(){
 // ══════════════════════════════════════════════════════════════
 // SUPABASE REALTIME — project changes + access control sync
 // ══════════════════════════════════════════════════════════════
-let _rtChannel=null, _lastSave=0;
+let _rtChannel=null, _lastSave=0, _ownSaves=new Map();
 
 function startRealtime(){
   if(_rtChannel)return;
   try{
     _rtChannel=sb.channel('cc-realtime')
       .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(pl)=>{
-        if(Date.now()-_lastSave<900)return; // echo suppression
+        // Echo suppression: skip if we just saved this exact project ourselves
+        const {eventType,new:nr}=pl;
+        if(nr&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<1500)return;
         const {eventType,new:nr,old:or}=pl;
         if(eventType==='DELETE'){projects=projects.filter(p=>p.id!==or.id);renderAll();toast('Project deleted by another user','info');return;}
         const mapped={
@@ -4050,6 +4084,49 @@ function startRealtime(){
           }
         }catch(e){}
       })
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'project_comments'},(pl)=>{
+        // New comment from another user — merge into local state and re-render
+        const nr=pl.new;
+        if(!nr)return;
+        const cmt={
+          id:nr.id, parentId:nr.parent_id||null,
+          authorId:nr.author_id, author:nr.author, role:nr.role,
+          text:nr.text, ts:nr.ts, mentions:nr.mentions?JSON.parse(nr.mentions):[]
+        };
+        if(!threadedComments[nr.proj_id])threadedComments[nr.proj_id]=[];
+        // Only add if not already present (avoid echo from own post)
+        if(!threadedComments[nr.proj_id].find(c=>c.id===cmt.id)){
+          threadedComments[nr.proj_id].push(cmt);
+          saveThreadedComments();
+          // Update UI if the panel for this project is open
+          if(openProjId===nr.proj_id){
+            renderThreadList(nr.proj_id);
+            const cnt=document.getElementById('tc-count-'+nr.proj_id);
+            if(cnt)cnt.textContent='('+(threadedComments[nr.proj_id]||[]).filter(c=>!c.parentId).length+')';
+          }
+          // Create notification if current user was mentioned
+          if(currentUser&&(cmt.mentions||[]).some(id=>appUsers.find(u=>u.empId===id)?.id===currentUser.id)){
+            notifications.push({
+              id:'n'+Date.now()+Math.random().toString(36).substr(2,3),
+              userId:currentUser.id, projId:nr.proj_id, projName:(projects.find(p=>p.id===nr.proj_id)||{name:'?'}).name,
+              cmtId:cmt.id, author:cmt.author,
+              text:`${cmt.author} mentioned you: ${cmt.text.substr(0,70)}${cmt.text.length>70?'…':''}`,
+              ts:cmt.ts, read:false
+            });
+            saveNotifications();
+            updateNbDot();
+            toast(`💬 ${cmt.author} mentioned you`,'info');
+          }
+        }
+      })
+      .on('postgres_changes',{event:'DELETE',schema:'public',table:'project_comments'},(pl)=>{
+        const or=pl.old;if(!or)return;
+        if(threadedComments[or.proj_id]){
+          threadedComments[or.proj_id]=threadedComments[or.proj_id].filter(c=>c.id!==or.id&&c.parentId!==or.id);
+          saveThreadedComments();
+          if(openProjId===or.proj_id)renderThreadList(or.proj_id);
+        }
+      })
       .subscribe(status=>{
         const dot=document.getElementById('rt-dot');
         const badge=document.getElementById('rt-badge');
@@ -4062,7 +4139,7 @@ function startRealtime(){
 
 // Patch saveProjDB to record timestamp so echo suppression works
 const _origSaveProjDB=saveProjDB;
-async function saveProjDB(p){_lastSave=Date.now();return _origSaveProjDB(p);}
+async function saveProjDB(p){_lastSave=Date.now();_ownSaves.set(p.id,Date.now());return _origSaveProjDB(p);}
 
 // ══════════════════════════════════════════════════════════════
 // THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
@@ -4078,6 +4155,39 @@ function loadThreadedComments(){try{const s=localStorage.getItem('cc_threads');i
 function saveThreadedComments(){try{localStorage.setItem('cc_threads',JSON.stringify(threadedComments));}catch(e){}}
 function loadNotifications(){try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}}
 function saveNotifications(){try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}}
+
+// ── Supabase-backed comment sync ────────────────────────────────────────────
+async function loadCommentsFromDB(projId){
+  try{
+    const{data,error}=await sb.from('project_comments')
+      .select('*').eq('proj_id',projId).order('ts',{ascending:true});
+    if(error||!data)return;
+    threadedComments[projId]=data.map(r=>({
+      id:r.id, parentId:r.parent_id||null,
+      authorId:r.author_id, author:r.author, role:r.role,
+      text:r.text, ts:r.ts, mentions:r.mentions?JSON.parse(r.mentions):[]
+    }));
+    saveThreadedComments();
+    renderThreadList(projId);
+    // Update unread badge
+    const cnt=document.getElementById('tc-count-'+projId);
+    if(cnt)cnt.textContent='('+(threadedComments[projId]||[]).filter(c=>!c.parentId).length+')';
+  }catch(e){ /* table may not exist yet */ }
+}
+
+async function saveCommentToDB(projId, cmt){
+  try{
+    await sb.from('project_comments').upsert({
+      id:cmt.id, proj_id:projId, parent_id:cmt.parentId||null,
+      author_id:cmt.authorId, author:cmt.author, role:cmt.role,
+      text:cmt.text, ts:cmt.ts, mentions:JSON.stringify(cmt.mentions||[])
+    },{onConflict:'id'});
+  }catch(e){ /* fallback: localStorage only */ }
+}
+
+async function deleteCommentFromDB(cmtId){
+  try{ await sb.from('project_comments').delete().eq('id',cmtId); }catch(e){}
+}
 
 function avInit(name){return(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();}
 
@@ -4193,7 +4303,10 @@ async function postComment(projId){
   inp.value='';
   inp.style.height='';
   cancelReply(projId);
+  // Render immediately for the poster — don't wait for Supabase echo
   renderThreadList(projId);
+  // Also persist to DB (other browsers get it via Realtime subscription)
+  saveCommentToDB(projId, cmt);
 }
 
 function deleteComment(projId,cmtId){
@@ -4204,6 +4317,7 @@ function deleteComment(projId,cmtId){
   threadedComments[projId]=cmts.filter(c=>c.id!==cmtId&&c.parentId!==cmtId);
   saveThreadedComments();
   renderThreadList(projId);
+  deleteCommentFromDB(cmtId);
 }
 
 function startReply(projId,cmtId,authorName){
