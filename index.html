@@ -620,7 +620,7 @@ tr:hover td{background:var(--sur2);}
     </div>
   </div>
   <div id="empCBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="ecTxt"></span></div>
-  <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Gender</th><th>Status</th><th>Project(s)</th><th></th></tr></thead><tbody id="empTbody"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Gender</th><th>Status</th><th>Annotating</th><th>Reviewing</th><th></th></tr></thead><tbody id="empTbody"></tbody></table></div>
 </div>
 
 <!-- WORKLOAD -->
@@ -642,7 +642,9 @@ tr:hover td{background:var(--sur2);}
   ADD COLUMN IF NOT EXISTS daily_target  INTEGER DEFAULT 0,
   ADD COLUMN IF NOT EXISTS startdate     TEXT,
   ADD COLUMN IF NOT EXISTS assignedby    TEXT DEFAULT '',
-  ADD COLUMN IF NOT EXISTS comments      TEXT DEFAULT '';</code>
+  ADD COLUMN IF NOT EXISTS comments      TEXT DEFAULT '',
+  ADD COLUMN IF NOT EXISTS review_employees TEXT DEFAULT '',
+  ADD COLUMN IF NOT EXISTS tags          TEXT DEFAULT '';</code>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('migBanner').style.display='none'">Dismiss</button>
   </div>
   <div class="settings-grid" id="settingsGrid"></div>
@@ -1492,9 +1494,7 @@ async function saveProjDB(p){
       const safeRow={
         id:p.id, name:p.name, total:p.total, annotated:p.annotated, reviewed:p.reviewed,
         priority:p.priority, deadline:p.deadline||null, notes:p.notes||'',
-        assigned_employees:(p.assignedEmployees||[]).join(','),
-        review_employees:(p.reviewEmployees||[]).join(','),
-        tags:(p.tags||[]).join(',')
+        assigned_employees:(p.assignedEmployees||[]).join(',')
       };
       const r2=await sb.from('projects').upsert(safeRow);
       if(r2.error){toast('Save failed: '+r2.error.message,'err');}
@@ -1865,9 +1865,13 @@ function renderES(projId){
   cont.innerHTML=list.slice(0,15).map(e=>{
     const alr=asgn.includes(e.id);
     const other=projects.filter(p2=>p2.id!==projId&&(p2.assignedEmployees||[]).includes(e.id));
+    const otherRev=projects.filter(p2=>(p2.reviewEmployees||[]).includes(e.id));
     let sub='',sc='';
-    if(alr){sub='Already in this project';sc='taken';}
-    else if(other.length>0){sub=`Also in: ${other.map(x=>x.name).join(', ')}`;sc='warn';}
+    if(alr){sub='Already assigned (annotation)';sc='taken';}
+    else if(other.length>0){
+      const reviewTag=otherRev.length?` | Reviewing: ${otherRev.map(x=>x.name).join(', ')}`:'';
+      sub=`Annotating: ${other.map(x=>x.name).join(', ')}${reviewTag}`;sc='warn';}
+    else if(otherRev.length>0){sub=`Reviewing: ${otherRev.map(x=>x.name).join(', ')}`;sc='warn';}
     else{sub=e.email;sc='';}
     return`<div class="e-row"><div><div class="e-name">${esc(e.name)} <span style="font-size:.6rem;color:var(--tx3);">${e.gender==='male'?'♂':'♀'}</span></div><div class="e-sub ${sc}">${esc(sub)}</div></div>
       ${alr?`<button class="btn btn-ghost btn-sm" onclick="rmAsgn('${projId}','${e.id}')">Remove</button>`:`<button class="btn btn-blue btn-sm" onclick="addAsgn('${projId}','${e.id}')">Assign</button>`}
@@ -1904,7 +1908,11 @@ function renderESRev(projId){
   if(!list.length){cont.innerHTML='<div style="padding:9px 11px;font-size:.76rem;color:var(--tx3);">No employees found</div>';return;}
   cont.innerHTML=list.slice(0,15).map(e=>{
     const alr=revs.includes(e.id);
-    return`<div class="e-row"><div><div class="e-name">${esc(e.name)} <span style="font-size:.6rem;color:var(--tx3);">${e.gender==='male'?'♂':'♀'}</span></div><div class="e-sub ${alr?'taken':''}">${alr?'Already reviewing':e.email}</div></div>
+    const otherAnn=projects.filter(p2=>(p2.assignedEmployees||[]).includes(e.id));
+    const otherRev=projects.filter(p2=>p2.id!==projId&&(p2.reviewEmployees||[]).includes(e.id));
+    let revSub=alr?'Already assigned (review)':otherAnn.length?`Annotating: ${otherAnn.map(x=>x.name).join(', ')}${otherRev.length?' | Reviewing: '+otherRev.map(x=>x.name).join(', '):''}`:otherRev.length?`Also reviewing: ${otherRev.map(x=>x.name).join(', ')}`:e.email;
+    let revSc=alr?'taken':(otherAnn.length||otherRev.length)?'warn':'';
+    return`<div class="e-row"><div><div class="e-name">${esc(e.name)} <span style="font-size:.6rem;color:var(--tx3);">${e.gender==='male'?'♂':'♀'}</span></div><div class="e-sub ${revSc}">${esc(revSub)}</div></div>
       ${alr?`<button class="btn btn-ghost btn-sm" onclick="rmRev('${projId}','${e.id}')">Remove</button>`:`<button class="btn btn-sm" style="background:var(--yel-l);color:var(--yellow);border:1px solid var(--yellow);" onclick="addRev('${projId}','${e.id}')">Assign Review</button>`}
     </div>`;
   }).join('');
@@ -2075,10 +2083,13 @@ function renderEmps(){
   else ecb.style.display='none';
   document.getElementById('empTbody').innerHTML=list.map((e,i)=>{
     const cnt=am.get(e.id)||0;const projs=projects.filter(p=>(p.assignedEmployees||[]).includes(e.id));
-    const sc=cnt>1?'st-c':cnt===1?'st-a':'st-f';const st=cnt>1?`⚠ ${cnt} projects (CONFLICT)`:cnt===1?`✓ ${projs[0]?.name}`:'Free';
+    const revProjs=projects.filter(p=>(p.reviewEmployees||[]).includes(e.id));
+    const sc=cnt>1?'st-c':cnt===1?'st-a':'st-f';const st=cnt>1?`⚠ ${cnt} (CONFLICT)`:cnt===1?'Annotating':'Free';
     return`<tr><td style="color:var(--tx3);font-size:.7rem;">${i+1}</td><td><strong>${esc(e.name)}</strong></td><td style="color:var(--tx2);font-size:.76rem;">${esc(e.email)}</td>
       <td><span class="${e.gender==='male'?'gm':'gf'}">${e.gender==='male'?'♂ Male':'♀ Female'}</span></td>
-      <td><span class="${sc}">${st}</span></td><td style="font-size:.73rem;color:var(--tx3);">${projs.map(p=>esc(p.name)).join(', ')||'—'}</td>
+      <td><span class="${sc}">${st}</span></td>
+      <td style="font-size:.73rem;color:var(--tx2);">${projs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
+      <td style="font-size:.73rem;color:var(--yellow);">${revProjs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
       <td><button class="iBtn" onclick="openEmpModal('${e.id}')"><i class="fas fa-pen"></i></button><button class="iBtn del" onclick="delEmp('${e.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
 }
@@ -2440,6 +2451,157 @@ function downloadReport(){
   toast('Report downloaded ✓','ok');
 }
 
+function downloadReportPDF(){
+  const projId=document.getElementById('rep-proj').value;
+  if(!projId){toast('Please select a project first','err');return;}
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'portrait',format:'a4',unit:'mm'});
+  const W=210,MARGIN=18;
+  const dateVal=document.getElementById('rep-date').value||new Date().toISOString().split('T')[0];
+  const repDate=new Date(dateVal+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const sendTo=document.getElementById('rep-sendto').value.trim();
+  const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+  const pendAnn=Math.max(T-A,0),pendRev=Math.max(A-R,0);
+  const annPct=pct(A,T),revPct=pct(R,T);
+  const dl=dlMeta(p.deadline);
+  const annotators=(p.assignedEmployees||[]).map(id=>getEmp(id).name).join(', ')||'—';
+  const reviewers=(p.reviewEmployees||[]).map(id=>getEmp(id).name).join(', ')||'—';
+  const tags=(p.tags||[]).map(t=>'#'+t).join('  ')||'—';
+  // ─── HEADER ───────────────────────────────────────
+  doc.setFillColor(223,30,38);doc.rect(0,0,W,32,'F');
+  // White logo text
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('CamCom',MARGIN,14);
+  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('Annotation Tracker — Daily Project Report',MARGIN,20);
+  doc.setFontSize(8);doc.text(repDate,MARGIN,27);
+  if(sendTo)doc.text('To: '+sendTo,W-MARGIN,27,{align:'right'});
+  // ─── PROJECT TITLE BAND ────────────────────────────
+  const priColors={high:[220,38,38],medium:[217,119,6],low:[22,163,74]};
+  const pc=priColors[p.priority||'medium'];
+  doc.setFillColor(248,250,252);doc.rect(0,32,W,22,'F');
+  doc.setFillColor(pc[0],pc[1],pc[2]);doc.rect(0,32,4,22,'F');
+  doc.setTextColor(15,23,42);doc.setFont('helvetica','bold');doc.setFontSize(14);
+  const pname=p.name.length>45?p.name.substr(0,42)+'...':p.name;
+  doc.text(pname,MARGIN,44);
+  const priLbl={high:'● HIGH',medium:'● MEDIUM',low:'● LOW'}[p.priority||'medium'];
+  doc.setTextColor(pc[0],pc[1],pc[2]);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text(priLbl,W-MARGIN,44,{align:'right'});
+  doc.setTextColor(71,85,105);doc.setFont('helvetica','normal');doc.setFontSize(8);
+  const statLbl={todo:'📋 To Do',inprog:'⚡ In Progress',review:'🔍 Review',done:'✅ Done'}[p.kanbanStatus||'todo'];
+  doc.text(statLbl.replace(/[^ -]/g,'').trim(),W-MARGIN,50,{align:'right'});
+  // ─── PROGRESS SECTION ─────────────────────────────
+  let y=64;
+  const drawSection=(title,color)=>{
+    doc.setFillColor(...color);doc.rect(MARGIN,y,W-2*MARGIN,7,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text(title,MARGIN+3,y+5);y+=7;
+    doc.setTextColor(15,23,42);
+  };
+  const drawRow=(label,value,y2,bold=false)=>{
+    doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(9);
+    doc.setTextColor(100,116,139);doc.text(label,MARGIN+3,y2);
+    doc.setTextColor(15,23,42);doc.setFont('helvetica',bold?'bold':'normal');
+    doc.text(String(value),MARGIN+60,y2);
+  };
+  const drawProgressBar=(label,val,maxVal,color,y2)=>{
+    const barW=W-2*MARGIN-6;const pctVal=maxVal>0?Math.round((val/maxVal)*100):0;
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,116,139);
+    doc.text(label,MARGIN+3,y2);
+    doc.setFillColor(226,232,240);doc.roundedRect(MARGIN+3,y2+2,barW,5,1,1,'F');
+    if(pctVal>0){doc.setFillColor(...color);doc.roundedRect(MARGIN+3,y2+2,barW*pctVal/100,5,1,1,'F');}
+    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(15,23,42);
+    doc.text(pctVal+'%',W-MARGIN-3,y2,{align:'right'});
+  };
+
+  // Progress Section
+  drawSection('IMAGE PROGRESS',[37,99,235]);
+  y+=10;
+  // Stat boxes
+  const boxes=[
+    {lbl:'Total',val:T.toLocaleString()},{lbl:'Annotated',val:A.toLocaleString()},
+    {lbl:'Reviewed',val:R.toLocaleString()},{lbl:'Pend. Ann.',val:pendAnn.toLocaleString()},
+    {lbl:'Pend. Rev.',val:pendRev.toLocaleString()}
+  ];
+  const bw=(W-2*MARGIN-4*3)/5;
+  boxes.forEach((b,i)=>{
+    const bx=MARGIN+i*(bw+3);
+    doc.setFillColor(241,245,249);doc.roundedRect(bx,y,bw,18,2,2,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(15,23,42);
+    doc.text(b.val,bx+bw/2,y+10,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100,116,139);
+    doc.text(b.lbl.toUpperCase(),bx+bw/2,y+16,{align:'center'});
+  });
+  y+=24;
+  drawProgressBar('Annotation Progress',A,T,[59,130,246],y);y+=13;
+  drawProgressBar('Review Progress',R,T,[22,163,74],y);y+=18;
+  if(p.hasTarget&&p.dailyTarget){
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,116,139);
+    doc.text(`Daily Target: ${p.dailyTarget} imgs/day`,MARGIN+3,y);
+    if(pendAnn>0)doc.text(`Est. Completion: ${Math.ceil(pendAnn/p.dailyTarget)} days`,MARGIN+80,y);
+    y+=10;
+  }
+
+  // Project Details Section
+  drawSection('PROJECT DETAILS',[51,65,85]);
+  y+=8;
+  const details=[
+    ['Assigned By',p.assignedby||'—'],['Deadline',fmtD(p.deadline)||'—'],
+    ['Days Remaining',dl?(dl.diff<0?`OVERDUE by ${Math.abs(dl.diff)} days`:dl.diff+' days'):'—'],
+    ['Tags',tags],
+  ];
+  details.forEach(([label,val])=>{
+    drawRow(label,String(val).length>60?String(val).substr(0,57)+'...':String(val),y);y+=8;
+  });
+  y+=4;
+
+  // Team Section
+  drawSection('TEAM',[124,58,237]);
+  y+=8;
+  // Wrap long names
+  const wrapText=(text,maxW)=>doc.splitTextToSize(text,maxW);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,116,139);
+  doc.text('Annotators:',MARGIN+3,y);
+  doc.setTextColor(15,23,42);
+  const annLines=wrapText(annotators,W-MARGIN-MARGIN-65);
+  doc.text(annLines,MARGIN+60,y);y+=annLines.length*5+3;
+  doc.setTextColor(100,116,139);doc.text('Reviewers:',MARGIN+3,y);
+  doc.setTextColor(15,23,42);
+  const revLines=wrapText(reviewers,W-MARGIN-MARGIN-65);
+  doc.text(revLines,MARGIN+60,y);y+=revLines.length*5+8;
+
+  // Notes
+  if(p.notes){
+    drawSection('NOTES',[71,85,105]);y+=8;
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(15,23,42);
+    const noteLines=doc.splitTextToSize(p.notes,W-2*MARGIN-6);
+    noteLines.slice(0,8).forEach(l=>{doc.text(l,MARGIN+3,y);y+=5;});
+    y+=5;
+  }
+  // Comments
+  if(p.comments){
+    drawSection('COMMENTS',[71,85,105]);y+=8;
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(15,23,42);
+    const cmtLines=doc.splitTextToSize(p.comments,W-2*MARGIN-6);
+    cmtLines.slice(0,8).forEach(l=>{doc.text(l,MARGIN+3,y);y+=5;});
+    y+=5;
+  }
+
+  // ─── FOOTER ────────────────────────────────────────
+  const totalPg=doc.internal.getNumberOfPages();
+  for(let i=1;i<=totalPg;i++){
+    doc.setPage(i);
+    doc.setDrawColor(226,232,240);doc.line(MARGIN,285,W-MARGIN,285);
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(148,163,184);
+    doc.text(`CamCom Annotation Tracker  •  Generated: ${new Date().toLocaleString('en-IN')}`,MARGIN,290);
+    doc.text(`Prepared by: ${currentUser?.name||'—'}`,W-MARGIN,290,{align:'right'});
+  }
+
+  const fname=`camcom_report_${(p.name||'project').replace(/\s+/g,'_')}_${dateVal}.pdf`;
+  doc.save(fname);
+  toast('PDF Report downloaded ✓','ok');
+}
+
 // ══════════════════════════════════
 // MANAGE USERS (Admin)
 // ══════════════════════════════════
@@ -2547,30 +2709,35 @@ function loadTheme(){
 loadTheme();
 tryRestoreSession();
 </script>
-<!-- ═══ MODAL: USER ═══ -->
+
+<!-- ═══ MODAL: DAILY REPORT ═══ -->
 <div class="overlay" id="reportOvl" onclick="if(event.target===this)closeReport()">
-<div class="modal" style="width:620px;">
+<div class="modal" style="width:640px;">
   <div class="modal-title"><i class="fas fa-paper-plane" style="color:var(--blue)"></i><span>Daily Project Report</span></div>
   <div class="fgrid">
-    <div class="ff full"><label>Select Project</label>
+    <div class="ff full"><label>Select Project *</label>
       <select id="rep-proj" onchange="generateReport()"><option value="">— Select a project —</option></select>
     </div>
     <div class="ff"><label>Report Date</label><input type="date" id="rep-date" onchange="generateReport()"></div>
-    <div class="ff"><label>Send To (ML Team Member)</label><input type="text" id="rep-sendto" placeholder="Name or email of recipient"></div>
+    <div class="ff"><label>Send To (ML Team Member)</label><input type="text" id="rep-sendto" placeholder="Name or email of recipient" oninput="generateReport()"></div>
   </div>
   <div id="rep-preview-wrap" style="display:none;margin-bottom:12px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <label style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tx3);">Report Preview</label>
-      <button class="btn btn-ghost btn-sm" onclick="copyReport()"><i class="fas fa-copy"></i> Copy</button>
+      <button class="btn btn-ghost btn-sm" onclick="copyReport()"><i class="fas fa-copy"></i> Copy text</button>
     </div>
     <div class="report-preview" id="rep-preview"></div>
   </div>
   <div class="modal-foot">
     <button class="btn btn-ghost" onclick="closeReport()">Close</button>
-    <button class="btn btn-ghost btn-sm" onclick="downloadReport()"><i class="fas fa-download"></i> Download .txt</button>
-    <button class="btn btn-red" onclick="copyReport()"><i class="fas fa-copy"></i> Copy Report</button>
+    <button class="btn btn-ghost btn-sm" onclick="downloadReport()"><i class="fas fa-file-alt"></i> Download .txt</button>
+    <button class="btn btn-green" onclick="downloadReportPDF()"><i class="fas fa-file-pdf"></i> Download PDF</button>
+    <button class="btn btn-red" onclick="copyReport()"><i class="fas fa-copy"></i> Copy</button>
   </div>
 </div></div>
+
+<!-- ═══ MODAL: USER ═══ -->
+<div class="overlay" id="userOvl" onclick="if(event.target===this)closeUserModal()">
 <div class="modal" style="width:430px;">
   <div class="modal-title"><i class="fas fa-user-shield" style="color:var(--red)"></i><span id="uMTtl">Add User</span></div>
   <div class="fgrid">
@@ -2579,11 +2746,23 @@ tryRestoreSession();
     <div class="ff"><label>Password *</label><input type="password" id="fu-pwd" placeholder="Set password"></div>
     <div class="ff"><label>Role</label>
       <select id="fu-role" onchange="onRoleChange()">
-        <option value="admin">👑 Admin</option>
-        <option value="manager">🔵 Manager</option>
-        <option value="reviewer">🟡 Reviewer</option>
-        <option value="employee">🟢 Employee</option>
+        <option value="admin">&#x1F451; Admin</option>
+        <option value="manager">&#x1F535; Manager</option>
+        <option value="reviewer">&#x1F7E1; Reviewer</option>
+        <option value="employee">&#x1F7E2; Employee</option>
+        <option value="stakeholder">&#x1F7E3; Stakeholder</option>
       </select>
     </div>
     <div class="ff full" id="empLinkWrap" style="display:none;">
-      <label>Link to Employee Record <spa
+      <label>Link to Employee Record <span style="font-weight:400;color:var(--tx3);">(optional)</span></label>
+      <select id="fu-empId"><option value="">— Select employee record —</option></select>
+    </div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeUserModal()">Cancel</button>
+    <button class="btn btn-red" onclick="saveUser()"><i class="fas fa-save"></i> Save User</button>
+  </div>
+</div></div>
+
+</body>
+</html>
