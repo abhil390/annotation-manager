@@ -1101,23 +1101,34 @@ let actLog=[]; // [{id, ts, type, user, projId, projName, msg}]
 // types: create, edit, assign, status, delete, comment
 
 function loadActLog(){try{const s=localStorage.getItem('cc_actlog');if(s)actLog=JSON.parse(s);}catch(e){}}
-function saveActLog(){try{localStorage.setItem('cc_actlog',JSON.stringify(actLog.slice(0,500)));}catch(e){}}
+async function saveActLog(){
+  try{localStorage.setItem('cc_actlog',JSON.stringify(actLog.slice(0,500)));}catch(e){}
+  try{await sb.from('app_settings').upsert({key:'act_log',value:JSON.stringify(actLog.slice(0,500))},{onConflict:'key'});}catch(e){}
+}
+async function loadActLogFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','act_log').single();
+    if(data?.value){actLog=JSON.parse(data.value);try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}}
+    else{loadActLog();}
+  }catch(e){loadActLog();}
+}
 
-function logActivity(type, projId, projName, msg){
+async function logActivity(type, projId, projName, msg){
   if(!currentUser)return;
   actLog.unshift({
     id:'al_'+Date.now(),
     ts:new Date().toISOString(),
-    type, // create|edit|assign|status|delete|comment
+    type,
     user:currentUser.name,
     userRole:currentUser.role,
     projId, projName:projName||'Unknown',
     msg
   });
-  saveActLog();
-  // update badge
+  await saveActLog();
   const nb=document.getElementById('nb-act');
   if(nb)nb.textContent=actLog.length;
+  // Live-update activity log panel if open
+  if(document.getElementById('page-actlog')?.classList.contains('active'))renderActivityLog();
 }
 
 function canSeeLog(){
@@ -1695,10 +1706,18 @@ let dragSrcId=null;
 // INIT
 // ══════════════════════════════════
 async function appInit(){
+  // Load local cache first (instant UI)
   loadFeaturesLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
   loadThreadedComments(); loadNotifications();
-  // Load users + employees from Supabase (so all browsers are in sync)
-  await Promise.all([loadUsersFromDB(), loadEmpsFromDB()]);
+  // Load ALL shared state from Supabase (full cross-browser sync)
+  await Promise.all([
+    loadUsersFromDB(),
+    loadEmpsFromDB(),
+    loadActLogFromDB(),
+    loadFeaturesFromDB(),
+    loadDocsFromDB(),
+    loadNotificationsFromDB()
+  ]);
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
   startRealtime();
@@ -1792,9 +1811,31 @@ async function loadEmpsFromDB(){
   }catch(e){console.warn('loadEmpsFromDB failed, using local:',e);loadEmpsLocal();}
 }
 function saveDocsLocal(){try{localStorage.setItem('cc_docs',JSON.stringify(projDocs));}catch(e){}}
+async function saveDocs(){
+  saveDocsLocal();
+  try{await sb.from('app_settings').upsert({key:'proj_docs',value:JSON.stringify(projDocs)},{onConflict:'key'});}catch(e){}
+}
 function loadDocsLocal(){try{const s=localStorage.getItem('cc_docs');if(s)projDocs=JSON.parse(s);}catch(e){}}
-function saveFeaturesLocal(){localStorage.setItem('cc_features',JSON.stringify(features));}
+async function loadDocsFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','proj_docs').single();
+    if(data?.value){projDocs=JSON.parse(data.value);saveDocsLocal();}
+    else{loadDocsLocal();}
+  }catch(e){loadDocsLocal();}
+}
+function saveFeaturesLocal(){try{localStorage.setItem('cc_features',JSON.stringify(features));}catch(e){}}
+async function saveFeatures(){
+  saveFeaturesLocal();
+  try{await sb.from('app_settings').upsert({key:'app_features',value:JSON.stringify(features)},{onConflict:'key'});}catch(e){}
+}
 function loadFeaturesLocal(){try{const s=localStorage.getItem('cc_features');if(s)Object.assign(features,JSON.parse(s));}catch(e){}}
+async function loadFeaturesFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','app_features').single();
+    if(data?.value){Object.assign(features,JSON.parse(data.value));saveFeaturesLocal();}
+    else{await saveFeatures();}
+  }catch(e){loadFeaturesLocal();}
+}
 
 // ═══════════════════════
 // HELPERS
@@ -2358,12 +2399,12 @@ function handleUpload(projId,input){
   let loaded=0;
   files.forEach(f=>{
     const rdr=new FileReader();
-    rdr.onload=e=>{projDocs[projId].push({name:f.name,size:fmtSize(f.size),dataUrl:e.target.result});loaded++;if(loaded===files.length){saveDocsLocal();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();}};
+    rdr.onload=e=>{projDocs[projId].push({name:f.name,size:fmtSize(f.size),dataUrl:e.target.result});loaded++;if(loaded===files.length){saveDocs();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();}};
     rdr.readAsDataURL(f);
   });
   toast(`${files.length} file(s) uploaded`,'ok');
 }
-function rmDoc(projId,idx){if(!projDocs[projId])return;projDocs[projId].splice(idx,1);saveDocsLocal();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();toast('File removed','info');}
+function rmDoc(projId,idx){if(!projDocs[projId])return;projDocs[projId].splice(idx,1);saveDocs();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();toast('File removed','info');}
 
 // ═══════════════════════
 // DELETE / MODALS
@@ -2373,7 +2414,7 @@ async function deleteProj(id){
   const p=projects.find(x=>x.id===id);
   const pName=p?p.name:'project';
   logActivity('delete',id,pName,'Project deleted');
-  projects=projects.filter(x=>x.id!==id);delete projDocs[id];saveDocsLocal();
+  projects=projects.filter(x=>x.id!==id);delete projDocs[id];saveDocs();
   closeDP();toast('Deleted','info');renderProjects();await delProjDB(id);
 }
 
@@ -2452,7 +2493,7 @@ function saveEmployee(){
   else{employees.push({id:'e_'+Date.now(),name,email,gender});toast('Added ✓','ok');}
   saveEmpsLocal();closeEmpModal();renderEmps();renderStats();
 }
-function delEmp(id){
+async function delEmp(id){
   const emp=employees.find(e=>e.id===id);
   const name=emp?.name||'this employee';
   if(!confirm('Remove '+name+'? They will be unassigned from all projects.'))return;
@@ -3503,7 +3544,7 @@ function renderSettings(){
   });
 }
 function toggleFeature(key,val){
-  features[key]=val;saveFeaturesLocal();renderSettings();
+  features[key]=val;saveFeatures();renderSettings();
   toast(`${val?'Enabled':'Disabled'}: ${FEATURE_DEFS.find(f=>f.key===key)?.label}`,'ok');
 }
 
@@ -4122,6 +4163,7 @@ async function saveVisConfigDB(){
 
 // Poll every 5s as fallback for environments where WebSocket is blocked
 function startVisConfigPoll(){
+  // Fast poll (5s) - access control (vis_config) only
   setInterval(async()=>{
     if(!currentUser)return;
     try{
@@ -4129,14 +4171,28 @@ function startVisConfigPoll(){
       if(data?.value){
         const remote=JSON.parse(data.value);
         if(JSON.stringify(remote)!==JSON.stringify(visConfig)){
-          Object.assign(visConfig,remote);
-          saveVisConfig();
-          applyRoleToUI();
+          Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();
           if(currentUser.role!=='admin')toast('⚙️ Access settings updated','info');
         }
       }
     }catch(e){}
   },5000);
+  // Slower poll (15s) - catch any missed Realtime events for other shared state
+  setInterval(async()=>{
+    if(!currentUser)return;
+    try{
+      const{data}=await sb.from('app_settings').select('key,value').in('key',['app_users','app_emps','act_log','app_features','proj_docs']);
+      (data||[]).forEach(row=>{
+        try{
+          if(row.key==='app_users'){const r=JSON.parse(row.value);if(r?.length){const ids=new Set(r.map(u=>u.id));const m=[...r];DEFAULT_USERS.forEach(du=>{if(!ids.has(du.id))m.push(du);});if(JSON.stringify(m)!==JSON.stringify(appUsers)){appUsers=m;saveUsersLocal();renderStats();}}}
+          else if(row.key==='app_emps'){const r=JSON.parse(row.value);if(r?.length&&JSON.stringify(r)!==JSON.stringify(employees)){employees=r;saveEmpsLocal();renderEmps();renderProjects();renderStats();}}
+          else if(row.key==='act_log'){const r=JSON.parse(row.value);if(r?.length&&r[0]?.id!==actLog[0]?.id){actLog=r;try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}const nb=document.getElementById('nb-act');if(nb)nb.textContent=actLog.length;}}
+          else if(row.key==='app_features'){const r=JSON.parse(row.value);if(JSON.stringify(r)!==JSON.stringify(features)){Object.assign(features,r);saveFeaturesLocal();if(document.getElementById('page-settings')?.classList.contains('active'))renderSettings();}}
+          else if(row.key==='proj_docs'){const r=JSON.parse(row.value);if(JSON.stringify(r)!==JSON.stringify(projDocs)){projDocs=r;saveDocsLocal();if(openProjId){const p=projects.find(x=>x.id===openProjId);if(p)renderDPBody(p);}}}
+        }catch(e){}
+      });
+    }catch(e){}
+  },15000);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -4197,6 +4253,30 @@ function startRealtime(){
           } else if(row.key==='app_emps'){
             const remote=JSON.parse(row.value);
             if(remote&&remote.length){employees=remote;saveEmpsLocal();renderStats();renderEmps();renderProjects();}
+          } else if(row.key==='act_log'){
+            const remote=JSON.parse(row.value);
+            if(remote?.length&&remote[0]?.id!==actLog[0]?.id){
+              actLog=remote;try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}
+              const nb=document.getElementById('nb-act');if(nb)nb.textContent=actLog.length;
+              if(document.getElementById('page-actlog')?.classList.contains('active'))renderActivityLog();
+            }
+          } else if(row.key==='app_features'){
+            const remote=JSON.parse(row.value);
+            if(JSON.stringify(remote)!==JSON.stringify(features)){
+              Object.assign(features,remote);saveFeaturesLocal();
+              if(document.getElementById('page-settings')?.classList.contains('active'))renderSettings();
+            }
+          } else if(row.key==='proj_docs'){
+            const remote=JSON.parse(row.value);
+            if(JSON.stringify(remote)!==JSON.stringify(projDocs)){
+              projDocs=remote;saveDocsLocal();
+              if(openProjId){const p=projects.find(x=>x.id===openProjId);if(p)renderDPBody(p);}
+            }
+          } else if(currentUser&&row.key==='notifs_'+currentUser.id){
+            const remote=JSON.parse(row.value);
+            notifications=[...notifications.filter(n=>n.userId!==currentUser.id),...remote];
+            try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
+            updateNbDot();if(document.getElementById('notifPanel')?.classList.contains('open'))renderNotifList();
           }
         }catch(e){}
       })
@@ -4224,7 +4304,7 @@ function startRealtime(){
   }catch(e){console.warn('Realtime unavailable:',e);}
 }
 
-// saveProjDB already includes _lastSave and _ownSaves tracking (see above)
+// saveProjDB already has _lastSave + _ownSaves tracking built in (recursion guard active)
 
 // ══════════════════════════════════════════════════════════════
 // THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
@@ -4256,7 +4336,24 @@ async function deleteCommentFromDB(cmtId){
   try{await sb.from('project_comments').delete().eq('id',cmtId);}catch(e){}
 }
 function loadNotifications(){try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}}
-function saveNotifications(){try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}}
+async function saveNotifications(){
+  try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
+  if(!currentUser)return;
+  const mine=notifications.filter(n=>n.userId===currentUser.id);
+  try{await sb.from('app_settings').upsert({key:'notifs_'+currentUser.id,value:JSON.stringify(mine)},{onConflict:'key'});}catch(e){}
+}
+async function loadNotificationsFromDB(){
+  if(!currentUser)return;
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','notifs_'+currentUser.id).single();
+    if(data?.value){
+      const remote=JSON.parse(data.value);
+      // Keep other users' notifs in memory, replace mine with DB version
+      notifications=[...notifications.filter(n=>n.userId!==currentUser.id),...remote];
+      try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
+    }
+  }catch(e){loadNotifications();}
+}
 
 function avInit(name){return(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();}
 
