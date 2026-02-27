@@ -244,6 +244,34 @@ tr:hover td{background:var(--sur2);}
 .wl-p{color:var(--tx3);font-size:.74rem;flex:1;}
 .wl-bw{width:140px;}
 
+/* ════ WORKLOAD ENHANCED ════ */
+.wl-summary-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:20px;}
+.wl-sc{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh-sm);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:3px;}
+.wl-sc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;}
+.wl-sc.ann::before{background:var(--blue);}
+.wl-sc.rev::before{background:var(--yellow);}
+.wl-sc.dual::before{background:var(--red);}
+.wl-sc.free::before{background:var(--green);}
+.wl-sc.tot::before{background:var(--purple);}
+.wl-sc-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);}
+.wl-sc-val{font-family:'Space Grotesk',sans-serif;font-size:1.7rem;font-weight:700;line-height:1;}
+.wl-sc-sub{font-size:.66rem;color:var(--tx3);margin-top:2px;}
+.wl-section-title{font-family:'Space Grotesk',sans-serif;font-size:.92rem;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:7px;padding-bottom:8px;border-bottom:1px solid var(--brd);}
+.wl-proj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;margin-bottom:24px;}
+.wl-proj-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);box-shadow:var(--sh-sm);overflow:hidden;}
+.wl-proj-hdr{padding:11px 14px 9px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:8px;}
+.wl-proj-name{font-family:'Space Grotesk',sans-serif;font-size:.88rem;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wl-proj-count{font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:var(--rp);}
+.wl-proj-body{padding:10px 14px;}
+.wl-member-row{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--brd);}
+.wl-member-row:last-child{border-bottom:none;}
+.wl-member-av{width:24px;height:24px;border-radius:50%;color:#fff;font-size:.54rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.wl-member-name{font-size:.79rem;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wl-role-pill{font-size:.58rem;font-weight:700;padding:2px 7px;border-radius:var(--rp);white-space:nowrap;}
+.wl-role-ann{background:var(--blue-l);color:var(--blue);border:1px solid var(--blue);}
+.wl-role-rev{background:var(--yel-l);color:var(--yellow);border:1px solid var(--yellow);}
+.wl-role-dual{background:#fee2e2;color:#dc2626;border:1px solid #dc2626;}
+.wl-empty-proj{font-size:.74rem;color:var(--tx3);font-style:italic;padding:4px 0;}
 /* ════ SETTINGS ════ */
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 .setting-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:18px;display:flex;justify-content:space-between;align-items:center;}
@@ -456,9 +484,9 @@ tr:hover td{background:var(--sur2);}
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
-      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="5f3e3b3236311f3c3e323c3032713e36">[email&#160;protected]</a> / admin123</span></button>
-      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9af7fbf4fbfdffe8daf9fbf7f9f5f7b4fbf3">[email&#160;protected]</a> / mgr123</span></button>
-      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cbb9aebda2aebcaeb98ba8aaa6a8a4a6e5aaa2">[email&#160;protected]</a> / rev123</span></button>
+      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub">admin@camcom.ai / admin123</span></button>
+      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub">manager@camcom.ai / mgr123</span></button>
+      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub">reviewer@camcom.ai / rev123</span></button>
       <button class="dbtn" onclick="quickLogin('employee')"><span class="dname">🟢 Employee</span><span class="dsub">My assigned projects only</span></button>
       <button class="dbtn" onclick="quickLogin('stakeholder')" style="grid-column:1/-1;"><span class="dname">🟣 Stakeholder</span><span class="dsub">Executive / investor view — admin configures what they see</span></button>
     </div>
@@ -625,8 +653,19 @@ tr:hover td{background:var(--sur2);}
 
 <!-- WORKLOAD -->
 <div class="page" id="page-workload">
-  <div class="topbar"><h1 class="pg-title">Workload Overview</h1></div>
-  <div class="wl-card"><div style="font-size:.8rem;color:var(--tx2);margin-bottom:14px;">Employees with at least one project assignment.</div><div id="wlList"></div></div>
+  <div class="topbar">
+    <h1 class="pg-title">Workload Overview</h1>
+    <div class="topbar-r">
+      <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search employee..." id="wlSearch" oninput="renderWorkload()"></div>
+      <button class="btn btn-ghost btn-sm" onclick="exportWorkloadCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+      <button class="btn btn-red btn-sm" onclick="exportWorkloadPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+    </div>
+  </div>
+  <div id="wlSummaryGrid" class="wl-summary-grid"></div>
+  <div class="wl-section-title" style="margin-top:4px;"><i class="fas fa-folder-open" style="color:var(--blue)"></i> Team Loading by Project</div>
+  <div id="wlProjGrid" class="wl-proj-grid"></div>
+  <div class="wl-section-title"><i class="fas fa-user" style="color:var(--purple)"></i> Employee Assignments</div>
+  <div class="wl-card"><div id="wlList"></div></div>
 </div>
 
 <!-- SETTINGS -->
@@ -769,7 +808,7 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   </div>
 </div></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ═══════════════════════
 // SUPABASE
 // ═══════════════════════
@@ -1308,7 +1347,21 @@ let appUsers=[...DEFAULT_USERS];
 let currentUser=null;
 let editUserId=null;
 
-function loadUsersLocal(){try{const s=localStorage.getItem('cc_users');if(s){const a=JSON.parse(s);if(a&&a.length)appUsers=a;}}catch(e){}}
+function loadUsersLocal(){
+  try{
+    const s=localStorage.getItem('cc_users');
+    if(s){
+      const a=JSON.parse(s);
+      if(a&&a.length){
+        // Merge: always include DEFAULT_USERS so default credentials always work
+        const savedIds=new Set(a.map(u=>u.id));
+        const merged=[...a];
+        DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
+        appUsers=merged;
+      }
+    }
+  }catch(e){appUsers=[...DEFAULT_USERS];}
+}
 function saveUsersLocal(){try{localStorage.setItem('cc_users',JSON.stringify(appUsers));}catch(e){}}
 
 // ══════════════════════════════════
@@ -1525,7 +1578,20 @@ function dlMeta(d){if(!d)return null;const dt=new Date(d+'T00:00:00'),diff=Math.
 function initials(n){return(n||'?').split(' ').map(w=>w[0]||'').join('').substr(0,2).toUpperCase();}
 function getEmp(id){return employees.find(e=>e.id===id)||{name:'Unknown',gender:'male'};}
 function aMap(){const m=new Map();projects.forEach(p=>(p.assignedEmployees||[]).forEach(id=>m.set(id,(m.get(id)||0)+1)));return m;}
-function conflicts(){const m=aMap();return[...m.entries()].filter(([,c])=>c>1).map(([id])=>id);}
+// Returns set of empIds doing both annotation AND review (any project)
+function dualRoleIds(){
+  const ann=new Set(projects.flatMap(p=>p.assignedEmployees||[]));
+  const rev=new Set(projects.flatMap(p=>p.reviewEmployees||[]));
+  return new Set([...ann].filter(id=>rev.has(id)));
+}
+// Returns empIds assigned to 2+ annotation projects (double-booked annotators)
+function multiAnnotators(){const m=aMap();return new Set([...m.entries()].filter(([,c])=>c>1).map(([id])=>id));}
+// Combined conflict list: multi-annotation OR dual-role
+function conflicts(){
+  const ma=multiAnnotators();
+  const dr=dualRoleIds();
+  return [...new Set([...ma,...dr])];
+}
 function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
 function toast(msg,type='info'){
   const el=document.createElement('div');el.className=`toast ${type==='ok'?'ok':type==='err'?'err':'info'}`;
@@ -1570,13 +1636,21 @@ function renderStats(){
     {l:'Annotated',v:tA.toLocaleString(),s:`${pct(tA,tI)}% done`,c:'g',i:'fa-check-circle'},
     {l:'Reviewed',v:tR.toLocaleString(),s:`${pct(tR,tI)}% done`,c:'y',i:'fa-eye'},
     {l:'Employees',v:employees.length,s:`${asd} assigned`,c:'p',i:'fa-users'},
-    {l:'Conflicts',v:cc.length,s:cc.length>0?'double-booking!':'All clear ✓',c:cc.length>0?'r':'g',i:'fa-exclamation-triangle'},
+    {l:'Conflicts',v:cc.length,s:cc.length>0?`${[...multiAnnotators()].length} overloaded, ${[...dualRoleIds()].length} dual-role`:'All clear ✓',c:cc.length>0?'r':'g',i:'fa-exclamation-triangle'},
   ].map(x=>`<div class="sc ${x.c}"><div class="sc-l">${x.l}</div><div class="sc-v">${x.v}</div><div class="sc-s">${x.s}</div></div>`).join('');
   document.getElementById('nb-p').textContent=projects.length;
   document.getElementById('nb-e').textContent=employees.length;
   const cc2=conflicts();
   const cb=document.getElementById('cBanner');
-  if(cc2.length>0){cb.style.display='flex';document.getElementById('cTxt').textContent=`⚠ ${cc2.length} employee(s) double-booked: ${cc2.map(id=>getEmp(id).name).join(', ')}`;}
+  if(cc2.length>0){
+    const ma=multiAnnotators();const dr=dualRoleIds();
+    const parts=[];
+    const maNames=[...ma].map(id=>getEmp(id).name);
+    const drNames=[...dr].filter(id=>!ma.has(id)).map(id=>getEmp(id).name);
+    if(maNames.length)parts.push('Multi-project annotators: '+maNames.join(', '));
+    if(drNames.length)parts.push('Annotating & reviewing: '+drNames.join(', '));
+    cb.style.display='flex';document.getElementById('cTxt').textContent='⚠ '+parts.join(' | ');
+  }
   else cb.style.display='none';
 }
 
@@ -1865,8 +1939,12 @@ function renderES(projId){
     const alr=asgn.includes(e.id);
     const other=projects.filter(p2=>p2.id!==projId&&(p2.assignedEmployees||[]).includes(e.id));
     const otherRev=projects.filter(p2=>(p2.reviewEmployees||[]).includes(e.id));
+    // Check if already a reviewer on THIS project
+    const alreadyRevHere=(p.reviewEmployees||[]).includes(e.id);
     let sub='',sc='';
     if(alr){sub='Already assigned (annotation)';sc='taken';}
+    else if(alreadyRevHere&&other.length>0){sub='⚠ Reviewing this project + annotating others';sc='taken';}
+    else if(alreadyRevHere){sub='⚠ Already reviewing this project — assigning will create a conflict';sc='warn';}
     else if(other.length>0){
       const reviewTag=otherRev.length?` | Reviewing: ${otherRev.map(x=>x.name).join(', ')}`:'';
       sub=`Annotating: ${other.map(x=>x.name).join(', ')}${reviewTag}`;sc='warn';}
@@ -1909,8 +1987,15 @@ function renderESRev(projId){
     const alr=revs.includes(e.id);
     const otherAnn=projects.filter(p2=>(p2.assignedEmployees||[]).includes(e.id));
     const otherRev=projects.filter(p2=>p2.id!==projId&&(p2.reviewEmployees||[]).includes(e.id));
-    let revSub=alr?'Already assigned (review)':otherAnn.length?`Annotating: ${otherAnn.map(x=>x.name).join(', ')}${otherRev.length?' | Reviewing: '+otherRev.map(x=>x.name).join(', '):''}`:otherRev.length?`Also reviewing: ${otherRev.map(x=>x.name).join(', ')}`:e.email;
-    let revSc=alr?'taken':(otherAnn.length||otherRev.length)?'warn':'';
+    // Check if already an annotator on THIS project
+    const alreadyAnnHere=(p.assignedEmployees||[]).includes(e.id);
+    let revSub,revSc;
+    if(alr){revSub='Already assigned (review)';revSc='taken';}
+    else if(alreadyAnnHere&&otherRev.length>0){revSub='⚠ Annotating this project + reviewing others';revSc='taken';}
+    else if(alreadyAnnHere){revSub='⚠ Already annotating this project — assigning will create a conflict';revSc='warn';}
+    else if(otherAnn.length){revSub='Annotating: '+otherAnn.map(x=>x.name).join(', ')+(otherRev.length?' | Reviewing: '+otherRev.map(x=>x.name).join(', '):'');revSc='warn';}
+    else if(otherRev.length){revSub='Also reviewing: '+otherRev.map(x=>x.name).join(', ');revSc='warn';}
+    else{revSub=e.email;revSc='';};
     return`<div class="e-row"><div><div class="e-name">${esc(e.name)} <span style="font-size:.6rem;color:var(--tx3);">${e.gender==='male'?'♂':'♀'}</span></div><div class="e-sub ${revSc}">${esc(revSub)}</div></div>
       ${alr?`<button class="btn btn-ghost btn-sm" onclick="rmRev('${projId}','${e.id}')">Remove</button>`:`<button class="btn btn-sm" style="background:var(--yel-l);color:var(--yellow);border:1px solid var(--yellow);" onclick="addRev('${projId}','${e.id}')">Assign Review</button>`}
     </div>`;
@@ -2002,8 +2087,8 @@ async function deleteProj(id){
   if(!confirm('Delete this project?'))return;
   const p=projects.find(x=>x.id===id);
   const pName=p?p.name:'project';
-  projects=projects.filter(p=>p.id!==id);delete projDocs[id];saveDocsLocal();
-  
+  logActivity('delete',id,pName,'Project deleted');
+  projects=projects.filter(x=>x.id!==id);delete projDocs[id];saveDocsLocal();
   closeDP();toast('Deleted','info');renderProjects();await delProjDB(id);
 }
 
@@ -2078,12 +2163,30 @@ function renderEmps(){
   const q=(document.getElementById('empSearch')?.value||'').toLowerCase();
   const list=q?employees.filter(e=>e.name.toLowerCase().includes(q)||e.email.toLowerCase().includes(q)):employees;
   const ecb=document.getElementById('empCBanner');
-  if(cc.length>0){ecb.style.display='flex';document.getElementById('ecTxt').textContent=`⚠ Double-booking: ${cc.map(id=>getEmp(id).name).join(', ')}`;}
+  if(cc.length>0){
+    const ma=multiAnnotators();const dr=dualRoleIds();
+    const parts=[];
+    const maNames=[...ma].map(id=>getEmp(id).name);
+    const drNames=[...dr].filter(id=>!ma.has(id)).map(id=>getEmp(id).name);
+    if(maNames.length)parts.push('Multi-project: '+maNames.join(', '));
+    if(drNames.length)parts.push('Annotating & reviewing: '+drNames.join(', '));
+    ecb.style.display='flex';document.getElementById('ecTxt').textContent='⚠ Conflicts — '+parts.join(' | ');
+  }
   else ecb.style.display='none';
   document.getElementById('empTbody').innerHTML=list.map((e,i)=>{
     const cnt=am.get(e.id)||0;const projs=projects.filter(p=>(p.assignedEmployees||[]).includes(e.id));
     const revProjs=projects.filter(p=>(p.reviewEmployees||[]).includes(e.id));
-    const sc=cnt>1?'st-c':cnt===1?'st-a':'st-f';const st=cnt>1?`⚠ ${cnt} (CONFLICT)`:cnt===1?'Annotating':'Free';
+    const isMultiAnn=cnt>1;
+    const isRev=revProjs.length>0;
+    const isAnn=cnt>0;
+    const isDual=isAnn&&isRev;
+    let sc,st;
+    if(isMultiAnn&&isRev){sc='st-c';st=`⚠ Conflict (${cnt} projects + Reviewing)`;}
+    else if(isMultiAnn){sc='st-c';st=`⚠ ${cnt} Projects (Conflict)`;}
+    else if(isDual){sc='st-c';st='Annotating & Reviewing';}
+    else if(isAnn){sc='st-a';st='Annotating';}
+    else if(isRev){sc='st-a';st='Reviewing';}
+    else{sc='st-f';st='Free';}
     return`<tr><td style="color:var(--tx3);font-size:.7rem;">${i+1}</td><td><strong>${esc(e.name)}</strong></td><td style="color:var(--tx2);font-size:.76rem;">${esc(e.email)}</td>
       <td><span class="${e.gender==='male'?'gm':'gf'}">${e.gender==='male'?'♂ Male':'♀ Female'}</span></td>
       <td><span class="${sc}">${st}</span></td>
@@ -2097,16 +2200,379 @@ function renderEmps(){
 // WORKLOAD
 // ═══════════════════════
 function renderWorkload(){
-  const am=aMap();const active=[...am.entries()].filter(([,c])=>c>0).sort((a,b)=>b[1]-a[1]);
-  if(!active.length){document.getElementById('wlList').innerHTML='<div class="empty-st"><i class="fas fa-chart-bar"></i><p>No assignments yet.</p></div>';return;}
-  const max=Math.max(...active.map(([,c])=>c));
-  document.getElementById('wlList').innerHTML=active.map(([id,cnt])=>{
-    const e=getEmp(id);const projs=projects.filter(p=>(p.assignedEmployees||[]).includes(id));
-    const bar=Math.round((cnt/max)*100);const isC=cnt>1;
-    return`<div class="wl-row"><span class="wl-n">${esc(e.name)}</span><span class="wl-p">${projs.map(p=>esc(p.name)).join(' · ')}</span>
-      <div class="wl-bw"><div class="pbar" style="height:7px;"><div class="pf ${isC?'':'pf-a'}" style="width:${bar}%;${isC?'background:#dc2626':''}"></div></div>
-      <div style="font-size:.64rem;color:${isC?'#dc2626':'var(--tx3)'};margin-top:2px;text-align:right;">${cnt} proj${cnt>1?'s':''} ${isC?'⚠ CONFLICT':''}</div></div></div>`;
+  const am=aMap();
+  const revMap=new Map();
+  projects.forEach(p=>(p.reviewEmployees||[]).forEach(id=>revMap.set(id,(revMap.get(id)||0)+1)));
+  const allActiveIds=new Set([...am.keys(),...revMap.keys()]);
+  const q=(document.getElementById('wlSearch')?.value||'').toLowerCase();
+
+  // ── Summary stats ──────────────────────────────────────────────────────────
+  const annOnly=[...allActiveIds].filter(id=>am.get(id)>0&&!(revMap.get(id)>0));
+  const revOnly=[...allActiveIds].filter(id=>!(am.get(id)>0)&&revMap.get(id)>0);
+  const dual=[...dualRoleIds()];
+  const multiAnn=[...multiAnnotators()].filter(id=>!dual.includes(id));
+  const conflicts2=dual.length+multiAnn.length;
+  const free=employees.filter(e=>!allActiveIds.has(e.id));
+
+  document.getElementById('wlSummaryGrid').innerHTML=[
+    {lbl:'Total Employees',val:employees.length,sub:'in roster',cls:'tot',icon:'fa-users'},
+    {lbl:'Annotating',val:annOnly.length,sub:'annotation only',cls:'ann',icon:'fa-pen-nib'},
+    {lbl:'Reviewing',val:revOnly.length,sub:'review only',cls:'rev',icon:'fa-eye'},
+    {lbl:'Both Roles',val:dual.length,sub:'ann + review conflict',cls:'dual',icon:'fa-exclamation-triangle'},
+    {lbl:'Multi-Project',val:multiAnn.length,sub:'overloaded annotators',cls:'dual',icon:'fa-layer-group'},
+    {lbl:'Free',val:free.length,sub:'no current assignment',cls:'free',icon:'fa-check-circle'},
+  ].map(s=>`<div class="wl-sc ${s.cls}">
+    <div class="wl-sc-lbl"><i class="fas ${s.icon}" style="margin-right:3px;"></i>${s.lbl}</div>
+    <div class="wl-sc-val">${s.val}</div>
+    <div class="wl-sc-sub">${s.sub}</div>
+  </div>`).join('');
+
+  // ── Per-project team cards ─────────────────────────────────────────────────
+  const priColors3={high:'var(--red)',medium:'var(--yellow)',low:'var(--green)'};
+  const projCards=projects.map(p=>{
+    const annEmps=(p.assignedEmployees||[]).map(id=>({emp:getEmp(id),role:'ann',isDual:(p.reviewEmployees||[]).includes(id)}));
+    const revEmps=(p.reviewEmployees||[]).filter(id=>!(p.assignedEmployees||[]).includes(id)).map(id=>({emp:getEmp(id),role:'rev',isDual:false}));
+    const members=[...annEmps,...revEmps];
+    const total=members.length;
+    const conflictCount=annEmps.filter(x=>x.isDual).length;
+    const T=+p.total||0,A=+p.annotated||0;
+    const pBg={high:'#fee2e2',medium:'#fef3c7',low:'#dcfce7'}[p.priority];
+    const pClr={high:'#dc2626',medium:'#d97706',low:'#16a34a'}[p.priority];
+    return`<div class="wl-proj-card">
+      <div class="wl-proj-hdr" style="background:${pBg}20;">
+        <div style="width:8px;height:8px;border-radius:50%;background:${pClr};flex-shrink:0;"></div>
+        <div class="wl-proj-name" title="${esc(p.name)}">${esc(p.name)}</div>
+        <span class="wl-proj-count" style="background:${pBg};color:${pClr};">${total} member${total!==1?'s':''}</span>
+        ${conflictCount>0?`<span class="wl-proj-count" style="background:#fee2e2;color:#dc2626;">⚠ ${conflictCount} dual</span>`:''}
+      </div>
+      <div style="padding:6px 14px 3px;display:flex;gap:8px;align-items:center;border-bottom:1px solid var(--brd);">
+        <div style="flex:1;">
+          <div style="font-size:.6rem;color:var(--tx3);margin-bottom:2px;">Annotation progress</div>
+          <div class="pbar" style="height:5px;"><div class="pf pf-a" style="width:${T>0?Math.round(A/T*100):0}%"></div></div>
+        </div>
+        <span style="font-size:.68rem;font-weight:700;color:var(--blue);min-width:32px;text-align:right;">${T>0?Math.round(A/T*100):0}%</span>
+      </div>
+      <div class="wl-proj-body">
+        ${members.length===0
+          ?'<div class="wl-empty-proj">No team members assigned</div>'
+          :members.map(({emp,role,isDual})=>{
+            const bg=emp.gender==='male'?'var(--blue)':'var(--purple)';
+            const roleCls=isDual?'wl-role-dual':role==='ann'?'wl-role-ann':'wl-role-rev';
+            const roleTxt=isDual?'Ann & Rev':role==='ann'?'Annotating':'Reviewing';
+            return`<div class="wl-member-row">
+              <div class="wl-member-av" style="background:${bg};">${initials(emp.name)}</div>
+              <div class="wl-member-name">${esc(emp.name)}</div>
+              <span class="wl-role-pill ${roleCls}">${roleTxt}</span>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>`;
+  });
+  document.getElementById('wlProjGrid').innerHTML=projCards.join('')||'<div class="empty-st"><i class="fas fa-folder-open"></i><p>No projects yet.</p></div>';
+
+  // ── Employee rows ──────────────────────────────────────────────────────────
+  const active=[...allActiveIds].map(id=>[id,am.get(id)||0]).sort((a,b)=>b[1]-a[1]);
+  const allForList=q
+    ?employees.filter(e=>e.name.toLowerCase().includes(q)||e.email.toLowerCase().includes(q))
+    :employees;
+  const max=Math.max(...active.map(([,c])=>c),1);
+
+  if(!allForList.length){
+    document.getElementById('wlList').innerHTML='<div class="empty-st"><i class="fas fa-search"></i><p>No employees match.</p></div>';
+    return;
+  }
+
+  document.getElementById('wlList').innerHTML=allForList.map(e=>{
+    const cnt=am.get(e.id)||0;
+    const annProjs=projects.filter(p=>(p.assignedEmployees||[]).includes(e.id));
+    const revProjs=projects.filter(p=>(p.reviewEmployees||[]).includes(e.id));
+    const isMultiAnn=cnt>1;
+    const isDual2=cnt>0&&revProjs.length>0;
+    const isC=isMultiAnn||isDual2;
+    const bar=Math.round((cnt/max)*100);
+    let statusTxt,statusColor;
+    if(isMultiAnn&&isDual2){statusTxt=`⚠ ${cnt} ann. + reviewing`;statusColor='#dc2626';}
+    else if(isMultiAnn){statusTxt=`⚠ ${cnt} projects (conflict)`;statusColor='#dc2626';}
+    else if(isDual2){statusTxt='⚠ Annotating & Reviewing';statusColor='#dc2626';}
+    else if(revProjs.length>0&&cnt===0){statusTxt='Reviewing only';statusColor='var(--yellow)';}
+    else if(cnt===1){statusTxt='Annotating';statusColor='var(--blue)';}
+    else{statusTxt='Free';statusColor='var(--green)';}
+    const allProjNames=[...new Set([...annProjs.map(p=>'[Ann] '+p.name),...revProjs.map(p=>'[Rev] '+p.name)])];
+    return`<div class="wl-row">
+      <span class="wl-n">${esc(e.name)}</span>
+      <span class="wl-p">${allProjNames.length?allProjNames.map(esc).join(' · '):'<span style="color:var(--tx3);font-style:italic;">Free — no assignments</span>'}</span>
+      <div class="wl-bw">
+        <div class="pbar" style="height:7px;"><div class="pf ${isC?'':'pf-a'}" style="width:${bar}%;${isC?'background:#dc2626':''}"></div></div>
+        <div style="font-size:.64rem;color:${statusColor};margin-top:2px;text-align:right;">${statusTxt}</div>
+      </div>
+    </div>`;
   }).join('');
+}
+
+
+// ═══════════════════════
+// WORKLOAD EXPORTS
+// ═══════════════════════
+function exportWorkloadCSV(){
+  const am=aMap();
+  const revMap=new Map();
+  projects.forEach(p=>(p.reviewEmployees||[]).forEach(id=>revMap.set(id,(revMap.get(id)||0)+1)));
+  const dual=dualRoleIds();
+  const multiAnn=multiAnnotators();
+
+  const hdr=['Employee','Email','Gender','Ann.Projects','Rev.Projects','Status','Conflict','Annotation Projects','Review Projects'];
+  const rows=employees.map(e=>{
+    const cnt=am.get(e.id)||0;
+    const annProjs=projects.filter(p=>(p.assignedEmployees||[]).includes(e.id));
+    const revProjs=projects.filter(p=>(p.reviewEmployees||[]).includes(e.id));
+    const isDual=dual.has(e.id);
+    const isMulti=multiAnn.has(e.id);
+    let status;
+    if(isMulti&&isDual)status='CONFLICT: Multi-Ann + Reviewing';
+    else if(isMulti)status='CONFLICT: Multiple Annotation Projects';
+    else if(isDual)status='CONFLICT: Annotating & Reviewing';
+    else if(cnt>0&&revProjs.length===0)status='Annotating';
+    else if(cnt===0&&revProjs.length>0)status='Reviewing';
+    else if(cnt===0&&revProjs.length===0)status='Free';
+    else status='Active';
+    const conflict=isDual||isMulti?'YES':'NO';
+    return[`"${e.name}"`,`"${e.email}"`,e.gender,cnt,revProjs.length,`"${status}"`,conflict,
+      `"${annProjs.map(p=>p.name).join('; ')}"`,`"${revProjs.map(p=>p.name).join('; ')}"`].join(',');
+  });
+
+  // Add project summary rows
+  const projRows=['',' PROJECT TEAM SUMMARY','Project,Total Members,Annotators,Reviewers,Dual Role,Annotation%'];
+  projects.forEach(p=>{
+    const ann=(p.assignedEmployees||[]).length;
+    const rev=(p.reviewEmployees||[]).length;
+    const dualCount=(p.assignedEmployees||[]).filter(id=>(p.reviewEmployees||[]).includes(id)).length;
+    const T=+p.total||0,A=+p.annotated||0;
+    projRows.push([`"${p.name}"`,ann+rev-dualCount,ann,rev,dualCount,pct(A,T)+'%'].join(','));
+  });
+
+  const csv=[hdr.join(','),...rows,...projRows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='camcom_workload.csv';a.click();URL.revokeObjectURL(url);
+  toast('Workload CSV exported','ok');
+}
+
+function exportWorkloadPDF(){
+  const{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'landscape',format:'a4',unit:'mm'});
+  const W=297,H=210,MARGIN=14,CW=W-2*MARGIN;
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+  const am=aMap();
+  const revMap=new Map();
+  projects.forEach(p=>(p.reviewEmployees||[]).forEach(id=>revMap.set(id,(revMap.get(id)||0)+1)));
+  const allIds=new Set([...am.keys(),...revMap.keys()]);
+  const dual=dualRoleIds();
+  const multiAnn=multiAnnotators();
+
+  // ── Stats ────────────────────────────────────────────────────────────────
+  const annOnly=[...allIds].filter(id=>am.get(id)>0&&!revMap.get(id));
+  const revOnly=[...allIds].filter(id=>!am.get(id)&&revMap.get(id)>0);
+  const dualList=[...dual];
+  const multiOnly=[...multiAnn].filter(id=>!dual.has(id));
+  const freeList=employees.filter(e=>!allIds.has(e.id));
+  const totalConflicts=dualList.length+multiOnly.length;
+
+  // ══ HEADER ════════════════════════════════════════════════════════════════
+  doc.setFillColor(15,23,42);doc.rect(0,0,W,24,'F');
+  doc.setFillColor(223,30,38);doc.rect(0,0,6,24,'F');
+
+  // Logo box
+  doc.setFillColor(223,30,38);doc.roundedRect(12,4,16,16,2,2,'F');
+  doc.setDrawColor(255,255,255);doc.setLineWidth(0.2);doc.line(14,13,26,13);
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(5.5);
+  doc.text('CAM',20,10,{align:'center'});doc.text('COM',20,16.5,{align:'center'});
+
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(255,255,255);
+  doc.text('CamCom — Team Workload Report',32,12);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(148,163,184);
+  doc.text('Team loading, assignments, and conflict analysis',32,18);
+
+  doc.setTextColor(203,213,225);doc.setFontSize(7);
+  doc.text(today,W-MARGIN,10,{align:'right'});
+  doc.text('Prepared by: '+(currentUser?.name||'—'),W-MARGIN,16,{align:'right'});
+
+  // ══ SUMMARY STAT BOXES ════════════════════════════════════════════════════
+  let y=30;
+  const summStats=[
+    {l:'Total Employees',v:employees.length,c:[124,58,237]},
+    {l:'Annotating',v:annOnly.length,c:[37,99,235]},
+    {l:'Reviewing',v:revOnly.length,c:[217,119,6]},
+    {l:'Dual Role ⚠',v:dualList.length,c:[220,38,38]},
+    {l:'Multi-Project ⚠',v:multiOnly.length,c:[220,38,38]},
+    {l:'Free',v:freeList.length,c:[22,163,74]},
+    {l:'Total Projects',v:projects.length,c:[15,23,42]},
+  ];
+  const sbW=(CW-(summStats.length-1)*3)/summStats.length,sbH=20;
+  summStats.forEach((s,i)=>{
+    const bx=MARGIN+i*(sbW+3);
+    doc.setFillColor(241,245,249);doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);
+    doc.roundedRect(bx,y,sbW,sbH,2,2,'FD');
+    doc.setFillColor(...s.c);doc.rect(bx,y,sbW,2.5,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...s.c);
+    doc.text(String(s.v),bx+sbW/2,y+12,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(5.5);doc.setTextColor(100,116,139);
+    doc.text(s.l.toUpperCase(),bx+sbW/2,y+18,{align:'center'});
+  });
+  y+=sbH+8;
+
+  // ══ PROJECT LOADING TABLE ══════════════════════════════════════════════════
+  // Section header
+  doc.setFillColor(30,41,59);doc.rect(MARGIN,y,CW,8,'F');
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+  doc.text('PROJECT TEAM LOADING',MARGIN+4,y+5.5);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(148,163,184);
+  doc.text('Team size, roles, progress, and conflict flags per project',MARGIN+4+58,y+5.5);
+  y+=10;
+
+  // Table header
+  const pCols=[
+    {h:'Project Name',w:62},{h:'Pri',w:12},{h:'Status',w:22},
+    {h:'Members',w:16},{h:'Annotators',w:16},{h:'Reviewers',w:16},
+    {h:'Dual Role',w:16},{h:'Ann%',w:14},{h:'Rev%',w:14},{h:'Annotator Names',w:0}
+  ];
+  // Calc last col width
+  const usedW=pCols.slice(0,-1).reduce((s,c)=>s+c.w,0);
+  pCols[pCols.length-1].w=CW-usedW-4;
+
+  doc.setFillColor(51,65,85);doc.rect(MARGIN,y,CW,7,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(203,213,225);
+  let cx=MARGIN+2;
+  pCols.forEach(c=>{doc.text(c.h,cx,y+4.8);cx+=c.w;});
+  y+=7;
+
+  const priC2={high:[220,38,38],medium:[217,119,6],low:[22,163,74]};
+  const statL2={todo:'To Do',inprog:'In Progress',review:'Review',done:'Done'};
+  const statC2={todo:[100,116,139],inprog:[37,99,235],review:[217,119,6],done:[22,163,74]};
+  const rowH2=8;
+
+  projects.forEach((p,i)=>{
+    if(y>H-22){
+      // Footer then new page
+      drawWLFooter();
+      doc.addPage();
+      doc.setFillColor(15,23,42);doc.rect(0,0,W,14,'F');
+      doc.setFillColor(223,30,38);doc.rect(0,0,6,14,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(255,255,255);
+      doc.text('CamCom — Team Workload Report (continued)',MARGIN+2,9);
+      y=20;
+      // Redraw table header
+      doc.setFillColor(51,65,85);doc.rect(MARGIN,y,CW,7,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(203,213,225);
+      cx=MARGIN+2;pCols.forEach(c=>{doc.text(c.h,cx,y+4.8);cx+=c.w;});y+=7;
+    }
+
+    const ann=p.assignedEmployees||[];
+    const rev=p.reviewEmployees||[];
+    const dualCount=ann.filter(id=>rev.includes(id)).length;
+    const totalMembers=new Set([...ann,...rev]).size;
+    const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+    const pc3=priC2[p.priority]||[100,116,139];
+    const sc3=statC2[p.kanbanStatus||'todo']||[100,116,139];
+    const hasConflict=dualCount>0;
+
+    // Row bg
+    if(i%2===0)doc.setFillColor(248,250,252); else doc.setFillColor(255,255,255);
+    doc.rect(MARGIN,y,CW,rowH2,'F');
+    // Priority stripe
+    doc.setFillColor(...pc3);doc.rect(MARGIN,y,2.5,rowH2,'F');
+    if(hasConflict){doc.setFillColor(255,240,240);doc.rect(MARGIN+2.5,y,CW-2.5,rowH2,'F');}
+
+    const annNames=ann.map(id=>getEmp(id).name).join(', ')||'—';
+    const row2=[
+      p.name.length>32?p.name.substr(0,30)+'…':p.name,
+      p.priority.substr(0,3).toUpperCase(),
+      statL2[p.kanbanStatus||'todo'],
+      String(totalMembers),String(ann.length),String(rev.length),
+      dualCount>0?'⚠ '+dualCount:'0',
+      pct(A,T)+'%',pct(R,T)+'%',
+      annNames.length>40?annNames.substr(0,38)+'…':annNames
+    ];
+
+    doc.setFont('helvetica','normal');doc.setFontSize(7);
+    cx=MARGIN+2;
+    pCols.forEach((c,ci)=>{
+      if(ci===1)doc.setTextColor(...pc3);
+      else if(ci===2)doc.setTextColor(...sc3);
+      else if(ci===6&&dualCount>0)doc.setTextColor(220,38,38);
+      else if(ci===7)doc.setTextColor(37,99,235);
+      else if(ci===8)doc.setTextColor(22,163,74);
+      else doc.setTextColor(15,23,42);
+      doc.text(String(row2[ci]||''),cx,y+5.5);cx+=c.w;
+    });
+
+    // Mini ann progress bar in Ann% cell
+    const barStartX=MARGIN+pCols.slice(0,7).reduce((s,c)=>s+c.w,0)+2;
+    doc.setFillColor(226,232,240);doc.roundedRect(barStartX,y+6.2,10,1.5,0.4,0.4,'F');
+    if(T>0){doc.setFillColor(37,99,235);doc.roundedRect(barStartX,y+6.2,10*pct(A,T)/100,1.5,0.4,0.4,'F');}
+
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.1);doc.line(MARGIN,y+rowH2,MARGIN+CW,y+rowH2);
+    y+=rowH2;
+  });
+
+  // ══ EMPLOYEE CONFLICT SECTION ══════════════════════════════════════════════
+  const conflictEmps=[...dual,...multiAnnotators()].filter((id,i,a)=>a.indexOf(id)===i);
+  if(conflictEmps.length>0){
+    y+=5;
+    if(y>H-30){drawWLFooter();doc.addPage();y=20;}
+    doc.setFillColor(220,38,38);doc.rect(MARGIN,y,CW,8,'F');
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
+    doc.text('⚠  CONFLICT SUMMARY — Employees with Overlapping Roles',MARGIN+4,y+5.5);
+    y+=10;
+    doc.setFillColor(255,241,242);doc.rect(MARGIN,y,CW,6,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(100,116,139);
+    ['Employee','Conflict Type','Annotating Projects','Reviewing Projects'].forEach((h,hi)=>{
+      doc.text(h,MARGIN+2+[0,50,90,165][hi],y+4.5);
+    });
+    y+=6;
+    conflictEmps.forEach((id,i)=>{
+      if(y>H-18){drawWLFooter();doc.addPage();y=20;}
+      const e=getEmp(id);
+      const aP=projects.filter(p=>(p.assignedEmployees||[]).includes(id));
+      const rP=projects.filter(p=>(p.reviewEmployees||[]).includes(id));
+      const isD=dual.has(id);const isM=multiAnn.has(id);
+      let ctype=isD&&isM?'Multi-ann + Review':isM?'Multiple Annotation Projects':'Annotating & Reviewing';
+      if(i%2===0)doc.setFillColor(255,248,248); else doc.setFillColor(255,255,255);
+      doc.rect(MARGIN,y,CW,7,'F');
+      doc.setFillColor(220,38,38);doc.rect(MARGIN,y,2,7,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(15,23,42);
+      doc.text(e.name.length>24?e.name.substr(0,22)+'…':e.name,MARGIN+4,y+4.8);
+      doc.setFont('helvetica','normal');doc.setTextColor(220,38,38);
+      doc.text(ctype,MARGIN+52,y+4.8);
+      doc.setTextColor(37,99,235);
+      const aNames=aP.map(p=>p.name).join(', ');
+      doc.text(aNames.length>38?aNames.substr(0,36)+'…':aNames,MARGIN+92,y+4.8);
+      doc.setTextColor(217,119,6);
+      const rNames=rP.map(p=>p.name).join(', ');
+      doc.text(rNames.length>38?rNames.substr(0,36)+'…':rNames,MARGIN+167,y+4.8);
+      doc.setDrawColor(255,220,220);doc.setLineWidth(0.1);doc.line(MARGIN,y+7,MARGIN+CW,y+7);
+      y+=7;
+    });
+  }
+
+  // ── Footer ─────────────────────────────────────────────────────────────────
+  function drawWLFooter(){
+    const pg=doc.internal.getNumberOfPages();
+    for(let i=1;i<=pg;i++){
+      doc.setPage(i);
+      doc.setFillColor(15,23,42);doc.rect(0,H-10,W,10,'F');
+      doc.setFillColor(223,30,38);doc.rect(0,H-10,6,10,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(6);doc.setTextColor(255,255,255);
+      doc.text('CamCom',MARGIN,H-4.5);
+      doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
+      doc.text('Team Workload Report  •  Confidential',MARGIN+18,H-4.5);
+      doc.text('Page '+i+' of '+pg,W/2,H-4.5,{align:'center'});
+      doc.text('Generated: '+today,W-MARGIN,H-4.5,{align:'right'});
+    }
+  }
+  drawWLFooter();
+  doc.save('camcom_workload_report.pdf');
+  toast('Workload PDF exported','ok');
 }
 
 // ═══════════════════════
@@ -2185,7 +2651,7 @@ function renderCharts(){
   destroyChart('prog');
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tx=isDark?'#8b949e':'#475569';
-  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:projects.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:shProjects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:shProjects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:projects.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:projects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:projects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
 
   // Status donut
   destroyChart('status');
@@ -2294,37 +2760,173 @@ function exportCSV(){
 // ═══════════════════════
 function exportPDF(){
   const{jsPDF}=window.jspdf;
-  const doc=new jsPDF({orientation:'landscape',format:'a4'});
-  // Header
-  doc.setFillColor(223,30,38);doc.rect(0,0,297,20,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(14);doc.setFont('helvetica','bold');
-  doc.text('CamCom Annotation Tracker — Project Report',14,13);
-  doc.setFontSize(9);doc.text(new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}),260,13);
-  // Summary
+  const doc=new jsPDF({orientation:'landscape',format:'a4',unit:'mm'});
+  const W=297,H=210,MARGIN=14,CONTENT_W=W-2*MARGIN;
+
   const tI=projects.reduce((s,p)=>s+(+p.total||0),0);
   const tA=projects.reduce((s,p)=>s+(+p.annotated||0),0);
-  doc.setTextColor(0,0,0);doc.setFontSize(10);doc.setFont('helvetica','normal');
-  doc.text(`Total Projects: ${projects.length}   |   Total Images: ${tI.toLocaleString()}   |   Annotated: ${tA.toLocaleString()} (${pct(tA,tI)}%)   |   Employees: ${employees.length}`,14,28);
-  // Table
-  let y=36;
-  const cols2=[['Project Name',60],['Priority',20],['Status',24],['Annotated%',22],['Reviewed%',22],['Deadline',26],['Assigned By',30],['Employees',18]];
-  doc.setFillColor(240,244,249);doc.rect(10,y-5,277,8,'F');
-  doc.setFont('helvetica','bold');doc.setFontSize(8);
-  let x=14;cols2.forEach(([h,w])=>{doc.text(h,x,y);x+=w;});y+=6;
-  doc.setDrawColor(226,232,240);doc.line(10,y-1,287,y-1);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);
+  const tR=projects.reduce((s,p)=>s+(+p.reviewed||0),0);
+  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+  function drawPageHeader(continued){
+    // Dark header
+    doc.setFillColor(15,23,42);doc.rect(0,0,W,22,'F');
+    doc.setFillColor(223,30,38);doc.rect(0,0,6,22,'F');
+
+    // Logo box
+    const LX=12,LY=4,LSZ=14;
+    doc.setFillColor(223,30,38);doc.roundedRect(LX,LY,LSZ,LSZ,1.5,1.5,'F');
+    doc.setDrawColor(255,255,255);doc.setLineWidth(0.2);
+    doc.line(LX+2,LY+7,LX+LSZ-2,LY+7);
+    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(5);
+    doc.text('CAM',LX+LSZ/2,LY+5.5,{align:'center'});
+    doc.text('COM',LX+LSZ/2,LY+10,{align:'center'});
+
+    // Title
+    doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(255,255,255);
+    doc.text('CamCom Annotation Tracker',LX+LSZ+4,LY+7);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(148,163,184);
+    doc.text(continued?'Project Report (continued)':'Project Report — All Projects',LX+LSZ+4,LY+12);
+
+    // Right: date
+    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(203,213,225);
+    doc.text(today,W-MARGIN,LY+7,{align:'right'});
+    if(!continued){
+      doc.setFontSize(6.5);doc.setTextColor(148,163,184);
+      doc.text('Prepared by: '+(currentUser?.name||'—'),W-MARGIN,LY+12,{align:'right'});
+    }
+  }
+
+  function drawSummaryBar(){
+    const sy=22;
+    doc.setFillColor(241,245,249);doc.rect(0,sy,W,16,'F');
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);doc.line(0,sy+16,W,sy+16);
+    const summaryItems=[
+      {label:'Total Projects',value:projects.length,color:[15,23,42]},
+      {label:'Total Images',value:tI.toLocaleString(),color:[37,99,235]},
+      {label:'Annotated',value:tA.toLocaleString()+' ('+pct(tA,tI)+'%)',color:[22,163,74]},
+      {label:'Reviewed',value:tR.toLocaleString()+' ('+pct(tR,tI)+'%)',color:[124,58,237]},
+      {label:'Employees',value:employees.length,color:[217,119,6]},
+      {label:'High Priority',value:projects.filter(p=>p.priority==='high').length,color:[220,38,38]},
+    ];
+    const sw=CONTENT_W/summaryItems.length;
+    summaryItems.forEach((s,i)=>{
+      const sx=MARGIN+i*sw+sw/2;
+      doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(...s.color);
+      doc.text(String(s.value),sx,sy+8,{align:'center'});
+      doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(100,116,139);
+      doc.text(s.label.toUpperCase(),sx,sy+13,{align:'center'});
+      if(i<summaryItems.length-1){
+        doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);
+        doc.line(MARGIN+((i+1)*sw),sy+3,MARGIN+((i+1)*sw),sy+13);
+      }
+    });
+  }
+
+  function drawTableHeader(ty){
+    const cols=[
+      {h:'Project Name',w:62},{h:'Priority',w:18},{h:'Status',w:22},
+      {h:'Ann%',w:14},{h:'Rev%',w:14},{h:'Total Imgs',w:18},
+      {h:'Annotated',w:18},{h:'Reviewed',w:18},{h:'Deadline',w:22},{h:'Assigned By',w:28},{h:'Team',w:11}
+    ];
+    doc.setFillColor(30,41,59);doc.rect(MARGIN,ty,CONTENT_W,8,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(6.5);doc.setTextColor(148,163,184);
+    let cx=MARGIN+2;
+    cols.forEach(c=>{doc.text(c.h,cx,ty+5.5);cx+=c.w;});
+    return {cols,ty:ty+8};
+  }
+
+  // Draw header & summary
+  drawPageHeader(false);
+  drawSummaryBar();
+
+  let y=42;
+  let {cols, ty:tableY}=drawTableHeader(y);
+  y=tableY;
+
+  const priColors2={high:[220,38,38],medium:[217,119,6],low:[22,163,74]};
+  const statColors={todo:[100,116,139],inprog:[37,99,235],review:[217,119,6],done:[22,163,74]};
+  const statLabels2={todo:'To Do',inprog:'In Progress',review:'Review',done:'Done'};
+
   projects.forEach((p,i)=>{
-    if(y>190){doc.addPage();doc.setFillColor(223,30,38);doc.rect(0,0,297,14,'F');doc.setTextColor(255,255,255);doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text('CamCom Annotation Tracker (continued)',14,10);doc.setTextColor(0,0,0);doc.setFont('helvetica','normal');doc.setFontSize(8);y=22;}
-    if(i%2===0){doc.setFillColor(248,250,252);doc.rect(10,y-4,277,7,'F');}
-    x=14;const row=[p.name.length>28?p.name.substr(0,28)+'…':p.name,p.priority,p.kanbanStatus||'todo',pct(p.annotated,p.total)+'%',pct(p.reviewed,p.total)+'%',fmtD(p.deadline),p.assignedby||'—',(p.assignedEmployees||[]).length.toString()];
-    cols2.forEach(([,w],ci)=>{doc.text(String(row[ci]||''),x,y);x+=w;});y+=8;
+    if(y>H-22){
+      drawPageFooter();
+      doc.addPage();
+      drawPageHeader(true);
+      y=26;
+      const res=drawTableHeader(y);
+      cols=res.cols;y=res.ty;
+    }
+
+    const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+    const aPct=pct(A,T),rPct=pct(R,T);
+    const dl=dlMeta(p.deadline);
+    const rowH=8;
+
+    // Alternating row background
+    if(i%2===0){doc.setFillColor(248,250,252);doc.rect(MARGIN,y,CONTENT_W,rowH,'F');}
+    else{doc.setFillColor(255,255,255);doc.rect(MARGIN,y,CONTENT_W,rowH,'F');}
+
+    // Priority left accent
+    const pc2=priColors2[p.priority]||[100,116,139];
+    doc.setFillColor(...pc2);doc.rect(MARGIN,y,2.5,rowH,'F');
+
+    const row=[
+      p.name.length>30?p.name.substr(0,28)+'…':p.name,
+      p.priority.toUpperCase(),
+      statLabels2[p.kanbanStatus||'todo'],
+      aPct+'%', rPct+'%',
+      T.toLocaleString(), A.toLocaleString(), R.toLocaleString(),
+      dl?dl.label:'—',
+      (p.assignedby||'—').substr(0,14),
+      String((p.assignedEmployees||[]).length)
+    ];
+
+    doc.setFont('helvetica','normal');doc.setFontSize(7);
+    let cx=MARGIN+2;
+    cols.forEach((c,ci)=>{
+      // Color coding
+      if(ci===1){doc.setTextColor(...pc2);}
+      else if(ci===2){doc.setTextColor(...(statColors[p.kanbanStatus||'todo']||[100,116,139]));}
+      else if(ci===3){doc.setTextColor(37,99,235);}
+      else if(ci===4){doc.setTextColor(22,163,74);}
+      else if(ci===8&&dl&&dl.diff<0){doc.setTextColor(220,38,38);}
+      else{doc.setTextColor(15,23,42);}
+      doc.text(String(row[ci]||''),cx,y+5.5);cx+=c.w;
+    });
+
+    // Mini progress bar for annotation
+    const barX=MARGIN+cols[0].w+cols[1].w+cols[2].w+2;
+    const barW=cols[3].w-4;
+    doc.setFillColor(226,232,240);doc.roundedRect(barX,y+5.8,barW,1.5,0.5,0.5,'F');
+    if(aPct>0){doc.setFillColor(37,99,235);doc.roundedRect(barX,y+5.8,barW*aPct/100,1.5,0.5,0.5,'F');}
+
+    // Row border
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.1);
+    doc.line(MARGIN,y+rowH,MARGIN+CONTENT_W,y+rowH);
+    y+=rowH;
   });
-  // Footer
-  const totalPages=doc.internal.getNumberOfPages();
-  for(let i=1;i<=totalPages;i++){doc.setPage(i);doc.setFontSize(7);doc.setTextColor(148,163,184);doc.text(`CamCom Annotation Tracker  •  Page ${i} of ${totalPages}`,14,205);doc.text('Confidential',260,205);}
+
+  function drawPageFooter(){
+    const totalPg=doc.internal.getNumberOfPages();
+    for(let pg=1;pg<=totalPg;pg++){
+      doc.setPage(pg);
+      doc.setFillColor(15,23,42);doc.rect(0,H-10,W,10,'F');
+      doc.setFillColor(223,30,38);doc.rect(0,H-10,6,10,'F');
+      doc.setFont('helvetica','bold');doc.setFontSize(6);doc.setTextColor(255,255,255);
+      doc.text('CamCom',MARGIN,H-4.5);
+      doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
+      doc.text('Annotation Tracker  •  Confidential',MARGIN+18,H-4.5);
+      doc.text('Page '+pg+' of '+totalPg,W/2,H-4.5,{align:'center'});
+      doc.text('Generated: '+today,W-MARGIN,H-4.5,{align:'right'});
+    }
+  }
+
+  drawPageFooter();
   doc.save('camcom_report.pdf');
-  toast('PDF exported ✓','ok');
+  toast('PDF exported','ok');
 }
+
 
 // ═══════════════════════
 // SETTINGS
@@ -2456,7 +3058,8 @@ function downloadReportPDF(){
   const p=projects.find(x=>x.id===projId);if(!p)return;
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF({orientation:'portrait',format:'a4',unit:'mm'});
-  const W=210,MARGIN=18;
+  const W=210,MARGIN=16,CONTENT_W=W-2*MARGIN;
+
   const dateVal=document.getElementById('rep-date').value||new Date().toISOString().split('T')[0];
   const repDate=new Date(dateVal+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
   const sendTo=document.getElementById('rep-sendto').value.trim();
@@ -2467,139 +3070,360 @@ function downloadReportPDF(){
   const annotators=(p.assignedEmployees||[]).map(id=>getEmp(id).name).join(', ')||'—';
   const reviewers=(p.reviewEmployees||[]).map(id=>getEmp(id).name).join(', ')||'—';
   const tags=(p.tags||[]).map(t=>'#'+t).join('  ')||'—';
-  // ─── HEADER ───────────────────────────────────────
-  doc.setFillColor(223,30,38);doc.rect(0,0,W,32,'F');
-  // White logo text
-  doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('CamCom',MARGIN,14);
-  doc.setFont('helvetica','normal');doc.setFontSize(9);doc.text('Annotation Tracker — Daily Project Report',MARGIN,20);
-  doc.setFontSize(8);doc.text(repDate,MARGIN,27);
-  if(sendTo)doc.text('To: '+sendTo,W-MARGIN,27,{align:'right'});
-  // ─── PROJECT TITLE BAND ────────────────────────────
   const priColors={high:[220,38,38],medium:[217,119,6],low:[22,163,74]};
   const pc=priColors[p.priority||'medium'];
-  doc.setFillColor(248,250,252);doc.rect(0,32,W,22,'F');
-  doc.setFillColor(pc[0],pc[1],pc[2]);doc.rect(0,32,4,22,'F');
-  doc.setTextColor(15,23,42);doc.setFont('helvetica','bold');doc.setFontSize(14);
-  const pname=p.name.length>45?p.name.substr(0,42)+'...':p.name;
-  doc.text(pname,MARGIN,44);
-  const priLbl={high:'● HIGH',medium:'● MEDIUM',low:'● LOW'}[p.priority||'medium'];
-  doc.setTextColor(pc[0],pc[1],pc[2]);doc.setFont('helvetica','bold');doc.setFontSize(8);
-  doc.text(priLbl,W-MARGIN,44,{align:'right'});
-  doc.setTextColor(71,85,105);doc.setFont('helvetica','normal');doc.setFontSize(8);
-  const statLbl={todo:'📋 To Do',inprog:'⚡ In Progress',review:'🔍 Review',done:'✅ Done'}[p.kanbanStatus||'todo'];
-  doc.text(statLbl.replace(/[^ -]/g,'').trim(),W-MARGIN,50,{align:'right'});
-  // ─── PROGRESS SECTION ─────────────────────────────
-  let y=64;
-  const drawSection=(title,color)=>{
-    doc.setFillColor(...color);doc.rect(MARGIN,y,W-2*MARGIN,7,'F');
-    doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(8);
-    doc.text(title,MARGIN+3,y+5);y+=7;
+
+  // ── Helper: draw CamCom logo square at (lx,ly) with size sz ──────────────
+  function drawLogo(lx,ly,sz){
+    // Red background square
+    doc.setFillColor(223,30,38);
+    doc.rect(lx,ly,sz,sz,'F');
+    // Scale factor: SVG viewBox is 36,37 to 433,434 => 397x397
+    const scale=sz/397;
+    const ox=lx-36*scale, oy=ly-37*scale;
+    doc.setFillColor(255,255,255);
+    // Draw "C" letter (top) — simplified as two arcs approximated by bezier
+    // We'll use the SVG path data translated to jsPDF lines
+    // Using a simplified block approach: draw white rectangles to form letters
+    // Letter C (top-left) — white rounded shape
+    const u=(sz/14); // unit
+    // Top C
+    doc.setFillColor(255,255,255);
+    doc.roundedRect(lx+u*0.5, ly+u*1.2, u*4.5, u*5.5, u*0.6, u*0.6, 'F');
+    doc.setFillColor(223,30,38);
+    doc.roundedRect(lx+u*2.0, ly+u*2.2, u*3.5, u*3.5, u*0.4, u*0.4, 'F');
+    doc.roundedRect(lx+u*0.5, ly+u*3.5, u*1.8, u*1.5, u*0.2, u*0.2, 'F');
+    // Top A — white triangle-ish shape
+    doc.setFillColor(255,255,255);
+    // A shape: two white slanted bars + crossbar
+    doc.rect(lx+u*5.5, ly+u*1.2, u*1.0, u*5.5, 'F');
+    doc.rect(lx+u*8.5, ly+u*1.2, u*1.0, u*5.5, 'F');
+    // slant left bar
+    for(let si=0;si<5;si++){doc.rect(lx+u*(5.5+si*0.28), ly+u*(1.2+si*1.0), u*1.0, u*1.1, 'F');}
+    for(let si=0;si<5;si++){doc.rect(lx+u*(8.5-si*0.28), ly+u*(1.2+si*1.0), u*1.0, u*1.1, 'F');}
+    doc.rect(lx+u*6.0, ly+u*4.0, u*3.0, u*0.8, 'F');
+    // Top M
+    doc.setFillColor(255,255,255);
+    doc.rect(lx+u*10.0, ly+u*1.2, u*1.0, u*5.5, 'F');
+    doc.rect(lx+u*13.0, ly+u*1.2, u*1.0, u*5.5, 'F');
+    for(let si=0;si<3;si++){doc.rect(lx+u*(10.5+si*0.8), ly+u*(1.2+si*0.9), u*1.2, u*1.0, 'F');}
+    for(let si=0;si<3;si++){doc.rect(lx+u*(12.3-si*0.8+0.5), ly+u*(1.2+si*0.9), u*1.2, u*1.0, 'F');}
+    // Bottom row C C M — same but shifted down
+    const dy=u*7;
+    // Bottom C
+    doc.setFillColor(255,255,255);
+    doc.roundedRect(lx+u*0.5, ly+u*1.2+dy, u*4.5, u*5.5, u*0.6, u*0.6, 'F');
+    doc.setFillColor(223,30,38);
+    doc.roundedRect(lx+u*2.0, ly+u*2.2+dy, u*3.5, u*3.5, u*0.4, u*0.4, 'F');
+    doc.roundedRect(lx+u*0.5, ly+u*3.5+dy, u*1.8, u*1.5, u*0.2, u*0.2, 'F');
+    // Bottom second C (reuse at different x)
+    doc.setFillColor(255,255,255);
+    doc.roundedRect(lx+u*5.0, ly+u*1.2+dy, u*4.5, u*5.5, u*0.6, u*0.6, 'F');
+    doc.setFillColor(223,30,38);
+    doc.roundedRect(lx+u*6.5, ly+u*2.2+dy, u*3.5, u*3.5, u*0.4, u*0.4, 'F');
+    doc.roundedRect(lx+u*5.0, ly+u*3.5+dy, u*1.8, u*1.5, u*0.2, u*0.2, 'F');
+    // Bottom M
+    doc.setFillColor(255,255,255);
+    doc.rect(lx+u*10.0, ly+u*1.2+dy, u*1.0, u*5.5, 'F');
+    doc.rect(lx+u*13.0, ly+u*1.2+dy, u*1.0, u*5.5, 'F');
+    for(let si=0;si<3;si++){doc.rect(lx+u*(10.5+si*0.8), ly+u*(1.2+si*0.9)+dy, u*1.2, u*1.0, 'F');}
+    for(let si=0;si<3;si++){doc.rect(lx+u*(12.3-si*0.8+0.5), ly+u*(1.2+si*0.9)+dy, u*1.2, u*1.0, 'F');}
+  }
+
+  // ── HEADER BAND ─────────────────────────────────────────────────────────────
+  const HDR_H=42;
+  // Dark navy background
+  doc.setFillColor(15,23,42);
+  doc.rect(0,0,W,HDR_H,'F');
+  // Red accent left stripe
+  doc.setFillColor(223,30,38);
+  doc.rect(0,0,6,HDR_H,'F');
+
+  // Logo box (white bg for logo)
+  const LOGO_SZ=28;
+  const LOGO_X=12, LOGO_Y=7;
+  doc.setFillColor(223,30,38);
+  doc.roundedRect(LOGO_X,LOGO_Y,LOGO_SZ,LOGO_SZ,3,3,'F');
+  // Draw white "CAM" / "COM" text inside logo box
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(8.5);
+  doc.text('CAM',LOGO_X+LOGO_SZ/2,LOGO_Y+11,{align:'center'});
+  doc.setFontSize(7);
+  doc.text('COM',LOGO_X+LOGO_SZ/2,LOGO_Y+18,{align:'center'});
+  // Divider line inside logo
+  doc.setDrawColor(255,255,255);
+  doc.setLineWidth(0.3);
+  doc.line(LOGO_X+4,LOGO_Y+13.5,LOGO_X+LOGO_SZ-4,LOGO_Y+13.5);
+
+  // Company name & subtitle
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(16);
+  doc.text('CamCom',LOGO_X+LOGO_SZ+5,LOGO_Y+9);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.setTextColor(148,163,184);
+  doc.text('Annotation Tracker',LOGO_X+LOGO_SZ+5,LOGO_Y+15);
+
+  // Report type label (right side)
+  doc.setFillColor(223,30,38);
+  doc.roundedRect(W-MARGIN-38,LOGO_Y,38,10,2,2,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(7);
+  doc.text('DAILY REPORT',W-MARGIN-19,LOGO_Y+6.5,{align:'center'});
+
+  // Date & recipient
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(148,163,184);
+  doc.text(repDate,LOGO_X+LOGO_SZ+5,LOGO_Y+22);
+  if(sendTo){
+    doc.setTextColor(203,213,225);
+    doc.text('To: '+sendTo,W-MARGIN,LOGO_Y+22,{align:'right'});
+  }
+
+  // ── PROJECT TITLE BAND ──────────────────────────────────────────────────────
+  doc.setFillColor(241,245,249);
+  doc.rect(0,HDR_H,W,26,'F');
+  // Priority color left bar
+  doc.setFillColor(...pc);
+  doc.rect(0,HDR_H,5,26,'F');
+
+  const pname=p.name.length>50?p.name.substr(0,47)+'...':p.name;
+  doc.setTextColor(15,23,42);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(13);
+  doc.text(pname,MARGIN+2,HDR_H+11);
+
+  // Priority pill
+  const priLbl={high:'HIGH PRIORITY',medium:'MEDIUM PRIORITY',low:'LOW PRIORITY'}[p.priority||'medium'];
+  const pillW=36;
+  doc.setFillColor(...pc);
+  doc.roundedRect(W-MARGIN-pillW,HDR_H+3,pillW,8,2,2,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(6);
+  doc.text(priLbl,W-MARGIN-pillW/2,HDR_H+8,{align:'center'});
+
+  // Status text
+  const statMap={todo:'To Do',inprog:'In Progress',review:'Under Review',done:'Completed'};
+  const statLblClean=statMap[p.kanbanStatus||'todo']||'To Do';
+  doc.setTextColor(71,85,105);
+  doc.setFont('helvetica','normal');
+  doc.setFontSize(8);
+  doc.text('Status: '+statLblClean+'   |   Assigned by: '+(p.assignedby||'—'),MARGIN+2,HDR_H+20);
+
+  // ── BODY ────────────────────────────────────────────────────────────────────
+  let y=HDR_H+34;
+
+  // ── Section header helper ──
+  const secHdr=(title,icon,color)=>{
+    doc.setFillColor(...color);
+    doc.roundedRect(MARGIN,y,CONTENT_W,8,1.5,1.5,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(7.5);
+    doc.text(icon+'  '+title,MARGIN+4,y+5.5);
+    y+=12;
+  };
+
+  // ── Field row helper ──
+  const fieldRow=(label,value,labelW=52)=>{
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(8);
+    doc.setTextColor(100,116,139);
+    doc.text(label,MARGIN+2,y);
+    doc.setFont('helvetica','normal');
     doc.setTextColor(15,23,42);
-  };
-  const drawRow=(label,value,y2,bold=false)=>{
-    doc.setFont('helvetica',bold?'bold':'normal');doc.setFontSize(9);
-    doc.setTextColor(100,116,139);doc.text(label,MARGIN+3,y2);
-    doc.setTextColor(15,23,42);doc.setFont('helvetica',bold?'bold':'normal');
-    doc.text(String(value),MARGIN+60,y2);
-  };
-  const drawProgressBar=(label,val,maxVal,color,y2)=>{
-    const barW=W-2*MARGIN-6;const pctVal=maxVal>0?Math.round((val/maxVal)*100):0;
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,116,139);
-    doc.text(label,MARGIN+3,y2);
-    doc.setFillColor(226,232,240);doc.roundedRect(MARGIN+3,y2+2,barW,5,1,1,'F');
-    if(pctVal>0){doc.setFillColor(...color);doc.roundedRect(MARGIN+3,y2+2,barW*pctVal/100,5,1,1,'F');}
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(15,23,42);
-    doc.text(pctVal+'%',W-MARGIN-3,y2,{align:'right'});
+    const maxW=CONTENT_W-labelW-4;
+    const lines=doc.splitTextToSize(String(value||'—'),maxW);
+    doc.text(lines,MARGIN+labelW,y);
+    y+=lines.length*5+2;
   };
 
-  // Progress Section
-  drawSection('IMAGE PROGRESS',[37,99,235]);
-  y+=10;
-  // Stat boxes
-  const boxes=[
-    {lbl:'Total',val:T.toLocaleString()},{lbl:'Annotated',val:A.toLocaleString()},
-    {lbl:'Reviewed',val:R.toLocaleString()},{lbl:'Pend. Ann.',val:pendAnn.toLocaleString()},
-    {lbl:'Pend. Rev.',val:pendRev.toLocaleString()}
+  // ── Stat box helper ──
+  const statBox=(label,value,bx,by,bw,bh,valColor)=>{
+    doc.setFillColor(248,250,252);
+    doc.setDrawColor(226,232,240);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(bx,by,bw,bh,2,2,'FD');
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(13);
+    doc.setTextColor(...(valColor||[15,23,42]));
+    doc.text(String(value),bx+bw/2,by+bh/2+2,{align:'center'});
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(100,116,139);
+    doc.text(label.toUpperCase(),bx+bw/2,by+bh-3,{align:'center'});
+  };
+
+  // ── Progress bar helper ──
+  const progBar=(label,val,maxVal,fillColor,showPct=true)=>{
+    const pv=maxVal>0?Math.round((val/maxVal)*100):0;
+    const barW=CONTENT_W-6;
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(51,65,85);
+    doc.text(label,MARGIN+2,y);
+    if(showPct){
+      doc.setTextColor(...fillColor);
+      doc.text(pv+'%',W-MARGIN-2,y,{align:'right'});
+    }
+    y+=3;
+    // Track
+    doc.setFillColor(226,232,240);doc.roundedRect(MARGIN+2,y,barW,4.5,1.5,1.5,'F');
+    // Fill
+    if(pv>0){doc.setFillColor(...fillColor);doc.roundedRect(MARGIN+2,y,barW*pv/100,4.5,1.5,1.5,'F');}
+    y+=9;
+  };
+
+  // ── Divider ──
+  const divider=()=>{
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);
+    doc.line(MARGIN,y-2,W-MARGIN,y-2);
+  };
+
+  // ═══ SECTION 1: IMAGE PROGRESS ═══
+  secHdr('IMAGE PROGRESS','',  [37,99,235]);
+
+  // 5 stat boxes
+  const boxData=[
+    {l:'Total',v:T.toLocaleString(),c:[15,23,42]},
+    {l:'Annotated',v:A.toLocaleString(),c:[37,99,235]},
+    {l:'Reviewed',v:R.toLocaleString(),c:[22,163,74]},
+    {l:'Pend. Ann.',v:pendAnn.toLocaleString(),c:[217,119,6]},
+    {l:'Pend. Rev.',v:pendRev.toLocaleString(),c:[124,58,237]},
   ];
-  const bw=(W-2*MARGIN-4*3)/5;
-  boxes.forEach((b,i)=>{
-    const bx=MARGIN+i*(bw+3);
-    doc.setFillColor(241,245,249);doc.roundedRect(bx,y,bw,18,2,2,'F');
-    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(15,23,42);
-    doc.text(b.val,bx+bw/2,y+10,{align:'center'});
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(100,116,139);
-    doc.text(b.lbl.toUpperCase(),bx+bw/2,y+16,{align:'center'});
-  });
-  y+=24;
-  drawProgressBar('Annotation Progress',A,T,[59,130,246],y);y+=13;
-  drawProgressBar('Review Progress',R,T,[22,163,74],y);y+=18;
+  const nbx=5,bxGap=2,bxW=(CONTENT_W-(nbx-1)*bxGap)/nbx,bxH=22;
+  boxData.forEach((b,i)=>statBox(b.l,b.v,MARGIN+i*(bxW+bxGap),y,bxW,bxH,b.c));
+  y+=bxH+6;
+
+  progBar('Annotation Progress',A,T,[59,130,246]);
+  progBar('Review Progress',R,T,[22,163,74]);
+
   if(p.hasTarget&&p.dailyTarget){
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,116,139);
-    doc.text(`Daily Target: ${p.dailyTarget} imgs/day`,MARGIN+3,y);
-    if(pendAnn>0)doc.text(`Est. Completion: ${Math.ceil(pendAnn/p.dailyTarget)} days`,MARGIN+80,y);
-    y+=10;
+    doc.setFillColor(255,251,235);
+    doc.setDrawColor(253,230,138);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(MARGIN,y,CONTENT_W,10,2,2,'FD');
+    doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(180,83,9);
+    doc.text('Daily Target: '+p.dailyTarget+' images/day',MARGIN+4,y+6.5);
+    if(pendAnn>0){
+      doc.setFont('helvetica','normal');doc.setTextColor(120,53,15);
+      doc.text('Est. completion: '+Math.ceil(pendAnn/p.dailyTarget)+' days remaining',W-MARGIN-2,y+6.5,{align:'right'});
+    }
+    y+=14;
   }
 
-  // Project Details Section
-  drawSection('PROJECT DETAILS',[51,65,85]);
-  y+=8;
-  const details=[
-    ['Assigned By',p.assignedby||'—'],['Deadline',fmtD(p.deadline)||'—'],
-    ['Days Remaining',dl?(dl.diff<0?`OVERDUE by ${Math.abs(dl.diff)} days`:dl.diff+' days'):'—'],
-    ['Tags',tags],
+  // ═══ SECTION 2: PROJECT DETAILS ═══
+  y+=2;
+  secHdr('PROJECT DETAILS','', [51,65,85]);
+
+  // Two-column grid for details
+  const col1x=MARGIN, col2x=MARGIN+CONTENT_W/2+2, colW=CONTENT_W/2-4;
+  const detailPairs=[
+    ['Assigned By', p.assignedby||'—'],
+    ['Deadline', fmtD(p.deadline)||'—'],
+    ['Days Left', dl?(dl.diff<0?'OVERDUE by '+Math.abs(dl.diff)+'d':dl.diff+' days remaining'):'—'],
+    ['Start Date', fmtD(p.startdate)||'—'],
+    ['Tags', tags],
+    ['Kanban Status', statLblClean],
   ];
-  details.forEach(([label,val])=>{
-    drawRow(label,String(val).length>60?String(val).substr(0,57)+'...':String(val),y);y+=8;
+  const savedY=y;
+  // Left column
+  [detailPairs[0],detailPairs[2],detailPairs[4]].forEach(([lbl,val])=>{
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(100,116,139);
+    doc.text(lbl.toUpperCase(),col1x,y);y+=4;
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(15,23,42);
+    const vlines=doc.splitTextToSize(String(val),colW);
+    doc.text(vlines,col1x,y);y+=vlines.length*5+4;
   });
-  y+=4;
+  const afterLeft=y;
+  y=savedY;
+  // Right column
+  [detailPairs[1],detailPairs[3],detailPairs[5]].forEach(([lbl,val])=>{
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(100,116,139);
+    doc.text(lbl.toUpperCase(),col2x,y);y+=4;
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+    // Color overdue dates red
+    if(lbl==='Days Left'&&dl&&dl.diff<0)doc.setTextColor(220,38,38);
+    else doc.setTextColor(15,23,42);
+    const vlines=doc.splitTextToSize(String(val),colW);
+    doc.text(vlines,col2x,y);y+=vlines.length*5+4;
+  });
+  y=Math.max(afterLeft,y)+2;
 
-  // Team Section
-  drawSection('TEAM',[124,58,237]);
-  y+=8;
-  // Wrap long names
-  const wrapText=(text,maxW)=>doc.splitTextToSize(text,maxW);
-  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(100,116,139);
-  doc.text('Annotators:',MARGIN+3,y);
-  doc.setTextColor(15,23,42);
-  const annLines=wrapText(annotators,W-MARGIN-MARGIN-65);
-  doc.text(annLines,MARGIN+60,y);y+=annLines.length*5+3;
-  doc.setTextColor(100,116,139);doc.text('Reviewers:',MARGIN+3,y);
-  doc.setTextColor(15,23,42);
-  const revLines=wrapText(reviewers,W-MARGIN-MARGIN-65);
-  doc.text(revLines,MARGIN+60,y);y+=revLines.length*5+8;
+  // ═══ SECTION 3: TEAM ═══
+  secHdr('TEAM','', [124,58,237]);
 
-  // Notes
-  if(p.notes){
-    drawSection('NOTES',[71,85,105]);y+=8;
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(15,23,42);
-    const noteLines=doc.splitTextToSize(p.notes,W-2*MARGIN-6);
-    noteLines.slice(0,8).forEach(l=>{doc.text(l,MARGIN+3,y);y+=5;});
-    y+=5;
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(100,116,139);
+  doc.text('ANNOTATORS',MARGIN,y);y+=4;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(15,23,42);
+  const annL=doc.splitTextToSize(annotators,CONTENT_W);
+  doc.text(annL,MARGIN,y);y+=annL.length*5+5;
+
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(100,116,139);
+  doc.text('REVIEWERS',MARGIN,y);y+=4;
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(15,23,42);
+  const revL=doc.splitTextToSize(reviewers,CONTENT_W);
+  doc.text(revL,MARGIN,y);y+=revL.length*5+4;
+
+  // ═══ SECTION 4: NOTES ═══
+  if(p.notes&&p.notes.trim()){
+    y+=2;
+    secHdr('NOTES','', [71,85,105]);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(15,23,42);
+    const nLines=doc.splitTextToSize(p.notes,CONTENT_W);
+    nLines.slice(0,12).forEach(l=>{
+      if(y>272){doc.addPage();y=20;}
+      doc.text(l,MARGIN,y);y+=5;
+    });
+    y+=3;
   }
-  // Comments
-  if(p.comments){
-    drawSection('COMMENTS',[71,85,105]);y+=8;
-    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(15,23,42);
-    const cmtLines=doc.splitTextToSize(p.comments,W-2*MARGIN-6);
-    cmtLines.slice(0,8).forEach(l=>{doc.text(l,MARGIN+3,y);y+=5;});
-    y+=5;
+
+  // ═══ SECTION 5: COMMENTS ═══
+  if(p.comments&&p.comments.trim()){
+    y+=2;
+    secHdr('COMMENTS','', [71,85,105]);
+    doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(15,23,42);
+    const cLines=doc.splitTextToSize(p.comments,CONTENT_W);
+    cLines.slice(0,12).forEach(l=>{
+      if(y>272){doc.addPage();y=20;}
+      doc.text(l,MARGIN,y);y+=5;
+    });
   }
 
-  // ─── FOOTER ────────────────────────────────────────
+  // ── FOOTER (all pages) ──────────────────────────────────────────────────────
   const totalPg=doc.internal.getNumberOfPages();
-  for(let i=1;i<=totalPg;i++){
-    doc.setPage(i);
-    doc.setDrawColor(226,232,240);doc.line(MARGIN,285,W-MARGIN,285);
-    doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(148,163,184);
-    doc.text(`CamCom Annotation Tracker  •  Generated: ${new Date().toLocaleString('en-IN')}`,MARGIN,290);
-    doc.text(`Prepared by: ${currentUser?.name||'—'}`,W-MARGIN,290,{align:'right'});
+  for(let pg=1;pg<=totalPg;pg++){
+    doc.setPage(pg);
+    const FY=292;
+    // Footer bar
+    doc.setFillColor(15,23,42);
+    doc.rect(0,FY-4,W,14,'F');
+    doc.setFillColor(223,30,38);
+    doc.rect(0,FY-4,6,14,'F');
+    // Logo text in footer
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);
+    doc.text('CamCom',MARGIN,FY+2);
+    doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
+    doc.text('Annotation Tracker',MARGIN+22,FY+2);
+    // Center: generated time
+    doc.setTextColor(100,116,139);
+    doc.text('Generated: '+new Date().toLocaleString('en-IN'),W/2,FY+2,{align:'center'});
+    // Right: page + preparer
+    doc.setTextColor(148,163,184);
+    doc.text('Page '+pg+' of '+totalPg+'   |   '+( currentUser?.name||'—'),W-MARGIN,FY+2,{align:'right'});
+    // Thin red line above footer
+    doc.setDrawColor(223,30,38);doc.setLineWidth(0.4);
+    doc.line(0,FY-4,W,FY-4);
   }
 
-  const fname=`camcom_report_${(p.name||'project').replace(/\s+/g,'_')}_${dateVal}.pdf`;
+  const fname='camcom_report_'+(p.name||'project').replace(/\s+/g,'_')+'_'+dateVal+'.pdf';
   doc.save(fname);
-  toast('PDF Report downloaded ✓','ok');
+  toast('PDF Report downloaded','ok');
 }
+
 
 // ══════════════════════════════════
 // MANAGE USERS (Admin)
