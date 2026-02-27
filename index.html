@@ -400,7 +400,20 @@ tr:hover td{background:var(--sur2);}
 .migbanner code{display:block;background:rgba(0,0,0,.4);border-radius:7px;padding:10px 14px;
   font-size:.78rem;color:#a5b4fc;white-space:pre;overflow-x:auto;margin-bottom:10px;line-height:1.6;}
 
-/* ════ DATE RANGE FILTER BAR ════ */
+/* ════ PROJECT TAGS ════ */
+.proj-tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:var(--rp);font-size:.62rem;font-weight:600;background:var(--pur-l);color:var(--purple);border:1px solid var(--purple);cursor:default;}
+.proj-tag.rm{cursor:pointer;}
+.proj-tag.rm:hover{background:var(--purple);color:#fff;}
+.tag-input-row{display:flex;gap:6px;margin-top:6px;}
+.tag-input-row input{flex:1;padding:5px 9px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-family:inherit;font-size:.8rem;outline:none;}
+.tag-input-row input:focus{border-color:var(--purple);}
+.tag-input-row button{padding:5px 12px;border-radius:var(--rsm);background:var(--pur-l);color:var(--purple);border:1px solid var(--purple);font-size:.76rem;font-weight:600;cursor:pointer;}
+.tag-input-row button:hover{background:var(--purple);color:#fff;}
+/* ════ REVIEW EMPLOYEES ════ */
+.atag.rev{background:#fef3c7;border-color:#d97706;color:#d97706;}
+/* ════ DAILY REPORT MODAL ════ */
+.report-preview{background:var(--sur2);border:1px solid var(--brd);border-radius:var(--rsm);padding:14px;font-size:.8rem;line-height:1.7;max-height:400px;overflow-y:auto;white-space:pre-wrap;font-family:monospace;}
+
 .dr-bar{display:flex;align-items:center;gap:8px;background:var(--yel-l);border:1px solid #fde68a;border-radius:var(--rsm);padding:9px 14px;margin-bottom:14px;flex-wrap:wrap;}
 .dr-bar label{font-size:.73rem;font-weight:700;color:var(--yellow);white-space:nowrap;}
 .dr-bar input[type=date]{padding:5px 9px;border:1px solid #fde68a;border-radius:var(--rsm);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.78rem;outline:none;}
@@ -479,6 +492,7 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" id="nav-addemp" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
   <button class="nav-btn" id="nav-exportcsv" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
   <button class="nav-btn" id="nav-exportpdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+  <button class="nav-btn" id="nav-dailyreport" onclick="openDailyReport()"><i class="fas fa-paper-plane" style="color:var(--blue)"></i> Daily Report</button>
   <div class="nav-divider"></div>
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
@@ -655,8 +669,18 @@ tr:hover td{background:var(--sur2);}
 <div class="page" id="page-stakeholder">
   <div class="topbar">
     <h1 class="pg-title"><i class="fas fa-chart-line" style="color:var(--purple)"></i> Executive Dashboard</h1>
-    <div style="font-size:.78rem;color:var(--tx3);display:flex;align-items:center;gap:6px;">
-      <i class="fas fa-lock" style="font-size:.7rem;"></i> View-only &nbsp;·&nbsp; Last updated: <span id="sh-lastUpdated">—</span>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div id="shDrBar" style="display:flex;align-items:center;gap:7px;background:var(--yel-l);border:1px solid #fde68a;border-radius:var(--rsm);padding:7px 12px;">
+        <i class="fas fa-calendar-alt" style="color:var(--yellow);font-size:.8rem;"></i>
+        <label style="font-size:.72rem;font-weight:700;color:var(--yellow);">Filter:</label>
+        <input type="date" id="shDrFrom" onchange="renderStakeholderDashboard()" style="padding:4px 8px;border:1px solid #fde68a;border-radius:5px;background:var(--sur);color:var(--tx);font-family:inherit;font-size:.75rem;outline:none;">
+        <span style="font-size:.72rem;color:var(--yellow);">to</span>
+        <input type="date" id="shDrTo" onchange="renderStakeholderDashboard()" style="padding:4px 8px;border:1px solid #fde68a;border-radius:5px;background:var(--sur);color:var(--tx);font-family:inherit;font-size:.75rem;outline:none;">
+        <button onclick="document.getElementById('shDrFrom').value='';document.getElementById('shDrTo').value='';renderStakeholderDashboard();" style="background:none;border:1px solid #fde68a;color:var(--yellow);cursor:pointer;font-size:.68rem;padding:3px 8px;border-radius:var(--rp);font-weight:600;">✕ Clear</button>
+      </div>
+      <div style="font-size:.78rem;color:var(--tx3);display:flex;align-items:center;gap:6px;">
+        <i class="fas fa-lock" style="font-size:.7rem;"></i> View-only &nbsp;·&nbsp; Last updated: <span id="sh-lastUpdated">—</span>
+      </div>
     </div>
   </div>
   <div id="shDashboard"></div>
@@ -989,14 +1013,27 @@ function formatRelTime(dt){
 // ══════════════════════════════════
 function renderStakeholderDashboard(){
   const sf=visConfig.stakeholderFields;
-  const tI=projects.reduce((s,p)=>s+(+p.total||0),0);
-  const tA=projects.reduce((s,p)=>s+(+p.annotated||0),0);
-  const tR=projects.reduce((s,p)=>s+(+p.reviewed||0),0);
-  const highPri=projects.filter(p=>p.priority==='high').length;
-  const onTrack=projects.filter(p=>{
-    const dl=dlMeta(p.deadline);
-    return dl&&dl.diff>=0;
-  }).length;
+  // Apply date range filter for stakeholder
+  const shFrom=document.getElementById('shDrFrom')?.value||'';
+  const shTo=document.getElementById('shDrTo')?.value||'';
+  let shProjects=projects;
+  if(shFrom||shTo){
+    const from=shFrom?new Date(shFrom+'T00:00:00'):null;
+    const to=shTo?new Date(shTo+'T23:59:59'):null;
+    shProjects=projects.filter(p=>{
+      const projStart=p.startdate?new Date(p.startdate+'T00:00:00'):null;
+      const projEnd=p.deadline?new Date(p.deadline+'T23:59:59'):null;
+      if(!projStart&&!projEnd)return true;
+      const startOk=!from||!projEnd||projEnd>=from;
+      const endOk=!to||!projStart||projStart<=to;
+      return startOk&&endOk;
+    });
+  }
+  const tI=shProjects.reduce((s,p)=>s+(+p.total||0),0);
+  const tA=shProjects.reduce((s,p)=>s+(+p.annotated||0),0);
+  const tR=shProjects.reduce((s,p)=>s+(+p.reviewed||0),0);
+  const highPri=shProjects.filter(p=>p.priority==='high').length;
+  const onTrack=shProjects.filter(p=>{const dl=dlMeta(p.deadline);return dl&&dl.diff>=0;}).length;
 
   // Update last-updated time
   const lu=document.getElementById('sh-lastUpdated');
@@ -1004,7 +1041,7 @@ function renderStakeholderDashboard(){
 
   // Build stat cards
   const stats=[];
-  if(sf.totalProjects)stats.push({icon:'📁',val:projects.length,lbl:'Total Projects',color:'var(--red)'});
+  if(sf.totalProjects)stats.push({icon:'📁',val:shProjects.length,lbl:'Total Projects',color:'var(--red)'});
   if(sf.totalImages)stats.push({icon:'🖼️',val:tI.toLocaleString(),lbl:'Total Images',color:'var(--blue)'});
   if(sf.annotatedPct)stats.push({icon:'✅',val:pct(tA,tI)+'%',lbl:'Annotated',color:'var(--green)'});
   if(sf.reviewedPct)stats.push({icon:'👁️',val:pct(tR,tI)+'%',lbl:'Reviewed',color:'var(--purple)'});
@@ -1034,7 +1071,7 @@ function renderStakeholderDashboard(){
     if(showCols.length){
       const priColors={high:'#dc2626',medium:'#d97706',low:'#16a34a'};
       const statusLabels={todo:'📋 To Do',inprog:'⚡ In Progress',review:'🔍 Review',done:'✅ Done'};
-      const rows=projects.map(p=>{
+      const rows=shProjects.map(p=>{
         const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
         const dl=dlMeta(p.deadline);
         const cells=[];
@@ -1075,10 +1112,10 @@ function renderStakeholderDashboard(){
       const isDark=document.documentElement.getAttribute('data-theme')==='dark';
       const tx=isDark?'#8b949e':'#475569';
       const shPc=document.getElementById('shProgChart');
-      if(shPc)chartInstances.shProg=new Chart(shPc,{type:'bar',data:{labels:projects.map(p=>p.name.substr(0,12)),datasets:[{label:'Annotated %',data:projects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:projects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tx,font:{size:10}}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx}}}}});
+      if(shPc)chartInstances.shProg=new Chart(shPc,{type:'bar',data:{labels:shProjects.map(p=>p.name.substr(0,12)),datasets:[{label:'Annotated %',data:shProjects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:shProjects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:tx,font:{size:10}}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx}}}}});
       destroyChart('shStatus');
       const statCounts={todo:0,inprog:0,review:0,done:0};
-      projects.forEach(p=>{statCounts[p.kanbanStatus||'todo']++;});
+      shProjects.forEach(p=>{statCounts[p.kanbanStatus||'todo']++;});
       const shSc=document.getElementById('shStatusChart');
       if(shSc)chartInstances.shStatus=new Chart(shSc,{type:'doughnut',data:{labels:['To Do','In Progress','Review','Done'],datasets:[{data:[statCounts.todo,statCounts.inprog,statCounts.review,statCounts.done],backgroundColor:['#94a3b8','#3b82f6','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:tx,font:{size:10}}}}}});
     },50);
@@ -1346,6 +1383,7 @@ function applyRoleToUI(){
   showId('nav-addemp',    can('canManageUsers'));
   showId('nav-exportcsv', canSeePage('exportCSV'));
   showId('nav-exportpdf', canSeePage('exportPDF'));
+  showId('nav-dailyreport', role==='admin'||role==='manager');
 
   // ─── Admin-only items ─────────────────────────────────────────────────────
   showId('nav-access',  role==='admin');
@@ -1421,7 +1459,9 @@ async function loadProjects(){
       assignedby:r.assignedby||'', notes:r.notes||'', comments:r.comments||'',
       hasTarget:r.has_target||false, dailyTarget:r.daily_target||null,
       kanbanStatus:r.kanban_status||'todo',
-      assignedEmployees:r.assigned_employees?r.assigned_employees.split(',').filter(Boolean):[]
+      assignedEmployees:r.assigned_employees?r.assigned_employees.split(',').filter(Boolean):[],
+      reviewEmployees:r.review_employees?r.review_employees.split(',').filter(Boolean):[],
+      tags:r.tags?r.tags.split(',').filter(Boolean):[]
     }));
     toast('Data loaded ✓','ok');
   }catch(e){console.error(e);toast('DB: '+e.message,'err');}
@@ -1436,7 +1476,9 @@ async function saveProjDB(p){
     assignedby:p.assignedby||'', notes:p.notes||'', comments:p.comments||'',
     has_target:p.hasTarget||false, daily_target:p.dailyTarget||null,
     kanban_status:p.kanbanStatus||'todo',
-    assigned_employees:(p.assignedEmployees||[]).join(',')
+    assigned_employees:(p.assignedEmployees||[]).join(','),
+    review_employees:(p.reviewEmployees||[]).join(','),
+    tags:(p.tags||[]).join(',')
   };
   const{error}=await sb.from('projects').upsert(fullRow);
   if(error){
@@ -1450,7 +1492,9 @@ async function saveProjDB(p){
       const safeRow={
         id:p.id, name:p.name, total:p.total, annotated:p.annotated, reviewed:p.reviewed,
         priority:p.priority, deadline:p.deadline||null, notes:p.notes||'',
-        assigned_employees:(p.assignedEmployees||[]).join(',')
+        assigned_employees:(p.assignedEmployees||[]).join(','),
+        review_employees:(p.reviewEmployees||[]).join(','),
+        tags:(p.tags||[]).join(',')
       };
       const r2=await sb.from('projects').upsert(safeRow);
       if(r2.error){toast('Save failed: '+r2.error.message,'err');}
@@ -1515,13 +1559,14 @@ function renderAll(){renderProjects();renderStats();}
 // STATS
 // ═══════════════════════
 function renderStats(){
-  const tI=projects.reduce((s,p)=>s+(+p.total||0),0);
-  const tA=projects.reduce((s,p)=>s+(+p.annotated||0),0);
-  const tR=projects.reduce((s,p)=>s+(+p.reviewed||0),0);
-  const asd=new Set(projects.flatMap(p=>p.assignedEmployees||[])).size;
+  const filteredProj=dateFilterProjects([...visibleProjects()]);
+  const tI=filteredProj.reduce((s,p)=>s+(+p.total||0),0);
+  const tA=filteredProj.reduce((s,p)=>s+(+p.annotated||0),0);
+  const tR=filteredProj.reduce((s,p)=>s+(+p.reviewed||0),0);
+  const asd=new Set(filteredProj.flatMap(p=>p.assignedEmployees||[])).size;
   const cc=conflicts();
   document.getElementById('statGrid').innerHTML=[
-    {l:'Projects',v:projects.length,s:`${projects.filter(p=>p.priority==='high').length} high priority`,c:'',i:'fa-folder-open'},
+    {l:'Projects',v:filteredProj.length,s:`${filteredProj.filter(p=>p.priority==='high').length} high priority`,c:'',i:'fa-folder-open'},
     {l:'Total Images',v:tI.toLocaleString(),s:`${pct(tA,tI)}% annotated`,c:'b',i:'fa-images'},
     {l:'Annotated',v:tA.toLocaleString(),s:`${pct(tA,tI)}% done`,c:'g',i:'fa-check-circle'},
     {l:'Reviewed',v:tR.toLocaleString(),s:`${pct(tR,tI)}% done`,c:'y',i:'fa-eye'},
@@ -1599,12 +1644,14 @@ function dateFilterProjects(list){
   const from=dateRange.from?new Date(dateRange.from+'T00:00:00'):null;
   const to=dateRange.to?new Date(dateRange.to+'T23:59:59'):null;
   return list.filter(p=>{
-    // Show projects that have been modified in the range (have activity log entries)
-    // OR have start/deadline overlapping the range
-    const hasActivity=actLog.some(e=>e.projId===p.id&&(()=>{const d=new Date(e.ts);return(!from||d>=from)&&(!to||d<=to);})());
-    const startOk=!p.startdate||!to||new Date(p.startdate+'T00:00:00')<=to;
-    const deadOk=!p.deadline||!from||new Date(p.deadline+'T23:59:59')>=from;
-    return hasActivity||(startOk&&deadOk);
+    // Project overlaps the date range: start <= rangeTo AND deadline >= rangeFrom
+    const projStart=p.startdate?new Date(p.startdate+'T00:00:00'):null;
+    const projEnd=p.deadline?new Date(p.deadline+'T23:59:59'):null;
+    const startOk=!from||!projEnd||projEnd>=from;   // project ends after range start
+    const endOk=!to||!projStart||projStart<=to;      // project starts before range end
+    // If project has no dates, include it only if no range filter is strict
+    if(!projStart&&!projEnd)return true;
+    return startOk&&endOk;
   });
 }
 
@@ -1636,6 +1683,7 @@ function buildCard(p){
         ${dl?`<span class="mpill ${ov?'ov':sn?'sn':''}"><i class="fas fa-calendar-alt"></i> ${dl.label} ${ov?'⚠':sn?`${dl.diff}d left`:''}</span>`:''}
         ${p.hasTarget&&p.dailyTarget?`<span class="mpill" style="color:var(--yellow);"><i class="fas fa-bullseye"></i> ${p.dailyTarget}/day</span>`:''}
         ${docs.length>0?`<span class="mpill"><i class="fas fa-paperclip"></i> ${docs.length}</span>`:''}
+        ${(p.tags||[]).length>0?`<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:3px;width:100%;">${(p.tags||[]).map(t=>`<span class="proj-tag">#${esc(t)}</span>`).join('')}</div>`:''}
       </div>
       <div class="pcard-prog">
         <div class="prog-r"><span class="prog-l">Annotation</span><span class="prog-p">${aP}%</span></div>
@@ -1764,9 +1812,21 @@ function renderDPBody(p){
   </div>
 
   <div class="dp-sec">
-    <div class="ds-hdr"><i class="fas fa-users"></i> Assigned Employees (${asgn.length})</div>
-    ${can('canAssign')?`<div class="esbox"><i class="fas fa-search" style="color:var(--tx3);font-size:.8rem;"></i><input type="text" placeholder="Search employee to assign..." id="esrch-${p.id}" oninput="renderES('${p.id}')"></div><div class="e-results" id="eres-${p.id}"></div>`:''}
+    <div class="ds-hdr"><i class="fas fa-users"></i> Assigned Employees — Annotation (${asgn.length})</div>
+    ${can('canAssign')?`<div class="esbox"><i class="fas fa-search" style="color:var(--tx3);font-size:.8rem;"></i><input type="text" placeholder="Search employee to assign (annotation)..." id="esrch-${p.id}" oninput="renderES('${p.id}')"></div><div class="e-results" id="eres-${p.id}"></div>`:''}
     <div class="atags" style="margin-top:9px;">${aTags||'<span style="font-size:.74rem;color:var(--tx3);">No employees assigned yet</span>'}</div>
+  </div>
+
+  <div class="dp-sec">
+    <div class="ds-hdr"><i class="fas fa-eye" style="color:var(--yellow)"></i> Assigned for Review (${(p.reviewEmployees||[]).length})</div>
+    ${can('canAssign')?`<div class="esbox"><i class="fas fa-search" style="color:var(--tx3);font-size:.8rem;"></i><input type="text" placeholder="Search employee to assign (review)..." id="esrch-rev-${p.id}" oninput="renderESRev('${p.id}')"></div><div class="e-results" id="eres-rev-${p.id}"></div>`:''}
+    <div class="atags" style="margin-top:9px;">${(p.reviewEmployees||[]).map(id=>{const e=getEmp(id);return`<span class="atag rev">${esc(e.name)}${can('canAssign')?`<button onclick="rmRev('${p.id}','${id}')"><i class="fas fa-times"></i></button>`:''}</span>`;}).join('')||'<span style="font-size:.74rem;color:var(--tx3);">No reviewers assigned yet</span>'}</div>
+  </div>
+
+  <div class="dp-sec">
+    <div class="ds-hdr"><i class="fas fa-tags" style="color:var(--purple)"></i> Tags</div>
+    <div class="atags" id="tags-wrap-${p.id}">${(p.tags||[]).map(t=>`<span class="proj-tag rm" onclick="removeTag('${p.id}','${esc(t)}')">#${esc(t)} <i class="fas fa-times" style="font-size:.55rem;margin-left:2px;"></i></span>`).join('')||'<span style="font-size:.74rem;color:var(--tx3);">No tags yet</span>'}</div>
+    ${can('canEdit')?`<div class="tag-input-row"><input type="text" id="tag-inp-${p.id}" placeholder="Add tag (e.g. satellite, road)" onkeydown="if(event.key==='Enter')addTag('${p.id}',this.value)"><button onclick="addTag('${p.id}',document.getElementById('tag-inp-${p.id}').value)"><i class="fas fa-plus"></i> Add</button></div>`:''}
   </div>
 
   ${features.fileUpload&&!isRO?`<div class="dp-sec">
@@ -1779,20 +1839,20 @@ function renderDPBody(p){
     <div class="ds-hdr"><i class="fas fa-sticky-note"></i> Notes</div>
     ${isRO
       ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.notes||'—')}</div>`
-      :`<textarea class="cmt-ta" onchange="dpUpd('${p.id}','notes',this.value)">${esc(p.notes||'')}</textarea>`}
+      :`<textarea class="cmt-ta" oninput="dpUpd('${p.id}','notes',this.value)">${esc(p.notes||'')}</textarea>`}
   </div>
   <div class="dp-sec">
     <div class="ds-hdr"><i class="fas fa-comments"></i> Comments</div>
     ${isRO
       ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.comments||'—')}</div>`
-      :`<textarea class="cmt-ta" id="cmt-${p.id}" onchange="dpUpd('${p.id}','comments',this.value)">${esc(p.comments||'')}</textarea>`}
+      :`<textarea class="cmt-ta" id="cmt-${p.id}" oninput="dpUpd('${p.id}','comments',this.value)">${esc(p.comments||'')}</textarea>`}
     <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
       ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:``}
       ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:``}
       ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:``}
     </div>
   </div>`;
-  if(can('canAssign'))renderES(p.id);
+  if(can('canAssign')){renderES(p.id);renderESRev(p.id);}
 }
 function renderES(projId){
   const q=(document.getElementById(`esrch-${projId}`)?.value||'').toLowerCase();
@@ -1815,6 +1875,60 @@ function renderES(projId){
   }).join('');
 }
 
+// ── TAGS ──
+async function addTag(projId,tagVal){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const tag=(tagVal||'').trim().toLowerCase().replace(/[^a-z0-9_-]/g,'');
+  if(!tag){toast('Enter a valid tag','err');return;}
+  if(!p.tags)p.tags=[];
+  if(p.tags.includes(tag)){toast('Tag already exists','info');return;}
+  p.tags.push(tag);
+  const inp=document.getElementById(`tag-inp-${projId}`);if(inp)inp.value='';
+  if(openProjId===projId)renderDPBody(p);
+  renderProjects();await saveProjDB(p);toast(`Tag #${tag} added`,'ok');
+}
+async function removeTag(projId,tag){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  p.tags=(p.tags||[]).filter(t=>t!==tag);
+  if(openProjId===projId)renderDPBody(p);
+  renderProjects();await saveProjDB(p);
+}
+
+// ── REVIEW EMPLOYEES ──
+function renderESRev(projId){
+  const q=(document.getElementById(`esrch-rev-${projId}`)?.value||'').toLowerCase();
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const revs=p.reviewEmployees||[];
+  let list=q?employees.filter(e=>e.name.toLowerCase().includes(q)||e.email.toLowerCase().includes(q)):employees;
+  const cont=document.getElementById(`eres-rev-${projId}`);if(!cont)return;
+  if(!list.length){cont.innerHTML='<div style="padding:9px 11px;font-size:.76rem;color:var(--tx3);">No employees found</div>';return;}
+  cont.innerHTML=list.slice(0,15).map(e=>{
+    const alr=revs.includes(e.id);
+    return`<div class="e-row"><div><div class="e-name">${esc(e.name)} <span style="font-size:.6rem;color:var(--tx3);">${e.gender==='male'?'♂':'♀'}</span></div><div class="e-sub ${alr?'taken':''}">${alr?'Already reviewing':e.email}</div></div>
+      ${alr?`<button class="btn btn-ghost btn-sm" onclick="rmRev('${projId}','${e.id}')">Remove</button>`:`<button class="btn btn-sm" style="background:var(--yel-l);color:var(--yellow);border:1px solid var(--yellow);" onclick="addRev('${projId}','${e.id}')">Assign Review</button>`}
+    </div>`;
+  }).join('');
+}
+async function addRev(projId,empId){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  if(!p.reviewEmployees)p.reviewEmployees=[];
+  if(p.reviewEmployees.includes(empId)){toast('Already assigned for review','info');return;}
+  p.reviewEmployees.push(empId);
+  const empName=getEmp(empId).name;
+  toast(`${empName} assigned for review ✓`,'ok');
+  logActivity('assign',projId,(projects.find(x=>x.id===projId)||{name:'?'}).name,`${empName} assigned as reviewer`);
+  if(openProjId===projId)renderDPBody(p);
+  renderProjects();await saveProjDB(p);
+}
+async function rmRev(projId,empId){
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const empName=getEmp(empId).name;
+  p.reviewEmployees=(p.reviewEmployees||[]).filter(id=>id!==empId);
+  toast('Reviewer removed','info');
+  if(openProjId===projId)renderDPBody(p);
+  renderProjects();await saveProjDB(p);
+}
+
 async function addAsgn(projId,empId){
   const p=projects.find(x=>x.id===projId);if(!p)return;
   if((p.assignedEmployees||[]).includes(empId)){toast('Already assigned','info');return;}
@@ -1822,7 +1936,7 @@ async function addAsgn(projId,empId){
   p.assignedEmployees.push(empId);
   const empName=getEmp(empId).name;
   toast(`${empName} assigned ✓`,'ok');
-  logActivity(projId,'assign',`${empName} assigned to this project`);
+  logActivity('assign',projId,(projects.find(x=>x.id===projId)||{name:'?'}).name,`${empName} assigned to this project`);
   if(openProjId===projId)renderDPBody(p);
   renderProjects();await saveProjDB(p);
 }
@@ -1831,7 +1945,7 @@ async function rmAsgn(projId,empId){
   const empName=getEmp(empId).name;
   p.assignedEmployees=(p.assignedEmployees||[]).filter(id=>id!==empId);
   toast('Removed','info');
-  logActivity(projId,'assign',`${empName} removed from this project`);
+  logActivity('assign',projId,(projects.find(x=>x.id===projId)||{name:'?'}).name,`${empName} removed from this project`);
   if(openProjId===projId)renderDPBody(p);
   renderProjects();await saveProjDB(p);
 }
@@ -1840,9 +1954,23 @@ async function dpField(id,field,val){
   p[field]=Math.max(0,parseInt(val)||0);
   if(openProjId===id)renderDPBody(p);
   renderProjects();await saveProjDB(p);
-  logActivity(id,'edit',`${field==='total'?'Total images':field==='annotated'?'Annotated count':'Reviewed count'} updated to ${p[field]}`);
+  logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,`${field==='total'?'Total images':field==='annotated'?'Annotated count':'Reviewed count'} updated to ${p[field]}`);
+}
+let _dpSaveTimers={};
+async function dpUpd(id,field,val){
+  const p=projects.find(x=>x.id===id);if(!p)return;
+  p[field]=val;
+  renderProjects();
+  clearTimeout(_dpSaveTimers[id+'_'+field]);
+  _dpSaveTimers[id+'_'+field]=setTimeout(async()=>{
+    await saveProjDB(p);
+    logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated');
+  },1000);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
+
+function activityLogs(){}
+function saveActivityLogs(){}
 
 // ═══════════════════════
 // FILE UPLOAD
@@ -1868,7 +1996,7 @@ async function deleteProj(id){
   const p=projects.find(x=>x.id===id);
   const pName=p?p.name:'project';
   projects=projects.filter(p=>p.id!==id);delete projDocs[id];saveDocsLocal();
-  delete activityLogs[id]; saveActivityLogs();
+  
   closeDP();toast('Deleted','info');renderProjects();await delProjDB(id);
 }
 
@@ -1907,8 +2035,8 @@ async function saveProject(){
     kanbanStatus:document.getElementById('np-status').value,
     hasTarget:ht,dailyTarget:ht?(parseInt(document.getElementById('np-target').value)||null):null};
   let proj;
-  if(editProjId){const idx=projects.findIndex(p=>p.id===editProjId);if(idx>-1){Object.assign(projects[idx],data);proj=projects[idx];toast('Updated ✓','ok');logActivity(proj.id,'edit',`Project details updated`);}}
-  else{proj={id:uid(),assignedEmployees:[],comments:'',...data};projects.push(proj);toast('Created ✓','ok');logActivity(proj.id,'create',`Project "${proj.name}" created`);}
+  if(editProjId){const idx=projects.findIndex(p=>p.id===editProjId);if(idx>-1){Object.assign(projects[idx],data);proj=projects[idx];toast('Updated ✓','ok');logActivity('edit',proj.id,proj.name,'Project details updated');}}
+  else{proj={id:uid(),assignedEmployees:[],reviewEmployees:[],tags:[],comments:'',...data};projects.push(proj);toast('Created ✓','ok');logActivity('create',proj.id,proj.name,`Project created`);}
   closeProjModal();renderProjects();if(proj)await saveProjDB(proj);
   if(openProjId===proj?.id){const p2=projects.find(x=>x.id===openProjId);if(p2)renderDPBody(p2);}
 }
@@ -2001,6 +2129,7 @@ function buildKBCard(p){
       <span class="badge b${p.priority[0]}">${{high:'🔥',medium:'⚡',low:'🌿'}[p.priority]}</span>
       <span class="kb-pct">${aP}% annotated</span>
       ${dl?`<span class="kb-pct ${ov?'ov':''}"><i class="fas fa-calendar-alt"></i> ${dl.label}</span>`:''}
+      ${(p.tags||[]).map(t=>`<span class="proj-tag" style="font-size:.55rem;padding:1px 5px;">#${esc(t)}</span>`).join('')}
     </div>
     <div class="pbar" style="margin-top:7px;"><div class="pf pf-a" style="width:${aP}%"></div></div>
   </div>`;
@@ -2046,7 +2175,7 @@ function renderCharts(){
   destroyChart('prog');
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tx=isDark?'#8b949e':'#475569';
-  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:projects.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:projects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:projects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:projects.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:shProjects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:shProjects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
 
   // Status donut
   destroyChart('status');
@@ -2220,6 +2349,98 @@ function toggleFeature(key,val){
 }
 
 // ══════════════════════════════════
+// DAILY REPORT
+// ══════════════════════════════════
+function openDailyReport(){
+  // Populate project selector
+  const sel=document.getElementById('rep-proj');
+  sel.innerHTML='<option value="">— Select a project —</option>'+projects.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+  // Default to today
+  document.getElementById('rep-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('rep-sendto').value='';
+  document.getElementById('rep-preview-wrap').style.display='none';
+  document.getElementById('reportOvl').classList.add('open');
+}
+function closeReport(){document.getElementById('reportOvl').classList.remove('open');}
+
+function generateReport(){
+  const projId=document.getElementById('rep-proj').value;
+  const dateVal=document.getElementById('rep-date').value;
+  if(!projId||!dateVal){document.getElementById('rep-preview-wrap').style.display='none';return;}
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+  const T=+p.total||0,A=+p.annotated||0,R=+p.reviewed||0;
+  const pendAnn=Math.max(T-A,0),pendRev=Math.max(A-R,0);
+  const annPct=pct(A,T),revPct=pct(R,T);
+  const dl=dlMeta(p.deadline);
+  const annotators=(p.assignedEmployees||[]).map(id=>getEmp(id).name).join(', ')||'—';
+  const reviewers=(p.reviewEmployees||[]).map(id=>getEmp(id).name).join(', ')||'—';
+  const tags=(p.tags||[]).map(t=>'#'+t).join(' ')||'—';
+  const repDate=new Date(dateVal+'T00:00:00').toLocaleDateString('en-IN',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  const sendTo=document.getElementById('rep-sendto').value.trim();
+
+  const report=`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 CAMCOM ANNOTATION TRACKER — DAILY REPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Date: ${repDate}
+Project: ${p.name}
+Prepared by: ${currentUser?.name||'—'}${sendTo?'\nSent to: '+sendTo:''}
+
+── PROJECT OVERVIEW ──────────────────
+Priority:     ${p.priority?.toUpperCase()||'MEDIUM'}
+Status:       ${{todo:'To Do',inprog:'In Progress',review:'Under Review',done:'Completed'}[p.kanbanStatus||'todo']}
+Assigned By:  ${p.assignedby||'—'}
+Deadline:     ${fmtD(p.deadline)||'—'}${dl?(dl.diff<0?' ⚠ OVERDUE':dl.diff===0?' (Due Today)':` (${dl.diff} days remaining)`):''}
+Tags:         ${tags}
+
+── IMAGE PROGRESS ────────────────────
+Total Images:       ${T.toLocaleString()}
+Annotated:          ${A.toLocaleString()} (${annPct}%)
+Reviewed:           ${R.toLocaleString()} (${revPct}%)
+Pending Annotation: ${pendAnn.toLocaleString()}
+Pending Review:     ${pendRev.toLocaleString()}
+${p.hasTarget&&p.dailyTarget?`Daily Target:       ${p.dailyTarget} images/day
+Est. Days Left:     ${pendAnn>0?Math.ceil(pendAnn/p.dailyTarget):'Complete'}`:''}
+
+── TEAM ──────────────────────────────
+Annotators: ${annotators}
+Reviewers:  ${reviewers}
+
+── NOTES ─────────────────────────────
+${p.notes||'No notes.'}
+
+── COMMENTS ──────────────────────────
+${p.comments||'No comments.'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Generated by CamCom Annotation Tracker
+${new Date().toLocaleString('en-IN')}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+  document.getElementById('rep-preview').textContent=report;
+  document.getElementById('rep-preview-wrap').style.display='';
+}
+
+function copyReport(){
+  const txt=document.getElementById('rep-preview')?.textContent;
+  if(!txt){toast('Generate a report first','err');return;}
+  navigator.clipboard.writeText(txt).then(()=>toast('Report copied to clipboard ✓','ok')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Copied ✓','ok');
+  });
+}
+
+function downloadReport(){
+  const txt=document.getElementById('rep-preview')?.textContent;
+  if(!txt){toast('Generate a report first','err');return;}
+  const projId=document.getElementById('rep-proj').value;
+  const p=projects.find(x=>x.id===projId);
+  const dateVal=document.getElementById('rep-date').value||'report';
+  const fname=`camcom_report_${(p?.name||'project').replace(/\s+/g,'_')}_${dateVal}.txt`;
+  const blob=new Blob([txt],{type:'text/plain'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=fname;a.click();URL.revokeObjectURL(url);
+  toast('Report downloaded ✓','ok');
+}
+
+// ══════════════════════════════════
 // MANAGE USERS (Admin)
 // ══════════════════════════════════
 function renderUsers(){
@@ -2307,10 +2528,49 @@ function deleteUser(id){
 
 // START — restore session or show login
 // ══════════════════════════════════
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  html.setAttribute('data-theme',isDark?'light':'dark');
+  localStorage.setItem('cc_theme',isDark?'light':'dark');
+  const ico=document.getElementById('tIco');const lbl=document.getElementById('tLbl');
+  if(ico)ico.className=isDark?'fas fa-moon':'fas fa-sun';
+  if(lbl)lbl.textContent=isDark?'Dark mode':'Light mode';
+}
+function loadTheme(){
+  const t=localStorage.getItem('cc_theme')||'light';
+  document.documentElement.setAttribute('data-theme',t);
+  const ico=document.getElementById('tIco');const lbl=document.getElementById('tLbl');
+  if(ico)ico.className=t==='dark'?'fas fa-sun':'fas fa-moon';
+  if(lbl)lbl.textContent=t==='dark'?'Light mode':'Dark mode';
+}
+loadTheme();
 tryRestoreSession();
 </script>
 <!-- ═══ MODAL: USER ═══ -->
-<div class="overlay" id="userOvl" onclick="if(event.target===this)closeUserModal()">
+<div class="overlay" id="reportOvl" onclick="if(event.target===this)closeReport()">
+<div class="modal" style="width:620px;">
+  <div class="modal-title"><i class="fas fa-paper-plane" style="color:var(--blue)"></i><span>Daily Project Report</span></div>
+  <div class="fgrid">
+    <div class="ff full"><label>Select Project</label>
+      <select id="rep-proj" onchange="generateReport()"><option value="">— Select a project —</option></select>
+    </div>
+    <div class="ff"><label>Report Date</label><input type="date" id="rep-date" onchange="generateReport()"></div>
+    <div class="ff"><label>Send To (ML Team Member)</label><input type="text" id="rep-sendto" placeholder="Name or email of recipient"></div>
+  </div>
+  <div id="rep-preview-wrap" style="display:none;margin-bottom:12px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <label style="font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tx3);">Report Preview</label>
+      <button class="btn btn-ghost btn-sm" onclick="copyReport()"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+    <div class="report-preview" id="rep-preview"></div>
+  </div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeReport()">Close</button>
+    <button class="btn btn-ghost btn-sm" onclick="downloadReport()"><i class="fas fa-download"></i> Download .txt</button>
+    <button class="btn btn-red" onclick="copyReport()"><i class="fas fa-copy"></i> Copy Report</button>
+  </div>
+</div></div>
 <div class="modal" style="width:430px;">
   <div class="modal-title"><i class="fas fa-user-shield" style="color:var(--red)"></i><span id="uMTtl">Add User</span></div>
   <div class="fgrid">
