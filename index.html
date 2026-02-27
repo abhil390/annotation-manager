@@ -636,15 +636,14 @@ tr:hover td{background:var(--sur2);}
   <div id="migBanner" style="display:none;" class="migbanner">
     <h4><i class="fas fa-database"></i> Database Migration Required</h4>
     <p>Some columns are missing from your Supabase <code>projects</code> table. Run this SQL once in your <strong>Supabase → SQL Editor</strong> to fix the save error and unlock all features:</p>
-    <code>ALTER TABLE projects
-  ADD COLUMN IF NOT EXISTS kanban_status TEXT DEFAULT 'todo',
-  ADD COLUMN IF NOT EXISTS has_target    BOOLEAN DEFAULT false,
-  ADD COLUMN IF NOT EXISTS daily_target  INTEGER DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS startdate     TEXT,
-  ADD COLUMN IF NOT EXISTS assignedby    TEXT DEFAULT '',
-  ADD COLUMN IF NOT EXISTS comments      TEXT DEFAULT '',
-  ADD COLUMN IF NOT EXISTS review_employees TEXT DEFAULT '',
-  ADD COLUMN IF NOT EXISTS tags          TEXT DEFAULT '';</code>
+    <code>ALTER TABLE projects ADD COLUMN IF NOT EXISTS kanban_status TEXT DEFAULT 'todo';
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS has_target BOOLEAN DEFAULT false;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS daily_target INTEGER DEFAULT 0;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS startdate TEXT;
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS assignedby TEXT DEFAULT '';
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS comments TEXT DEFAULT '';
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS review_employees TEXT DEFAULT '';
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
     <button class="btn btn-ghost btn-sm" onclick="document.getElementById('migBanner').style.display='none'">Dismiss</button>
   </div>
   <div class="settings-grid" id="settingsGrid"></div>
