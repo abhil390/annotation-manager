@@ -601,6 +601,7 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
   <button class="nav-btn" data-page="users" id="nav-users" style="display:none" onclick="switchPage('users')"><i class="fas fa-user-shield"></i> Manage Users</button>
+  <button class="nav-btn" id="nav-checkin" data-page="checkin" style="display:none" onclick="switchPage('checkin')"><i class="fas fa-clock"></i> Check-In Records</button>
   <button class="nav-btn" data-page="actlog" id="nav-actlog" style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
   <button class="nav-btn" data-page="stakeholder" id="nav-stakeholder" style="display:none" onclick="switchPage('stakeholder')"><i class="fas fa-eye"></i> My Dashboard</button>
   <div class="sidebar-foot">
@@ -867,6 +868,23 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   <div id="visConfigGrid" class="vis-config-grid"></div>
 </div>
 
+<!-- CHECK-IN ADMIN PAGE -->
+<div class="page" id="page-checkin">
+  <div class="topbar">
+    <h1 class="pg-title"><i class="fas fa-clock" style="color:var(--red)"></i> Check-In Records</h1>
+    <div class="topbar-r">
+      <button class="btn btn-ghost btn-sm" onclick="renderCheckInAdmin()"><i class="fas fa-sync"></i> Refresh</button>
+    </div>
+  </div>
+  <div class="checkin-admin-wrap">
+    <div class="checkin-admin-hdr">
+      <h3 style="font-size:.95rem;font-weight:600;margin:0;display:flex;align-items:center;gap:8px;"><i class="fas fa-users"></i> Today's Attendance</h3>
+      <span style="font-size:.75rem;color:var(--tx3);">Live — refreshes every 30s</span>
+    </div>
+    <div id="checkInAdminList" style="padding:4px 0;min-height:80px;"></div>
+  </div>
+</div>
+
 <!-- ACTIVITY LOG (Admin + configurable for Manager/Reviewer) -->
 <div class="page" id="page-actlog">
   <div class="topbar">
@@ -889,6 +907,8 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 </div>
 
 </main>
+<!-- ═══ CHECK-IN BAR (bottom bar for employees) ═══ -->
+<div id="checkInBar" style="display:none;"></div>
 </div>
 
 <!-- ═══ DETAIL PANEL ═══ -->
@@ -1669,6 +1689,14 @@ function applyRoleToUI(){
   // ─── Activity Log nav ─────────────────────────────────────────────────────
   const canLog=role==='admin'||!!(visConfig.actLogVisible[role]);
   showId('nav-actlog', canLog);
+  showId('nav-checkin', (role==='admin'||role==='manager')&&features.checkIn);
+  // Check-in bar for employees and reviewers
+  if(features.checkIn&&(role==='employee'||role==='manager'||role==='reviewer')){
+    renderCheckInBar();
+  } else {
+    const bar=document.getElementById('checkInBar');
+    if(bar)bar.style.display='none';
+  }
 
   // ─── Stakeholder-only nav ─────────────────────────────────────────────────
   showId('nav-stakeholder', role==='stakeholder');
@@ -1699,7 +1727,140 @@ function applyRoleToUI(){
 // ══════════════════════════════════
 // FEATURE FLAGS
 // ══════════════════════════════════
-let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true,exportCSV:true,workload:true,dailyTarget:true,fileUpload:true};
+let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true,exportCSV:true,workload:true,dailyTarget:true,fileUpload:true,checkIn:true};
+
+// ══════════════════════════════════
+// CHECK-IN STATE
+// ══════════════════════════════════
+let checkInRecords = [];   // [{id, empId, empName, date, checkIn, checkOut, totalMs}]
+let _checkInTimer = null;  // interval for live timer display
+
+async function saveCheckInRecords(){
+  try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
+  try{await sb.from('app_settings').upsert({key:'check_in_records',value:JSON.stringify(checkInRecords.slice(0,2000))},{onConflict:'key'});}catch(e){}
+}
+function loadCheckInLocal(){try{const s=localStorage.getItem('cc_checkins');if(s)checkInRecords=JSON.parse(s);}catch(e){}}
+async function loadCheckInFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','check_in_records').single();
+    if(data?.value){checkInRecords=JSON.parse(data.value);try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}}
+    else loadCheckInLocal();
+  }catch(e){loadCheckInLocal();}
+}
+function getTodayKey(){return new Date().toISOString().split('T')[0];}
+function getTodayRecord(empId){
+  const today=getTodayKey();
+  return checkInRecords.find(r=>r.empId===empId&&r.date===today&&!r.checkOut);
+}
+function fmtDuration(ms){
+  if(!ms||ms<0)return '0h 0m';
+  const h=Math.floor(ms/3600000);
+  const m=Math.floor((ms%3600000)/60000);
+  return h>0?h+'h '+m+'m':m+'m';
+}
+function totalMsToday(empId){
+  const today=getTodayKey();
+  return checkInRecords.filter(r=>r.empId===empId&&r.date===today)
+    .reduce((s,r)=>s+(r.totalMs||0)+(r.checkOut?0:(Date.now()-new Date(r.checkIn).getTime())),0);
+}
+async function doCheckIn(){
+  if(!currentUser?.empId){toast('Account not linked to employee record','err');return;}
+  if(getTodayRecord(currentUser.empId)){toast('Already checked in','info');return;}
+  const rec={id:'ci_'+Date.now(),empId:currentUser.empId,empName:currentUser.name,
+    date:getTodayKey(),checkIn:new Date().toISOString(),checkOut:null,totalMs:0};
+  checkInRecords.unshift(rec);
+  await saveCheckInRecords();
+  renderCheckInBar();
+  startCheckInTimer();
+  logActivity('checkin','','',`${currentUser.name} checked in`);
+  toast('Checked in ✓','ok');
+}
+async function doCheckOut(){
+  if(!currentUser?.empId)return;
+  const rec=getTodayRecord(currentUser.empId);
+  if(!rec){toast('Not checked in','info');return;}
+  rec.checkOut=new Date().toISOString();
+  rec.totalMs=(rec.totalMs||0)+(new Date(rec.checkOut)-new Date(rec.checkIn));
+  await saveCheckInRecords();
+  stopCheckInTimer();
+  renderCheckInBar();
+  logActivity('checkin','','',`${currentUser.name} checked out — ${fmtDuration(rec.totalMs)} today`);
+  toast(`Checked out ✓ — ${fmtDuration(rec.totalMs)} today`,'ok');
+}
+function startCheckInTimer(){
+  stopCheckInTimer();
+  _checkInTimer=setInterval(()=>{
+    const t=document.getElementById('ci-timer');
+    if(t&&currentUser?.empId){
+      const ms=totalMsToday(currentUser.empId);
+      t.textContent=fmtDuration(ms);
+    }
+  },1000);
+}
+function stopCheckInTimer(){if(_checkInTimer){clearInterval(_checkInTimer);_checkInTimer=null;}}
+function renderCheckInBar(){
+  const bar=document.getElementById('checkInBar');
+  if(!bar)return;
+  if(!features.checkIn||currentUser?.role==='admin'||currentUser?.role==='stakeholder'){bar.style.display='none';return;}
+  bar.style.display='flex';
+  if(!currentUser?.empId){bar.innerHTML='<span style="color:var(--tx3);font-size:.78rem;"><i class="fas fa-exclamation-circle"></i> Account not linked to employee — contact admin</span>';return;}
+  const rec=getTodayRecord(currentUser.empId);
+  const totalMs=totalMsToday(currentUser.empId);
+  if(rec){
+    bar.innerHTML=`
+      <div class="ci-status ci-in"><i class="fas fa-circle ci-dot-live"></i> Checked in</div>
+      <div class="ci-time" id="ci-timer">${fmtDuration(totalMs)}</div>
+      <button class="ci-btn ci-out" onclick="doCheckOut()"><i class="fas fa-sign-out-alt"></i> Check Out</button>`;
+    startCheckInTimer();
+  } else {
+    stopCheckInTimer();
+    const checkedToday=checkInRecords.some(r=>r.empId===currentUser.empId&&r.date===getTodayKey()&&r.checkOut);
+    bar.innerHTML=`
+      <div class="ci-status ci-idle"><i class="fas fa-circle"></i> ${checkedToday?'Done for today':'Not checked in'}</div>
+      ${totalMs>0?`<div class="ci-time">${fmtDuration(totalMs)} today</div>`:''}
+      ${!checkedToday?`<button class="ci-btn ci-in-btn" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>`:''}`;
+  }
+}
+function renderCheckInAdmin(){
+  const cont=document.getElementById('checkInAdminList');
+  if(!cont)return;
+  const today=getTodayKey();
+  const byEmp={};
+  // Group records by employee
+  checkInRecords.filter(r=>r.date===today).forEach(r=>{
+    if(!byEmp[r.empId])byEmp[r.empId]={empId:r.empId,empName:r.empName,records:[],totalMs:0,active:false};
+    byEmp[r.empId].records.push(r);
+    byEmp[r.empId].totalMs+=(r.totalMs||0);
+    if(!r.checkOut){byEmp[r.empId].active=true;byEmp[r.empId].totalMs+=Date.now()-new Date(r.checkIn).getTime();}
+  });
+  const rows=Object.values(byEmp);
+  if(!rows.length){cont.innerHTML='<div style="text-align:center;padding:30px;color:var(--tx3);"><i class="fas fa-clock" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4;"></i>No check-ins yet today</div>';return;}
+  // Also show employees with no check-in today
+  employees.forEach(e=>{if(!byEmp[e.id])rows.push({empId:e.id,empName:e.name,records:[],totalMs:0,active:false});});
+  cont.innerHTML=`<table class="emp-table" style="width:100%;"><thead><tr>
+    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Employee</th>
+    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Status</th>
+    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Check-In</th>
+    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Check-Out</th>
+    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Total Today</th>
+  </tr></thead><tbody>${rows.sort((a,b)=>b.totalMs-a.totalMs).map(row=>{
+    const last=row.records[row.records.length-1];
+    const statusHtml=row.active
+      ? '<span class="st-a" style="background:var(--green-l);color:var(--green);"><i class="fas fa-circle" style="font-size:.45rem;animation:pulse 1.5s infinite;"></i> Active</span>'
+      : row.records.length?'<span class="st-f" style="background:var(--blue-l);color:var(--blue);">Checked Out</span>'
+      :'<span class="st-f">Not In</span>';
+    const ciTime=last?new Date(last.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
+    const coTime=last?.checkOut?new Date(last.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):row.active?'<span style="color:var(--green);font-style:italic;">Active</span>':'—';
+    const totalDisp=row.totalMs>0?fmtDuration(row.totalMs):'—';
+    return \`<tr style="border-top:1px solid var(--brd);">
+      <td style="padding:10px 12px;font-weight:500;font-size:.83rem;">\${esc(row.empName)}</td>
+      <td style="padding:10px 12px;">\${statusHtml}</td>
+      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">\${ciTime}</td>
+      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">\${coTime}</td>
+      <td style="padding:10px 12px;font-weight:600;font-size:.83rem;color:\${row.active?'var(--green)':'var(--tx)'};">\${totalDisp}</td>
+    </tr>\`;
+  }).join('')}</tbody></table>`;
+}
 
 // ══════════════════════════════════
 // CORE STATE
@@ -1723,7 +1884,8 @@ async function appInit(){
     loadActLogFromDB(),
     loadFeaturesFromDB(),
     loadDocsFromDB(),
-    loadNotificationsFromDB()
+    loadNotificationsFromDB(),
+    loadCheckInFromDB()
   ]);
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
@@ -1908,6 +2070,7 @@ function switchPage(p){
   if(p==='analytics'){renderCharts();renderGantt();populateBurndownSel();}
   if(p==='settings')renderSettings();
   if(p==='users')renderUsers();
+  if(p==='checkin'){renderCheckInAdmin();document.getElementById('ci-date-lbl'||'') && (()=>{const el=document.getElementById('ci-date-lbl');if(el)el.textContent=new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});})();}
   if(p==='actlog')renderActivityLog();
   if(p==='stakeholder')renderStakeholderDashboard();
   if(p==='access')renderAccessControl();
@@ -1935,7 +2098,7 @@ function renderStats(){
     {l:'Total Images',v:tI.toLocaleString(),s:`${pct(tA,tI)}% annotated`,c:'b',i:'fa-images'},
     {l:'Annotated',v:tA.toLocaleString(),s:`${pct(tA,tI)}% done`,c:'g',i:'fa-check-circle'},
     {l:'Reviewed',v:tR.toLocaleString(),s:`${pct(tR,tI)}% done`,c:'y',i:'fa-eye'},
-    {l:'Employees',v:employees.length,s:`${asd} assigned`,c:'p',i:'fa-users'},
+    {l:'Employees',v:can('seeAll')?employees.length:visibleProjects().reduce((s,p)=>{(p.assignedEmployees||[]).forEach(id=>s.add(id));(p.reviewEmployees||[]).forEach(id=>s.add(id));return s;},new Set()).size,s:can('seeAll')?`${asd} assigned`:'in your projects',c:'p',i:'fa-users'},
     {l:'Conflicts',v:cc.length,s:cc.length>0?`${[...multiAnnotators()].length} overloaded, ${[...dualRoleIds()].length} dual-role`:'All clear ✓',c:cc.length>0?'r':'g',i:'fa-exclamation-triangle'},
   ].map(x=>`<div class="sc ${x.c}"><div class="sc-l">${x.l}</div><div class="sc-v">${x.v}</div><div class="sc-s">${x.s}</div></div>`).join('');
   document.getElementById('nb-p').textContent=projects.length;
@@ -3545,6 +3708,7 @@ const FEATURE_DEFS=[
   {key:'workload',label:'Workload Overview',desc:'See which employees are assigned to how many projects'},
   {key:'dailyTarget',label:'Daily Image Target',desc:'Set a daily completion target per project'},
   {key:'fileUpload',label:'File Uploads',desc:'Attach documents and files to each project'},
+  {key:'checkIn',label:'Employee Check-In / Check-Out',desc:'Allow employees to clock in and out. Admins and managers can view total hours worked per employee.'},
 ];
 function renderSettings(){
   document.getElementById('settingsGrid').innerHTML=FEATURE_DEFS.map(f=>`
@@ -4201,7 +4365,7 @@ function startVisConfigPoll(){
       (data||[]).forEach(row=>{
         try{
           if(row.key==='app_users'){const r=JSON.parse(row.value);if(r?.length){const ids=new Set(r.map(u=>u.id));const m=[...r];DEFAULT_USERS.forEach(du=>{if(!ids.has(du.id))m.push(du);});if(JSON.stringify(m)!==JSON.stringify(appUsers)){appUsers=m;saveUsersLocal();renderStats();}}}
-          else if(row.key==='app_emps'){const r=JSON.parse(row.value);if(r?.length&&JSON.stringify(r)!==JSON.stringify(employees)){employees=r;saveEmpsLocal();renderEmps();renderProjects();renderStats();}}
+          else if(row.key==='app_emps'){const r=JSON.parse(row.value);if(r?.length&&JSON.stringify(r)!==JSON.stringify(employees)){employees=r;saveEmpsLocal();renderEmps();renderProjects();renderProjFull();renderStats();}}
           else if(row.key==='act_log'){const r=JSON.parse(row.value);if(r?.length&&r[0]?.id!==actLog[0]?.id){actLog=r;try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}const nb=document.getElementById('nb-act');if(nb)nb.textContent=actLog.length;}}
           else if(row.key==='app_features'){const r=JSON.parse(row.value);if(JSON.stringify(r)!==JSON.stringify(features)){Object.assign(features,r);saveFeaturesLocal();if(document.getElementById('page-settings')?.classList.contains('active'))renderSettings();}}
           else if(row.key==='proj_docs'){const r=JSON.parse(row.value);if(JSON.stringify(r)!==JSON.stringify(projDocs)){projDocs=r;saveDocsLocal();if(openProjId){const p=projects.find(x=>x.id===openProjId);if(p)renderDPBody(p);}}}
@@ -4209,6 +4373,19 @@ function startVisConfigPoll(){
       });
     }catch(e){}
   },15000);
+  // Auto-refresh check-in admin view every 30s
+  setInterval(()=>{
+    if(currentUser&&(currentUser.role==='admin'||currentUser.role==='manager')&&features.checkIn){
+      if(document.getElementById('page-checkin')?.classList.contains('active'))renderCheckInAdmin();
+      const active=checkInRecords.filter(r=>r.date===getTodayKey()&&!r.checkOut).length;
+      const nb=document.getElementById('nb-ci');if(nb)nb.textContent=active||'';
+    }
+    // Also keep employee timer accurate
+    if(currentUser?.empId&&getTodayRecord(currentUser.empId)){
+      const t=document.getElementById('ci-timer');
+      if(t)t.textContent=fmtDuration(totalMsToday(currentUser.empId));
+    }
+  },30000);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -4331,6 +4508,17 @@ function startRealtime(){
             if(JSON.stringify(remote)!==JSON.stringify(projDocs)){
               projDocs=remote;saveDocsLocal();
               if(openProjId){const p=projects.find(x=>x.id===openProjId);if(p)renderDPBody(p);}
+            }
+          } else if(row.key==='check_in_records'){
+            const remote=JSON.parse(row.value);
+            if(remote&&JSON.stringify(remote)!==JSON.stringify(checkInRecords)){
+              checkInRecords=remote;
+              try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
+              renderCheckInBar();
+              if(document.getElementById('page-checkin')?.classList.contains('active'))renderCheckInAdmin();
+              // Update admin badge with active count
+              const active=checkInRecords.filter(r=>r.date===getTodayKey()&&!r.checkOut).length;
+              const nb=document.getElementById('nb-ci');if(nb)nb.textContent=active||'';
             }
           } else if(currentUser&&row.key==='notifs_'+currentUser.id){
             const remote=JSON.parse(row.value);
