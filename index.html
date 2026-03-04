@@ -743,9 +743,7 @@ window.onerror = function(msg, src, line) {
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
   <button class="nav-btn" data-page="users" id="nav-users" style="display:none" onclick="switchPage('users')"><i class="fas fa-user-shield"></i> Manage Users</button>
-  <button class="nav-btn" id="nav-checkin" data-page="checkin" style="display:none" onclick="switchPage('checkin')"><i class="fas fa-clock"></i> Check-In Records</button>
-  <button class="nav-btn" id="nav-attendance" data-page="attendance" style="display:none" onclick="switchPage('attendance')"><i class="fas fa-calendar-check"></i> Monthly Attendance</button>
-  <button class="nav-btn" id="nav-attend" data-page="attend" style="display:none" onclick="switchPage('attend')"><i class="fas fa-calendar-check"></i> Monthly Attendance</button>
+  <button class="nav-btn" id="nav-checkin" data-page="checkin" style="display:none" onclick="switchPage('checkin')"><i class="fas fa-clock"></i> Attendance</button>
   <button class="nav-btn" data-page="actlog" id="nav-actlog" style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
   <button class="nav-btn" data-page="stakeholder" id="nav-stakeholder" style="display:none" onclick="switchPage('stakeholder')"><i class="fas fa-eye"></i> My Dashboard</button>
   <div class="sidebar-foot">
@@ -1013,72 +1011,44 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 </div>
 
 <!-- MONTHLY ATTENDANCE PAGE -->
-<div class="page" id="page-attendance">
+<!-- UNIFIED ATTENDANCE PAGE -->
+<div class="page" id="page-checkin">
+  <!-- ── Topbar ── -->
   <div class="topbar">
-    <h1 class="pg-title"><i class="fas fa-calendar-check" style="color:var(--red)"></i> Monthly Attendance</h1>
+    <h1 class="pg-title"><i class="fas fa-calendar-check" style="color:var(--red)"></i> Attendance</h1>
     <div class="topbar-r">
+      <!-- Month picker -->
       <div style="display:flex;align-items:center;gap:8px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);padding:6px 12px;">
-        <i class="fas fa-calendar" style="color:var(--tx3);font-size:.8rem;"></i>
-        <input type="month" id="att-month-picker" onchange="renderAttendance()"
+        <i class="fas fa-calendar-alt" style="color:var(--tx3);font-size:.8rem;"></i>
+        <input type="month" id="att-month" onchange="renderAttendance()"
           style="border:none;background:none;color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;cursor:pointer;">
       </div>
+      <!-- Employee filter -->
+      <select id="att-emp" onchange="renderAttendance()"
+        style="padding:7px 12px;border:1px solid var(--brd);border-radius:var(--rp);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;">
+        <option value="all">All Employees</option>
+      </select>
       <button class="btn btn-ghost btn-sm" onclick="attGoThisMonth()"><i class="fas fa-calendar-day"></i> This Month</button>
+      <button class="btn btn-red btn-sm" onclick="openHolidayMgr()"><i class="fas fa-umbrella-beach"></i> Holidays</button>
       <button class="btn btn-ghost btn-sm" onclick="renderAttendance()"><i class="fas fa-sync"></i> Refresh</button>
     </div>
   </div>
-  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
-    <span style="font-size:.72rem;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;">Legend:</span>
-    <span class="att-full"><i class="fas fa-check"></i> Full Day (9h+)</span>
-    <span class="att-full"><i class="fas fa-check"></i> Full<span class="att-alert"><i class="fas fa-exclamation"></i> Short</span> (8-9h)</span>
-    <span class="att-half"><i class="fas fa-adjust"></i> Half Day (&lt;8h)</span>
-    <span class="att-absent">Absent</span>
+  <!-- ── Legend ── -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+    <span style="font-size:.7rem;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;">Legend:</span>
+    <span class="att-full" style="font-size:.7rem;"><i class="fas fa-check"></i> Full Day (9h+)</span>
+    <span style="display:inline-flex;align-items:center;gap:3px;"><span class="att-full" style="font-size:.7rem;"><i class="fas fa-check"></i> Full</span><span class="att-alert" style="font-size:.63rem;"><i class="fas fa-exclamation"></i> Short</span> <span style="font-size:.7rem;color:var(--tx3);">(8–9h)</span></span>
+    <span class="att-half" style="font-size:.7rem;"><i class="fas fa-adjust"></i> Half (&lt;8h)</span>
+    <span class="att-absent" style="font-size:.7rem;">Absent</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);"><span style="display:inline-block;width:14px;height:14px;background:rgba(249,115,22,.18);border-radius:3px;"></span> Weekend</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);"><span style="display:inline-block;width:14px;height:14px;background:rgba(139,92,246,.18);border-radius:3px;"></span> Holiday</span>
   </div>
-  <div id="attList" style="min-height:80px;"></div>
+  <!-- ── Calendar grid ── -->
+  <div id="attendList" style="overflow-x:auto;"></div>
+  <!-- ── Daily detail panel (click a cell to see) ── -->
+  <div id="att-detail-panel" style="display:none;margin-top:16px;"></div>
 </div>
 
-<!-- CHECK-IN ADMIN PAGE -->
-<div class="page" id="page-checkin">
-  <div class="topbar">
-    <h1 class="pg-title"><i class="fas fa-clock" style="color:var(--red)"></i> Check-In Records</h1>
-    <div class="topbar-r">
-      <div style="display:flex;align-items:center;gap:8px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);padding:6px 12px;">
-        <i class="fas fa-calendar" style="color:var(--tx3);font-size:.8rem;"></i>
-        <input type="date" id="ci-date-picker" onchange="renderCheckInAdmin()"
-          style="border:none;background:none;color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;cursor:pointer;">
-      </div>
-      <button class="btn btn-ghost btn-sm" onclick="ciGoToday()"><i class="fas fa-calendar-day"></i> Today</button>
-      <button class="btn btn-ghost btn-sm" onclick="renderCheckInAdmin()"><i class="fas fa-sync"></i> Refresh</button>
-    </div>
-  </div>
-  <div id="checkInAdminList" style="min-height:80px;"></div>
-</div>
-
-<!-- MONTHLY ATTENDANCE PAGE -->
-<div class="page" id="page-attend">
-  <div class="topbar">
-    <h1 class="pg-title"><i class="fas fa-calendar-check" style="color:var(--red)"></i> Monthly Attendance</h1>
-    <div class="topbar-r">
-      <button class="btn btn-ghost btn-sm" onclick="renderMonthlyAttendance()"><i class="fas fa-sync"></i> Refresh</button>
-    </div>
-  </div>
-  <div class="att-topbar">
-    <div style="display:flex;align-items:center;gap:7px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);padding:6px 12px;">
-      <i class="fas fa-calendar" style="color:var(--tx3);font-size:.8rem;"></i>
-      <input type="month" id="att-month" onchange="renderMonthlyAttendance()"
-        style="border:none;background:none;color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;cursor:pointer;">
-    </div>
-    <select id="att-emp" onchange="renderMonthlyAttendance()" style="padding:6px 12px;border:1px solid var(--brd);border-radius:var(--rp);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;">
-      <option value="all">All Employees</option>
-    </select>
-    <div style="display:flex;align-items:center;gap:6px;font-size:.73rem;flex-wrap:wrap;">
-      <span class="att-badge att-full">Full Day</span> &ge;8h &nbsp;
-      <span class="att-badge att-short"><i class="fas fa-exclamation-circle"></i> Short</span> 6–8h (full, flagged) &nbsp;
-      <span class="att-badge att-half">Half Day</span> &lt;6h &nbsp;
-      <span class="att-badge att-absent">Absent</span>
-    </div>
-  </div>
-  <div id="attendList"></div>
-</div>
 
 <!-- ACTIVITY LOG (Admin + configurable for Manager/Reviewer) -->
 <div class="page" id="page-actlog">
@@ -1146,6 +1116,25 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 </div></div>
 
 <!-- ═══ MODAL: EMPLOYEE ═══ -->
+<!-- CHECK-IN EDIT MODAL -->
+<div class="overlay" id="ciEditOvl" onclick="if(event.target===this)closeCiEdit()">
+<div class="modal" style="width:440px;">
+  <div class="modal-title"><i class="fas fa-user-clock" style="color:var(--red)"></i><span>Edit Attendance</span></div>
+  <div id="ciEditEmpName" style="font-size:.84rem;font-weight:600;color:var(--tx);margin-bottom:4px;"></div>
+  <div id="ciEditDateLbl" style="font-size:.76rem;color:var(--tx3);margin-bottom:14px;"></div>
+  <div class="fgrid">
+    <div class="ff"><label>Check-In Time *</label><input type="time" id="ciEdit-in" step="60"></div>
+    <div class="ff"><label>Check-Out Time <span style="font-weight:400;color:var(--tx3);">(blank=active)</span></label><input type="time" id="ciEdit-out" step="60"></div>
+  </div>
+  <input type="hidden" id="ciEdit-empId">
+  <input type="hidden" id="ciEdit-date">
+  <div id="ciEditNote" style="font-size:.74rem;color:var(--tx3);margin-top:8px;padding:8px 10px;background:var(--sur2);border-radius:var(--rsm);min-height:30px;"></div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeCiEdit()">Cancel</button>
+    <button class="btn btn-red" onclick="saveCiEdit()"><i class="fas fa-save"></i> Save</button>
+  </div>
+</div></div>
+
 <div class="overlay" id="empOvl" onclick="closeEmpOvlBg(event)">
 <div class="modal" style="width:400px;">
   <div class="modal-title"><i class="fas fa-user-plus" style="color:var(--red)"></i><span id="eMTtl">Add Employee</span></div>
@@ -1894,10 +1883,8 @@ function applyRoleToUI(){
   // ─── Activity Log nav ─────────────────────────────────────────────────────
   const canLog=role==='admin'||!!(visConfig.actLogVisible[role]);
   showId('nav-actlog', canLog);
-  showId('nav-checkin',    (role==='admin'||role==='manager')&&features.checkIn);
-  showId('nav-attendance', (role==='admin'||role==='manager')&&features.checkIn);
-  showId('nav-attend', (role==='admin'||role==='manager')&&features.checkIn);
-  // Check-in bar for employees and reviewers
+  showId('nav-checkin', (role==='admin'||role==='manager')&&features.checkIn);
+    // Check-in bar for employees and reviewers
   if(features.checkIn&&(role==='employee'||role==='manager'||role==='reviewer')){
     renderCheckInBar();
   } else {
@@ -2145,6 +2132,305 @@ function totalMsOnDate(empId, date){
 }
 
 // ══════════════════════════════════
+// PUBLIC HOLIDAYS
+// ══════════════════════════════════
+let publicHolidays = []; // [{date:'YYYY-MM-DD', name:'...'}]
+function saveHolidays(){
+  try{ localStorage.setItem('cc_holidays', JSON.stringify(publicHolidays)); }catch(e){}
+  sb.from('app_settings').upsert({key:'public_holidays', value:JSON.stringify(publicHolidays)},{onConflict:'key'}).catch(()=>{});
+}
+function loadHolidaysLocal(){
+  try{ const s=localStorage.getItem('cc_holidays'); if(s) publicHolidays=JSON.parse(s); }catch(e){}
+}
+async function loadHolidaysFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','public_holidays').single();
+    if(data?.value){ publicHolidays=JSON.parse(data.value); try{localStorage.setItem('cc_holidays',JSON.stringify(publicHolidays));}catch(e){} }
+    else loadHolidaysLocal();
+  }catch(e){ loadHolidaysLocal(); }
+}
+function isHoliday(date){ return publicHolidays.some(h=>h.date===date); }
+function getHolidayName(date){ return (publicHolidays.find(h=>h.date===date)||{}).name||''; }
+function openHolidayMgr(){
+  renderHolidayList();
+  document.getElementById('holidayOvl').classList.add('open');
+}
+function closeHolidayMgr(){ document.getElementById('holidayOvl').classList.remove('open'); }
+function renderHolidayList(){
+  const cont = document.getElementById('holidayList');
+  if(!cont) return;
+  if(!publicHolidays.length){
+    cont.innerHTML = '<div style="text-align:center;padding:16px;color:var(--tx3);font-size:.8rem;">No holidays added yet.</div>';
+    return;
+  }
+  const sorted = [...publicHolidays].sort((a,b)=>a.date.localeCompare(b.date));
+  cont.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px;">'
+    + sorted.map(h=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--sur2);border-radius:var(--rsm);font-size:.8rem;">'
+        +'<span><strong>'+new Date(h.date+'T12:00:00').toLocaleDateString([],{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</strong> &nbsp; '+esc(h.name)+'</span>'
+        +'<button data-date="'+h.date+'" onclick="deleteHoliday(this.dataset.date)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.8rem;padding:2px 6px;" title="Remove"><i class="fas fa-trash"></i></button>'
+        +'</div>').join('')
+    + '</div>';
+}
+function addHoliday(){
+  const d = document.getElementById('hol-date').value;
+  const n = document.getElementById('hol-name').value.trim();
+  if(!d){ toast('Select a date','err'); return; }
+  if(!n){ toast('Enter holiday name','err'); return; }
+  if(publicHolidays.some(h=>h.date===d)){ toast('Holiday already exists for this date','info'); return; }
+  publicHolidays.push({date:d, name:n});
+  saveHolidays();
+  renderHolidayList();
+  if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+  document.getElementById('hol-date').value='';
+  document.getElementById('hol-name').value='';
+  toast('Holiday added: '+n,'ok');
+}
+function deleteHoliday(date){
+  publicHolidays = publicHolidays.filter(h=>h.date!==date);
+  saveHolidays();
+  renderHolidayList();
+  if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+  toast('Holiday removed','ok');
+}
+
+// ══════════════════════════════════
+// ATTENDANCE CLASSIFICATION
+// ══════════════════════════════════
+// 9h+ = full; 8-9h = full + alert; <8h = half; 0 = absent
+function classifyDaySpec(empId, date){
+  const ms = totalMsOnDate(empId, date);
+  if(!ms) return {type:'absent', ms:0, alert:false};
+  const hrs = ms / 3600000;
+  if(hrs >= 9) return {type:'full',  ms, alert:false};
+  if(hrs >= 8) return {type:'short', ms, alert:true};
+  return           {type:'half',  ms, alert:false};
+}
+
+// ══════════════════════════════════
+// UNIFIED ATTENDANCE RENDER
+// ══════════════════════════════════
+function attGoThisMonth(){
+  const p = document.getElementById('att-month');
+  if(p){ p.value = getTodayKey().slice(0,7); renderAttendance(); }
+}
+function renderAttendance(){
+  const cont = document.getElementById('attendList');
+  if(!cont) return;
+  const mEl = document.getElementById('att-month');
+  const eEl = document.getElementById('att-emp');
+  if(!mEl) return;
+  if(!mEl.value){ const n=new Date(); mEl.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+
+  // Populate employee dropdown
+  if(eEl){
+    const cur = eEl.value||'all';
+    eEl.innerHTML = '<option value="all">All Employees</option>'
+      + employees.map(e=>'<option value="'+e.id+'" '+(e.id===cur?'selected':'')+'>'+esc(e.name)+'</option>').join('');
+    eEl.value = cur;
+  }
+
+  const ym = mEl.value;
+  const yr = parseInt(ym.slice(0,4)), mo = parseInt(ym.slice(5,7));
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  const today = getTodayKey();
+  const monthLabel = new Date(yr, mo-1, 1).toLocaleDateString([], {month:'long', year:'numeric'});
+
+  // Build date list (all calendar days in month up to today)
+  const allDates = [];
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = yr+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    if(ds > today) break;
+    allDates.push(ds);
+  }
+  if(!allDates.length){
+    cont.innerHTML='<div style="text-align:center;padding:40px;color:var(--tx3);">No data for this period.</div>';
+    return;
+  }
+
+  const isAdmin = currentUser&&(currentUser.role==='admin'||currentUser.role==='manager');
+  const empFilter = eEl ? eEl.value : 'all';
+  const empList = empFilter==='all' ? employees : employees.filter(e=>e.id===empFilter);
+
+  // Build calendar grid header
+  let html = '<div style="overflow-x:auto;">'
+    + '<table style="width:100%;border-collapse:collapse;font-size:.76rem;">'
+    + '<thead><tr style="background:var(--sur2);">'
+    + '<th style="padding:9px 14px;text-align:left;font-weight:600;white-space:nowrap;position:sticky;left:0;background:var(--sur2);z-index:2;min-width:140px;">Employee</th>';
+
+  allDates.forEach(function(d){
+    const day = new Date(d+'T12:00:00');
+    const dow = day.getDay();
+    const isWE = dow===0||dow===6;
+    const isHol = isHoliday(d);
+    const isToday = d===today;
+    let bg = isHol?'rgba(139,92,246,.15)':isWE?'rgba(249,115,22,.1)':'';
+    if(isToday) bg='var(--red-l)';
+    html += '<th style="padding:5px 4px;text-align:center;min-width:36px;'
+      + (bg?'background:'+bg+';':'')
+      + (isToday?'color:var(--red);':'')
+      + '">'
+      + '<div style="font-size:.6rem;color:'+(isHol?'rgba(139,92,246,.9)':isWE?'#f97316':'var(--tx3)')+';">'
+        + (isHol ? '●' : day.toLocaleDateString([],{weekday:'short'}))
+      + '</div>'
+      + '<div style="font-weight:'+(isToday?'800':'500')+';">'+(isHol?'<span title="'+esc(getHolidayName(d))+'">'+day.getDate()+'</span>':day.getDate())+'</div>'
+      + '</th>';
+  });
+  html += '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:var(--green);">F</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:var(--yellow);">H</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:#f97316;">⚡</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:var(--red);">A</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:600;">Hrs</th>'
+    + '</tr></thead><tbody>';
+
+  let totals = {full:0, half:0, short:0, absent:0};
+
+  empList.forEach(function(emp, ei){
+    let full=0, half=0, short=0, absent=0, totalMs=0;
+    html += '<tr style="border-top:1px solid var(--brd);' + (ei%2===1?'background:var(--sur2);':'') + '">'
+      + '<td style="padding:8px 14px;font-weight:600;white-space:nowrap;position:sticky;left:0;'+(ei%2===1?'background:var(--sur2);':'background:var(--sur);')+'z-index:1;">'
+        + esc(emp.name)
+      + '</td>';
+
+    allDates.forEach(function(d){
+      const dow = new Date(d+'T12:00:00').getDay();
+      const isWE = dow===0||dow===6;
+      const isHol = isHoliday(d);
+      const isToday = d===today;
+      // Worked on weekend/holiday is fine — still show their actual attendance
+      const cls = classifyDaySpec(emp.id, d);
+      const active = isToday && !!getActiveRecord(emp.id) && d===today;
+      totalMs += cls.ms;
+      // Count only workdays (non-weekend, non-holiday) for absent
+      const isWorkDay = !isWE && !isHol;
+      if(!active){
+        if(cls.type==='full')        { full++; }
+        else if(cls.type==='short')  { full++; short++; }
+        else if(cls.type==='half')   { half++; }
+        else if(isWorkDay)           { absent++; }
+      }
+      // Cell coloring
+      let bg = isHol?'rgba(139,92,246,.08)':isWE?'rgba(249,115,22,.06)':'';
+      let cellHtml = '';
+      if(active){
+        bg = 'rgba(22,163,74,.12)';
+        cellHtml = '<span style="color:var(--green);font-size:.85rem;" title="Active now">●</span>';
+      } else if(cls.type==='full'){
+        cellHtml = '<span style="color:var(--green);font-size:.8rem;" title="'+fmtDuration(cls.ms)+'">✔</span>';
+        if(cls.alert) cellHtml += '<sup style="color:#f97316;font-size:.55rem;">!</sup>';
+      } else if(cls.type==='half'){
+        cellHtml = '<span style="color:var(--blue);font-size:.68rem;font-weight:700;" title="'+fmtDuration(cls.ms)+'">H</span>';
+      } else if(cls.type==='short'){
+        cellHtml = '<span style="color:#f97316;font-size:.7rem;font-weight:700;" title="'+fmtDuration(cls.ms)+'">⚠</span>';
+      } else {
+        cellHtml = isHol ? '<span style="color:rgba(139,92,246,.6);font-size:.7rem;" title="'+esc(getHolidayName(d))+'">🎉</span>'
+          : isWE ? '<span style="color:var(--tx3);opacity:.3;font-size:.7rem;">—</span>'
+          : '<span style="color:var(--tx3);opacity:.4;font-size:.7rem;">–</span>';
+      }
+      html += '<td style="padding:4px 2px;text-align:center;'+(bg?'background:'+bg+';':'')+'cursor:'+(isAdmin?'pointer':'default')+';" '
+        + (isAdmin?'data-empid="'+emp.id+'" data-empname="'+esc(emp.name)+'" data-date="'+d+'" onclick="openCiEdit(this.dataset.empid,this.dataset.empname,this.dataset.date)" title="Click to edit"':'')+'>'
+        + cellHtml + '</td>';
+    });
+
+    totals.full+=full; totals.half+=half; totals.short+=short; totals.absent+=absent;
+    html += '<td style="padding:8px 6px;text-align:center;font-weight:700;color:var(--green);font-size:.8rem;">'+full+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;font-weight:700;color:var(--blue);font-size:.8rem;">'+half+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;font-weight:700;color:#f97316;font-size:.8rem;">'+(short||'')+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;font-weight:700;color:var(--red);font-size:.8rem;">'+absent+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;color:var(--tx2);font-size:.73rem;">'+fmtDuration(totalMs)+'</td>'
+      + '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.74rem;color:var(--tx2);">'
+    + '<span>F=Full Days: <strong style="color:var(--green);">'+totals.full+'</strong></span>'
+    + '<span>H=Half Days: <strong style="color:var(--blue);">'+totals.half+'</strong></span>'
+    + '<span>⚡=Short (8-9h): <strong style="color:#f97316;">'+totals.short+'</strong></span>'
+    + '<span>A=Absent: <strong style="color:var(--red);">'+totals.absent+'</strong></span>'
+    + '</div>'
+    + (isAdmin?'<div style="font-size:.72rem;color:var(--tx3);margin-top:6px;"><i class="fas fa-mouse-pointer"></i> Click any cell to edit attendance</div>':'');
+  cont.innerHTML = '<div style="font-size:.82rem;font-weight:700;color:var(--tx2);margin-bottom:10px;">'+monthLabel+'</div>' + html;
+}
+
+// ══════════════════════════════════
+// EDIT ATTENDANCE RECORD (Admin/Manager)
+// ══════════════════════════════════
+let _ciEditState = null;
+function openCiEdit(empId, empName, date){
+  _ciEditState = {empId, empName, date};
+  const ovl = document.getElementById('ciEditOvl');
+  if(!ovl) return;
+  const nameEl = document.getElementById('ciEditEmpName');
+  const dateLbl = document.getElementById('ciEditDateLbl');
+  const noteEl  = document.getElementById('ciEditNote');
+  const inEl    = document.getElementById('ciEdit-in');
+  const outEl   = document.getElementById('ciEdit-out');
+  const hidId   = document.getElementById('ciEdit-empId');
+  const hidDate = document.getElementById('ciEdit-date');
+  if(nameEl) nameEl.textContent = empName;
+  if(dateLbl) dateLbl.textContent = new Date(date+'T12:00:00').toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(hidId)   hidId.value   = empId;
+  if(hidDate) hidDate.value = date;
+  // Pre-fill from existing records for this employee+date
+  const sessions = checkInRecords.filter(function(r){ return r.empId===empId && r.date===date; });
+  if(sessions.length){
+    const first = sessions[0];
+    const dIn = new Date(first.checkIn);
+    if(inEl) inEl.value = String(dIn.getHours()).padStart(2,'0')+':'+String(dIn.getMinutes()).padStart(2,'0');
+    const last = sessions[sessions.length-1];
+    if(last.checkOut){
+      const dOut = new Date(last.checkOut);
+      if(outEl) outEl.value = String(dOut.getHours()).padStart(2,'0')+':'+String(dOut.getMinutes()).padStart(2,'0');
+    } else {
+      if(outEl) outEl.value = '';
+    }
+    if(noteEl) noteEl.textContent = sessions.length>1
+      ? sessions.length+' sessions on this day — saving will merge into one record.'
+      : 'Editing existing record: '+new Date(first.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+          +(first.checkOut?' → '+new Date(first.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'  (still active)');
+  } else {
+    if(inEl)  inEl.value  = '';
+    if(outEl) outEl.value = '';
+    if(noteEl) noteEl.textContent = 'No record for this date — a new entry will be created.';
+  }
+  ovl.classList.add('open');
+}
+function closeCiEdit(){
+  const ovl = document.getElementById('ciEditOvl');
+  if(ovl) ovl.classList.remove('open');
+  _ciEditState = null;
+}
+async function saveCiEdit(){
+  const empId   = document.getElementById('ciEdit-empId')?.value;
+  const date    = document.getElementById('ciEdit-date')?.value;
+  const inVal   = document.getElementById('ciEdit-in')?.value;
+  const outVal  = document.getElementById('ciEdit-out')?.value;
+  if(!empId||!date){ toast('Missing employee or date','err'); return; }
+  if(!inVal){ toast('Check-in time is required','err'); return; }
+  const emp = employees.find(e=>e.id===empId);
+  const empName = emp ? emp.name : (_ciEditState?.empName||empId);
+  const checkInDt  = new Date(date+'T'+inVal+':00');
+  const checkOutDt = outVal ? new Date(date+'T'+outVal+':00') : null;
+  if(checkOutDt && checkOutDt.getTime()<=checkInDt.getTime()){ toast('Check-out must be after check-in','err'); return; }
+  const totalMs = checkOutDt ? (checkOutDt.getTime()-checkInDt.getTime()) : 0;
+  // Remove all sessions for this emp+date, insert single corrected record
+  checkInRecords = checkInRecords.filter(function(r){ return !(r.empId===empId && r.date===date); });
+  checkInRecords.unshift({
+    id:'ci_edit_'+Date.now()+'_'+empId,
+    empId, empName, date,
+    checkIn:  checkInDt.toISOString(),
+    checkOut: checkOutDt ? checkOutDt.toISOString() : null,
+    totalMs
+  });
+  await saveCheckInRecords();
+  logActivity('ci_edit','','',currentUser.name+' corrected attendance for '+empName+' on '+date);
+  toast('Attendance updated for '+empName,'ok');
+  closeCiEdit();
+  renderAttendance();
+  renderStats();
+}
+
+
+// ══════════════════════════════════
 // ATTENDANCE CLASSIFICATION
 // ══════════════════════════════════
 // <8h = half day; 8-9h = full day + alert badge; 9h+ = full day
@@ -2169,10 +2455,7 @@ function dayBadgeHtml(cls){
 // ══════════════════════════════════
 // MONTHLY ATTENDANCE
 // ══════════════════════════════════
-function attGoThisMonth(){
-  const p = document.getElementById('att-month-picker');
-  if(p){ p.value = getTodayKey().slice(0,7); renderAttendance(); }
-}
+// attGoThisMonth merged above
 function attToggle(id){
   const el = document.getElementById(id);
   if(el) el.style.display = el.style.display === 'none' ? '' : 'none';
@@ -2251,203 +2534,6 @@ function renderAttendance(){
     +' &mdash; <span style="font-weight:400;color:var(--tx3);">'+dates.length+' working days tracked</span></h3>'+empCards;
 }
 
-// ══════════════════════════════════
-// EDIT CHECK-IN RECORD (Admin)
-// ══════════════════════════════════
-let _ciEditState = null;
-function openCiEdit(empId, empName, date){
-  _ciEditState = {empId, empName, date};
-  const ovl = document.getElementById('ciEditOvl');
-  if(!ovl) return;
-  document.getElementById('ciEditEmpName').textContent = empName+' — '+new Date(date+'T12:00:00').toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  document.getElementById('ciEdit-date').value = date;
-  const sess = checkInRecords.filter(function(r){return r.empId===empId&&r.date===date;});
-  const inEl = document.getElementById('ciEdit-in');
-  const outEl = document.getElementById('ciEdit-out');
-  const noteEl = document.getElementById('ciEditNote');
-  if(sess.length){
-    const d = new Date(sess[0].checkIn);
-    inEl.value = String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
-    const last = sess[sess.length-1];
-    if(last.checkOut){
-      const od = new Date(last.checkOut);
-      outEl.value = String(od.getHours()).padStart(2,'0')+':'+String(od.getMinutes()).padStart(2,'0');
-    } else { outEl.value = ''; }
-    noteEl.textContent = sess.length>1?('Note: '+sess.length+' sessions will be merged into one.'):'Edit the times below.';
-  } else {
-    inEl.value = ''; outEl.value = '';
-    noteEl.textContent = 'No record for this date — a new entry will be created.';
-  }
-  ovl.classList.add('open');
-}
-function closeCiEdit(){
-  const ovl = document.getElementById('ciEditOvl');
-  if(ovl) ovl.classList.remove('open');
-  _ciEditState = null;
-}
-async function saveCiEdit(){
-  if(!_ciEditState) return;
-  const {empId, empName, date} = _ciEditState;
-  const inVal = document.getElementById('ciEdit-in').value;
-  const outVal = document.getElementById('ciEdit-out').value;
-  if(!inVal){ toast('Check-in time is required','err'); return; }
-  const checkInDt  = new Date(date+'T'+inVal+':00');
-  const checkOutDt = outVal ? new Date(date+'T'+outVal+':00') : null;
-  if(checkOutDt && checkOutDt <= checkInDt){ toast('Check-out must be after check-in','err'); return; }
-  const totalMs = checkOutDt ? (checkOutDt.getTime()-checkInDt.getTime()) : 0;
-  // Remove all existing records for this employee/date and insert corrected one
-  checkInRecords = checkInRecords.filter(function(r){ return !(r.empId===empId&&r.date===date); });
-  checkInRecords.unshift({
-    id:'ci_edit_'+Date.now()+'_'+empId,
-    empId, empName, date,
-    checkIn:  checkInDt.toISOString(),
-    checkOut: checkOutDt ? checkOutDt.toISOString() : null,
-    totalMs
-  });
-  await saveCheckInRecords();
-  logActivity('ci_edit','','',currentUser.name+' corrected attendance for '+empName+' on '+date);
-  toast('Attendance updated for '+empName,'ok');
-  closeCiEdit();
-  if(document.getElementById('page-checkin')?.classList.contains('active'))    renderCheckInAdmin();
-  if(document.getElementById('page-attendance')?.classList.contains('active')) renderAttendance();
-}
-
-// Attendance classification
-// < 6h   => half day
-// 6h-<8h => full day BUT flagged (short)  [shown with amber badge]
-// >= 8h  => full day
-function classifyAttendance(ms){
-  if(!ms||ms<=0) return 'absent';
-  const h=ms/3600000;
-  if(h<6) return 'half';
-  if(h<8) return 'short'; // full but under 8h
-  return 'full';
-}
-function attendanceBadge(ms, active){
-  if(active) return '<span class="att-badge att-active">Active</span>';
-  const c=classifyAttendance(ms);
-  if(c==='absent')  return '<span class="att-badge att-absent">Absent</span>';
-  if(c==='half')    return '<span class="att-badge att-half">Half Day</span>';
-  if(c==='short')   return '<span class="att-badge att-short">Full <i class="fas fa-exclamation-circle" title="Under 8 hours"></i></span>';
-  return '<span class="att-badge att-full">Full Day</span>';
-}
-// Build list of working days in a month (Mon-Sat, skip Sun)
-function getWorkingDays(year, month){
-  const days=[];
-  const date=new Date(year,month-1,1);
-  while(date.getMonth()===month-1){
-    if(date.getDay()!==0) days.push(date.toISOString().split('T')[0]);
-    date.setDate(date.getDate()+1);
-  }
-  return days;
-}
-function openCiEdit(recordId){
-  const rec=checkInRecords.find(r=>r.id===recordId);
-  if(!rec){ toast('Record not found','err'); return; }
-  document.getElementById('cie-id').value=rec.id;
-  document.getElementById('cie-name').value=rec.empName;
-  document.getElementById('cie-date').value=rec.date;
-  // Convert ISO to local datetime-local format
-  function isoToLocal(iso){ if(!iso) return ''; const d=new Date(iso); const pad=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes()); }
-  document.getElementById('cie-checkin').value=isoToLocal(rec.checkIn);
-  document.getElementById('cie-checkout').value=isoToLocal(rec.checkOut||'');
-  document.getElementById('ciEditOvl').classList.add('open');
-}
-async function saveCiEdit(){
-  const id=document.getElementById('cie-id').value;
-  const rec=checkInRecords.find(r=>r.id===id);
-  if(!rec){ toast('Record not found','err'); return; }
-  const inVal=document.getElementById('cie-checkin').value;
-  const outVal=document.getElementById('cie-checkout').value;
-  if(!inVal){ toast('Check-in time required','err'); return; }
-  const newIn=new Date(inVal).toISOString();
-  const newOut=outVal?new Date(outVal).toISOString():null;
-  if(newOut&&new Date(newOut)<=new Date(newIn)){ toast('Check-out must be after check-in','err'); return; }
-  rec.checkIn=newIn;
-  rec.checkOut=newOut;
-  rec.totalMs=newOut?(new Date(newOut)-new Date(newIn)):0;
-  await saveCheckInRecords();
-  document.getElementById('ciEditOvl').classList.remove('open');
-  renderCheckInAdmin();
-  if(document.getElementById('page-attend')?.classList.contains('active')) renderMonthlyAttendance();
-  toast('Check-in record updated','ok');
-}
-function closeCiEdit(){ document.getElementById('ciEditOvl').classList.remove('open'); }
-function renderMonthlyAttendance(){
-  const cont=document.getElementById('attendList');
-  if(!cont) return;
-  const mSel=document.getElementById('att-month');
-  const eSel=document.getElementById('att-emp');
-  if(!mSel||!eSel) return;
-  if(!mSel.value){ const n=new Date(); mSel.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
-  const [yr,mo]=mSel.value.split('-').map(Number);
-  const workDays=getWorkingDays(yr,mo);
-  const monthLabel=new Date(yr,mo-1,1).toLocaleDateString([],{month:'long',year:'numeric'});
-  // Filter employees
-  const empFilter=eSel.value;
-  const empList=empFilter==='all'?employees:employees.filter(e=>e.id===empFilter);
-  if(!empList.length){ cont.innerHTML='<div style="padding:30px;text-align:center;color:var(--tx3);">No employees found.</div>'; return; }
-  // Build summary table header
-  let html='<div style="overflow-x:auto;">';
-  html+='<table style="width:100%;border-collapse:collapse;font-size:.76rem;">';
-  html+='<thead><tr style="background:var(--sur2);">';
-  html+='<th style="padding:9px 14px;text-align:left;font-weight:600;white-space:nowrap;position:sticky;left:0;background:var(--sur2);z-index:2;">Employee</th>';
-  workDays.forEach(function(d){
-    const day=new Date(d+'T12:00:00');
-    const isToday=d===getTodayKey();
-    html+='<th style="padding:6px 8px;text-align:center;font-weight:500;min-width:38px;'+(isToday?'background:var(--red-l);color:var(--red);':'')+'">'+
-      '<div style="font-size:.65rem;color:var(--tx3);">'+day.toLocaleDateString([],{weekday:'short'})+'</div>'+
-      '<div>'+day.getDate()+'</div></th>';
-  });
-  html+='<th style="padding:9px 10px;text-align:center;white-space:nowrap;font-weight:600;">Full</th>';
-  html+='<th style="padding:9px 10px;text-align:center;white-space:nowrap;font-weight:600;">Half</th>';
-  html+='<th style="padding:9px 10px;text-align:center;white-space:nowrap;font-weight:600;color:var(--yellow);">Short</th>';
-  html+='<th style="padding:9px 10px;text-align:center;white-space:nowrap;font-weight:600;color:var(--red);">Absent</th>';
-  html+='<th style="padding:9px 10px;text-align:center;white-space:nowrap;font-weight:600;">Hrs</th>';
-  html+='</tr></thead><tbody>';
-  let totals={full:0,half:0,short:0,absent:0};
-  empList.forEach(function(emp,ei){
-    let full=0,half=0,short=0,absent=0,totalHrs=0;
-    html+='<tr style="border-top:1px solid var(--brd);'+(ei%2===1?'background:var(--sur2);':'background:var(--sur);')+'">';
-    html+='<td style="padding:8px 14px;font-weight:600;white-space:nowrap;position:sticky;left:0;'+(ei%2===1?'background:var(--sur2);':'background:var(--sur);')+'z-index:1;">'+esc(emp.name)+'</td>';
-    workDays.forEach(function(d){
-      const ms=totalMsOnDate(emp.id,d);
-      const active=d===getTodayKey()&&!!checkInRecords.find(r=>r.empId===emp.id&&r.date===d&&!r.checkOut);
-      const cls=active?'active':classifyAttendance(ms);
-      totalHrs+=ms;
-      if(!active){if(cls==='full')full++;else if(cls==='half')half++;else if(cls==='short'){short++;full++;}else absent++;}
-      const cellColor=active?'var(--green)':cls==='full'?'var(--green)':cls==='half'?'var(--blue)':cls==='short'?'var(--yellow)':cls==='absent'?'rgba(0,0,0,.06)':'';
-      const cellTxt=active?'<span style="color:var(--green);font-size:.9rem;">●</span>':cls==='full'?'<span style="color:var(--green);font-size:.85rem;">✔</span>':cls==='half'?'<span style="color:var(--blue);font-size:.7rem;font-weight:700;">H</span>':cls==='short'?'<span style="color:var(--yellow);font-size:.7rem;font-weight:700;">⚠</span>':'<span style="color:var(--tx3);font-size:.75rem;opacity:.4;">–</span>';
-      html+='<td style="padding:6px 8px;text-align:center;background:'+cellColor+';opacity:'+( cls==='absent'?1:1 )+';">'+cellTxt+'</td>';
-    });
-    totals.full+=full;totals.half+=half;totals.short+=short;totals.absent+=absent;
-    html+='<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--green);">'+full+'</td>';
-    html+='<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--blue);">'+half+'</td>';
-    html+='<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--yellow);">'+short+'</td>';
-    html+='<td style="padding:8px 10px;text-align:center;font-weight:700;color:var(--red);">'+absent+'</td>';
-    html+='<td style="padding:8px 10px;text-align:center;color:var(--tx2);font-size:.74rem;">'+fmtDuration(totalHrs)+'</td>';
-    html+='</tr>';
-  });
-  html+='</tbody></table></div>';
-  // Legend
-  html+='<div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:.73rem;">'
-    +'<span><span style="color:var(--green);">✔</span> Full Day (≥8h)</span>'
-    +'<span style="color:var(--yellow);">⚠ Short (6-8h — counted as full)</span>'
-    +'<span style="color:var(--blue);font-weight:700;">H Half Day (&lt;6h)</span>'
-    +'<span style="color:var(--tx3);opacity:.6;">– Absent</span>'
-    +'</div>';
-  cont.innerHTML='<div style="margin-bottom:10px;font-size:.82rem;font-weight:700;color:var(--tx2);">'+monthLabel
-    +' &nbsp;|&nbsp; <span style="color:var(--green);">'+totals.full+' full</span>'
-    +' &nbsp;'+totals.short+' short'
-    +' &nbsp;<span style="color:var(--blue);">'+totals.half+' half</span>'
-    +' &nbsp;<span style="color:var(--red);">'+totals.absent+' absent</span>'
-    +'</div>'+html;
-}
-
-
-// ══════════════════════════════════
-// CORE STATE
-// ══════════════════════════════════
 let currentFilter='all', searchQ='', openProjId=null, editEmpId=null, editProjId=null;
 let projDocs={};
 let chartInstances={};
@@ -2468,7 +2554,8 @@ async function appInit(){
     loadFeaturesFromDB(),
     loadDocsFromDB(),
     loadNotificationsFromDB(),
-    loadCheckInFromDB()
+    loadCheckInFromDB(),
+    loadHolidaysFromDB()
   ]);
   // Re-render check-in bar NOW that DB data is loaded (fixes post-refresh state)
   renderCheckInBar();
@@ -2656,24 +2743,12 @@ function switchPage(p){
   if(p==='settings')renderSettings();
   if(p==='users')renderUsers();
   if(p==='checkin'){
-    const picker=document.getElementById('ci-date-picker');
-    if(picker&&!picker.value) picker.value=getTodayKey();
-    renderCheckInAdmin();
-  }
-  if(p==='attendance'){
-    const picker=document.getElementById('att-month-picker');
-    if(picker&&!picker.value) picker.value=getTodayKey().slice(0,7);
+    const picker=document.getElementById('att-month');
+    if(picker&&!picker.value){ const n=new Date(); picker.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
     renderAttendance();
   }
-  if(p==='attend'){
-    // Init month picker to current month
-    const mp=document.getElementById('att-month');
-    if(mp&&!mp.value){ const n=new Date(); mp.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
-    // Populate employee dropdown
-    const eSel=document.getElementById('att-emp');
-    if(eSel){ const cur=eSel.value||'all'; eSel.innerHTML='<option value="all">All Employees</option>'+employees.map(e=>'<option value="'+e.id+'"'+(cur===e.id?' selected':'')+'>'+esc(e.name)+'</option>').join(''); if(cur)eSel.value=cur; }
-    renderMonthlyAttendance();
-  }
+
+
   if(p==='actlog')renderActivityLog();
   if(p==='stakeholder')renderStakeholderDashboard();
   if(p==='access')renderAccessControl();
@@ -5463,23 +5538,25 @@ tryRestoreSession();
 })();
 </script>
 
-<!-- ═══ MODAL: DAILY REPORT ═══ -->
-<!-- ADMIN CHECK-IN EDIT MODAL -->
-<div class="overlay" id="ciEditOvl" onclick="if(event.target===this)closeCiEdit()">
-<div class="modal" style="width:420px;">
-  <div class="modal-title"><i class="fas fa-user-clock" style="color:var(--red)"></i><span>Edit Attendance Record</span></div>
-  <div id="ciEditEmpName" style="font-size:.82rem;color:var(--tx3);margin-bottom:12px;"></div>
-  <div class="fgrid">
-    <div class="ff full"><label>Date</label><input type="date" id="ciEdit-date" readonly style="background:var(--sur2);cursor:not-allowed;opacity:.7;"></div>
-    <div class="ff"><label>Check-In Time</label><input type="time" id="ciEdit-in" step="60"></div>
-    <div class="ff"><label>Check-Out Time <span style="color:var(--tx3);font-size:.75rem;font-weight:400;">(blank = still active)</span></label><input type="time" id="ciEdit-out" step="60"></div>
+
+<!-- HOLIDAY MANAGER MODAL -->
+<div class="overlay" id="holidayOvl" onclick="if(event.target===this)closeHolidayMgr()">
+<div class="modal" style="width:520px;max-height:80vh;overflow-y:auto;">
+  <div class="modal-title"><i class="fas fa-umbrella-beach" style="color:var(--red)"></i><span>Public Holidays</span></div>
+  <div style="font-size:.78rem;color:var(--tx3);margin-bottom:12px;">Mark public holidays — they will appear highlighted in the attendance calendar.</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <input type="date" id="hol-date" style="flex:1;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;">
+    <input type="text" id="hol-name" placeholder="Holiday name (e.g. Diwali)" style="flex:2;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;">
+    <button class="btn btn-red btn-sm" onclick="addHoliday()"><i class="fas fa-plus"></i> Add</button>
   </div>
-  <div id="ciEditNote" style="font-size:.74rem;color:var(--tx3);margin-top:6px;padding:6px 10px;background:var(--sur2);border-radius:var(--rsm);"></div>
+  <div id="holidayList" style="min-height:40px;"></div>
   <div class="modal-foot">
-    <button class="btn btn-ghost" onclick="closeCiEdit()">Cancel</button>
-    <button class="btn btn-red" onclick="saveCiEdit()"><i class="fas fa-save"></i> Save Changes</button>
+    <button class="btn btn-ghost" onclick="closeHolidayMgr()">Close</button>
   </div>
 </div></div>
+<!-- ═══ MODAL: DAILY REPORT ═══ -->
+<!-- ADMIN CHECK-IN EDIT MODAL -->
+
 
 <div class="overlay" id="reportOvl"  onclick="if(event.target===this)closeReport()">
 <div class="modal" style="width:640px;">
