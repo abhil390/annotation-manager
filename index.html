@@ -533,6 +533,82 @@ tr:hover td{background:var(--sur2);}
 .acc2-role-hdr{font-size:.75rem;font-weight:700;color:var(--tx2);margin:12px 0 5px;display:flex;align-items:center;gap:6px;}
 .acc2-section{margin-top:18px;padding-top:16px;border-top:1px solid var(--brd);}
 
+/* ══════════════════════════════════════════════
+   CHECK-IN BAR & ADMIN PANEL
+══════════════════════════════════════════════ */
+/* Bar sits at the bottom of .main content area */
+#checkInBar{
+  display:none;
+  align-items:center;gap:14px;
+  padding:10px 20px;
+  background:var(--sur);
+  border-top:2px solid var(--red);
+  border-radius:0 0 var(--r) var(--r);
+  flex-wrap:wrap;
+  position:sticky;bottom:0;
+  margin:24px -24px -22px;
+  z-index:50;
+  box-shadow:0 -2px 12px rgba(0,0,0,.07);
+}
+.ci-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);}
+.ci-status{display:flex;align-items:center;gap:7px;font-size:.85rem;font-weight:600;}
+.ci-status.ci-in{color:var(--green);}
+.ci-status.ci-idle{color:var(--tx3);}
+.ci-dot-live{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 0 rgba(22,163,74,.4);
+  animation:ciPulse 1.4s infinite;
+}
+@keyframes ciPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.4)}70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+.ci-time{
+  font-size:1.15rem;font-weight:800;
+  color:var(--tx);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.5px;
+  min-width:68px;
+}
+.ci-divider{width:1px;height:28px;background:var(--brd);flex-shrink:0;}
+.ci-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 18px;border-radius:20px;border:none;
+  cursor:pointer;font-size:.8rem;font-weight:700;
+  transition:all .18s;font-family:'Inter',sans-serif;
+  letter-spacing:.3px;
+}
+.ci-btn-in{background:var(--green);color:#fff;}
+.ci-btn-in:hover{background:#15803d;transform:translateY(-1px);}
+.ci-btn-out{background:var(--red);color:#fff;}
+.ci-btn-out:hover{background:var(--red-d,#b91c1c);transform:translateY(-1px);}
+/* Admin check-in page */
+.ci-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:4px;}
+.ci-card{
+  background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);
+  padding:16px 18px;display:flex;flex-direction:column;gap:8px;
+  transition:box-shadow .15s;
+}
+.ci-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.ci-card.active{border-color:var(--green);background:var(--green-l,rgba(22,163,74,.05));}
+.ci-card-name{font-weight:700;font-size:.9rem;color:var(--tx);}
+.ci-card-status{display:flex;align-items:center;gap:6px;font-size:.78rem;}
+.ci-card-row{display:flex;justify-content:space-between;font-size:.76rem;color:var(--tx2);}
+.ci-card-row span:last-child{font-weight:600;color:var(--tx);}
+.ci-total{font-size:1.05rem;font-weight:800;color:var(--green);margin-top:4px;}
+.ci-total.inactive{color:var(--tx2);}
+.ci-live-timer{font-size:.78rem;color:var(--green);font-variant-numeric:tabular-nums;}
+/* Summary bar at top of admin page */
+.ci-summary{
+  display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap;
+}
+.ci-summary-card{
+  flex:1;min-width:120px;
+  background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);
+  padding:14px 18px;text-align:center;
+}
+.ci-summary-card .val{font-size:1.6rem;font-weight:800;color:var(--tx);line-height:1;}
+.ci-summary-card .lbl{font-size:.7rem;color:var(--tx3);margin-top:4px;text-transform:uppercase;letter-spacing:.6px;}
+.ci-summary-card.green .val{color:var(--green);}
+.ci-summary-card.red .val{color:var(--red);}
 </style>
 </head>
 <body>
@@ -652,6 +728,8 @@ window.onerror = function(msg, src, line) {
 
 <!-- ═══ MAIN ═══ -->
 <main class="main">
+<!-- ═══ CHECK-IN BAR (sticky bottom bar for employees/reviewers/managers) ═══ -->
+<div id="checkInBar" style="display:none;"></div>
 
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
@@ -939,8 +1017,6 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 </div>
 
 </main>
-<!-- ═══ CHECK-IN BAR (bottom bar for employees) ═══ -->
-<div id="checkInBar" style="display:none;"></div>
 </div>
 
 <!-- ═══ DETAIL PANEL ═══ -->
@@ -1773,135 +1849,166 @@ let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true
 // ══════════════════════════════════
 // CHECK-IN STATE
 // ══════════════════════════════════
-let checkInRecords = [];   // [{id, empId, empName, date, checkIn, checkOut, totalMs}]
-let _checkInTimer = null;  // interval for live timer display
+let checkInRecords = [];
+let _checkInTimer = null;
+let _ciAdminTimer = null;
 
 async function saveCheckInRecords(){
-  try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
-  try{await sb.from('app_settings').upsert({key:'check_in_records',value:JSON.stringify(checkInRecords.slice(0,2000))},{onConflict:'key'});}catch(e){}
+  const payload=JSON.stringify(checkInRecords.slice(0,3000));
+  try{ await sb.from('app_settings').upsert({key:'check_in_records',value:payload},{onConflict:'key'}); }
+  catch(e){ console.warn('CI save error',e); }
 }
-function loadCheckInLocal(){try{const s=localStorage.getItem('cc_checkins');if(s)checkInRecords=JSON.parse(s);}catch(e){}}
+function loadCheckInLocal(){
+  try{ const s=localStorage.getItem('cc_checkins'); if(s) checkInRecords=JSON.parse(s); }catch(e){}
+}
 async function loadCheckInFromDB(){
   try{
     const{data}=await sb.from('app_settings').select('value').eq('key','check_in_records').single();
-    if(data?.value){checkInRecords=JSON.parse(data.value);try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}}
-    else loadCheckInLocal();
-  }catch(e){loadCheckInLocal();}
+    if(data?.value){
+      checkInRecords=JSON.parse(data.value);
+      try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
+    } else { loadCheckInLocal(); }
+  }catch(e){ loadCheckInLocal(); }
 }
-function getTodayKey(){return new Date().toISOString().split('T')[0];}
-function getTodayRecord(empId){
-  const today=getTodayKey();
-  return checkInRecords.find(r=>r.empId===empId&&r.date===today&&!r.checkOut);
+function getTodayKey(){ return new Date().toISOString().split('T')[0]; }
+function getActiveRecord(empId){
+  return checkInRecords.find(r=>r.empId===empId&&r.date===getTodayKey()&&!r.checkOut);
 }
 function fmtDuration(ms){
-  if(!ms||ms<0)return '0h 0m';
-  const h=Math.floor(ms/3600000);
-  const m=Math.floor((ms%3600000)/60000);
-  return h>0?h+'h '+m+'m':m+'m';
+  if(!ms||ms<=0) return '0m';
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), s=Math.floor((ms%60000)/1000);
+  if(h>0) return h+'h '+m+'m';
+  if(m>0) return m+'m '+s+'s';
+  return s+'s';
 }
 function totalMsToday(empId){
   const today=getTodayKey();
-  return checkInRecords.filter(r=>r.empId===empId&&r.date===today)
-    .reduce((s,r)=>s+(r.totalMs||0)+(r.checkOut?0:(Date.now()-new Date(r.checkIn).getTime())),0);
+  return checkInRecords.filter(r=>r.empId===empId&&r.date===today).reduce((sum,r)=>{
+    return sum+(r.totalMs||0)+( r.checkOut?0:(Date.now()-new Date(r.checkIn).getTime()) );
+  },0);
 }
 async function doCheckIn(){
-  if(!currentUser?.empId){toast('Account not linked to employee record','err');return;}
-  if(getTodayRecord(currentUser.empId)){toast('Already checked in','info');return;}
-  const rec={id:'ci_'+Date.now(),empId:currentUser.empId,empName:currentUser.name,
-    date:getTodayKey(),checkIn:new Date().toISOString(),checkOut:null,totalMs:0};
+  if(!currentUser?.empId){ toast('Account not linked to employee record — contact admin','err'); return; }
+  if(getActiveRecord(currentUser.empId)){ toast('Already checked in','info'); return; }
+  const rec={id:'ci_'+Date.now()+'_'+currentUser.empId, empId:currentUser.empId,
+    empName:currentUser.name, date:getTodayKey(), checkIn:new Date().toISOString(), checkOut:null, totalMs:0};
   checkInRecords.unshift(rec);
   await saveCheckInRecords();
   renderCheckInBar();
-  startCheckInTimer();
-  logActivity('checkin','','',`${currentUser.name} checked in`);
-  toast('Checked in ✓','ok');
+  logActivity('checkin','','',currentUser.name+' checked in');
+  toast('Checked in','ok');
 }
 async function doCheckOut(){
-  if(!currentUser?.empId)return;
-  const rec=getTodayRecord(currentUser.empId);
-  if(!rec){toast('Not checked in','info');return;}
+  if(!currentUser?.empId) return;
+  const rec=getActiveRecord(currentUser.empId);
+  if(!rec){ toast('Not currently checked in','info'); return; }
   rec.checkOut=new Date().toISOString();
   rec.totalMs=(rec.totalMs||0)+(new Date(rec.checkOut)-new Date(rec.checkIn));
   await saveCheckInRecords();
-  stopCheckInTimer();
+  stopCiTimers();
   renderCheckInBar();
-  logActivity('checkin','','',`${currentUser.name} checked out — ${fmtDuration(rec.totalMs)} today`);
-  toast(`Checked out ✓ — ${fmtDuration(rec.totalMs)} today`,'ok');
+  logActivity('checkin','','',currentUser.name+' checked out — '+fmtDuration(rec.totalMs)+' today');
+  toast('Checked out — '+fmtDuration(rec.totalMs)+' today','ok');
 }
-function startCheckInTimer(){
-  stopCheckInTimer();
-  _checkInTimer=setInterval(()=>{
-    const t=document.getElementById('ci-timer');
-    if(t&&currentUser?.empId){
-      const ms=totalMsToday(currentUser.empId);
-      t.textContent=fmtDuration(ms);
-    }
-  },1000);
+function stopCiTimers(){
+  if(_checkInTimer){ clearInterval(_checkInTimer); _checkInTimer=null; }
+  if(_ciAdminTimer){ clearInterval(_ciAdminTimer); _ciAdminTimer=null; }
 }
-function stopCheckInTimer(){if(_checkInTimer){clearInterval(_checkInTimer);_checkInTimer=null;}}
 function renderCheckInBar(){
   const bar=document.getElementById('checkInBar');
-  if(!bar)return;
-  if(!features.checkIn||currentUser?.role==='admin'||currentUser?.role==='stakeholder'){bar.style.display='none';return;}
+  if(!bar) return;
+  if(!features.checkIn||currentUser?.role==='admin'||currentUser?.role==='stakeholder'){
+    bar.style.display='none'; return;
+  }
   bar.style.display='flex';
-  if(!currentUser?.empId){bar.innerHTML='<span style="color:var(--tx3);font-size:.78rem;"><i class="fas fa-exclamation-circle"></i> Account not linked to employee — contact admin</span>';return;}
-  const rec=getTodayRecord(currentUser.empId);
+  if(!currentUser?.empId){
+    bar.innerHTML='<span class="ci-label">Check-In</span>'
+      +'<span style="font-size:.8rem;color:var(--tx3);"><i class="fas fa-exclamation-circle"></i> Account not linked to employee record</span>';
+    return;
+  }
+  const rec=getActiveRecord(currentUser.empId);
   const totalMs=totalMsToday(currentUser.empId);
+  const checkedToday=checkInRecords.some(r=>r.empId===currentUser.empId&&r.date===getTodayKey()&&r.checkOut);
   if(rec){
-    bar.innerHTML=`
-      <div class="ci-status ci-in"><i class="fas fa-circle ci-dot-live"></i> Checked in</div>
-      <div class="ci-time" id="ci-timer">${fmtDuration(totalMs)}</div>
-      <button class="ci-btn ci-out" onclick="doCheckOut()"><i class="fas fa-sign-out-alt"></i> Check Out</button>`;
-    startCheckInTimer();
+    bar.innerHTML='<span class="ci-label">Attendance</span>'
+      +'<div class="ci-divider"></div>'
+      +'<div class="ci-status ci-in"><span class="ci-dot-live"></span> Checked In</div>'
+      +'<div class="ci-time" id="ci-bar-timer">'+fmtDuration(totalMs)+'</div>'
+      +'<div class="ci-divider"></div>'
+      +'<button class="ci-btn ci-btn-out" onclick="doCheckOut()"><i class="fas fa-sign-out-alt"></i> Check Out</button>';
+    if(_checkInTimer) clearInterval(_checkInTimer);
+    _checkInTimer=setInterval(()=>{
+      const el=document.getElementById('ci-bar-timer');
+      if(el&&currentUser?.empId) el.textContent=fmtDuration(totalMsToday(currentUser.empId));
+    },1000);
   } else {
-    stopCheckInTimer();
-    const checkedToday=checkInRecords.some(r=>r.empId===currentUser.empId&&r.date===getTodayKey()&&r.checkOut);
-    bar.innerHTML=`
-      <div class="ci-status ci-idle"><i class="fas fa-circle"></i> ${checkedToday?'Done for today':'Not checked in'}</div>
-      ${totalMs>0?`<div class="ci-time">${fmtDuration(totalMs)} today</div>`:''}
-      ${!checkedToday?`<button class="ci-btn ci-in-btn" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>`:''}`;
+    if(_checkInTimer){ clearInterval(_checkInTimer); _checkInTimer=null; }
+    bar.innerHTML='<span class="ci-label">Attendance</span>'
+      +'<div class="ci-divider"></div>'
+      +'<div class="ci-status ci-idle"><i class="fas fa-circle" style="font-size:.5rem;opacity:.4;"></i> '
+      +(checkedToday?'Completed today':'Not checked in')+'</div>'
+      +(totalMs>0?'<div class="ci-time" style="font-size:.9rem;">'+fmtDuration(totalMs)+' today</div>':'')
+      +(checkedToday?'':'<button class="ci-btn ci-btn-in" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>');
   }
 }
 function renderCheckInAdmin(){
   const cont=document.getElementById('checkInAdminList');
-  if(!cont)return;
+  if(!cont) return;
+  if(_ciAdminTimer){ clearInterval(_ciAdminTimer); _ciAdminTimer=null; }
   const today=getTodayKey();
   const byEmp={};
-  // Group records by employee
   checkInRecords.filter(r=>r.date===today).forEach(r=>{
-    if(!byEmp[r.empId])byEmp[r.empId]={empId:r.empId,empName:r.empName,records:[],totalMs:0,active:false};
-    byEmp[r.empId].records.push(r);
-    byEmp[r.empId].totalMs+=(r.totalMs||0);
-    if(!r.checkOut){byEmp[r.empId].active=true;byEmp[r.empId].totalMs+=Date.now()-new Date(r.checkIn).getTime();}
+    if(!byEmp[r.empId]) byEmp[r.empId]={empId:r.empId,empName:r.empName,sessions:[],active:false};
+    byEmp[r.empId].sessions.push(r);
+    if(!r.checkOut) byEmp[r.empId].active=true;
+  });
+  employees.forEach(e=>{
+    if(!byEmp[e.id]) byEmp[e.id]={empId:e.id,empName:e.name,sessions:[],active:false};
   });
   const rows=Object.values(byEmp);
-  if(!rows.length){cont.innerHTML='<div style="text-align:center;padding:30px;color:var(--tx3);"><i class="fas fa-clock" style="font-size:2rem;display:block;margin-bottom:10px;opacity:.4;"></i>No check-ins yet today</div>';return;}
-  // Also show employees with no check-in today
-  employees.forEach(e=>{if(!byEmp[e.id])rows.push({empId:e.id,empName:e.name,records:[],totalMs:0,active:false});});
-  cont.innerHTML=`<table class="emp-table" style="width:100%;"><thead><tr>
-    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Employee</th>
-    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Status</th>
-    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Check-In</th>
-    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Check-Out</th>
-    <th style="text-align:left;padding:8px 12px;font-size:.74rem;color:var(--tx3);font-weight:500;">Total Today</th>
-  </tr></thead><tbody>${rows.sort((a,b)=>b.totalMs-a.totalMs).map(row=>{
-    const last=row.records[row.records.length-1];
-    const statusHtml=row.active
-      ? '<span class="st-a" style="background:var(--green-l);color:var(--green);"><i class="fas fa-circle" style="font-size:.45rem;animation:pulse 1.5s infinite;"></i> Active</span>'
-      : row.records.length?'<span class="st-f" style="background:var(--blue-l);color:var(--blue);">Checked Out</span>'
-      :'<span class="st-f">Not In</span>';
-    const ciTime=last?new Date(last.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
-    const coTime=last?.checkOut?new Date(last.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):row.active?'<span style="color:var(--green);font-style:italic;">Active</span>':'—';
-    const totalDisp=row.totalMs>0?fmtDuration(row.totalMs):'—';
-    return `<tr style="border-top:1px solid var(--brd);">
-      <td style="padding:10px 12px;font-weight:500;font-size:.83rem;">${esc(row.empName)}</td>
-      <td style="padding:10px 12px;">${statusHtml}</td>
-      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">${ciTime}</td>
-      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">${coTime}</td>
-      <td style="padding:10px 12px;font-weight:600;font-size:.83rem;color:${row.active?'var(--green)':'var(--tx)'};">${totalDisp}</td>
-    </tr>`;
-  }).join('')}</tbody></table>`;
+  const activeCount=rows.filter(r=>r.active).length;
+  const doneCount=rows.filter(r=>!r.active&&r.sessions.length>0).length;
+  const notInCount=rows.filter(r=>r.sessions.length===0).length;
+  const summary='<div class="ci-summary">'
+    +'<div class="ci-summary-card green"><div class="val">'+activeCount+'</div><div class="lbl">Active Now</div></div>'
+    +'<div class="ci-summary-card"><div class="val">'+doneCount+'</div><div class="lbl">Checked Out</div></div>'
+    +'<div class="ci-summary-card red"><div class="val">'+notInCount+'</div><div class="lbl">Not In</div></div>'
+    +'<div class="ci-summary-card"><div class="val">'+rows.length+'</div><div class="lbl">Total Staff</div></div>'
+    +'</div>';
+  const sorted=[
+    ...rows.filter(r=>r.active),
+    ...rows.filter(r=>!r.active&&r.sessions.length>0),
+    ...rows.filter(r=>r.sessions.length===0)
+  ];
+  const cards=sorted.map(function(row){
+    const totalMs=totalMsToday(row.empId);
+    const lastSess=row.sessions.length?row.sessions[row.sessions.length-1]:null;
+    const ciTime=lastSess?new Date(lastSess.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
+    const coTime=lastSess&&lastSess.checkOut?new Date(lastSess.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):row.active?'Active':'—';
+    const statusDot=row.active
+      ?'<span class="ci-dot-live" style="width:7px;height:7px;flex-shrink:0;"></span><span style="color:var(--green);font-weight:600;font-size:.78rem;">Active</span>'
+      :row.sessions.length
+        ?'<i class="fas fa-check-circle" style="color:var(--blue);font-size:.72rem;"></i><span style="color:var(--tx2);font-size:.78rem;">Checked Out</span>'
+        :'<i class="fas fa-minus-circle" style="color:var(--tx3);font-size:.72rem;opacity:.5;"></i><span style="color:var(--tx3);font-size:.78rem;">Not In</span>';
+    return '<div class="ci-card'+(row.active?' active':'')+'">'+
+      '<div class="ci-card-name">'+esc(row.empName)+'</div>'+
+      '<div class="ci-card-status">'+statusDot+'</div>'+
+      '<div class="ci-card-row"><span>Check-In</span><span>'+ciTime+'</span></div>'+
+      '<div class="ci-card-row"><span>Check-Out</span><span>'+coTime+'</span></div>'+
+      '<div class="'+(totalMs>0?'ci-total'+(row.active?'':' inactive'):'ci-total inactive')+'" id="ci-total-'+row.empId+'">'+(totalMs>0?fmtDuration(totalMs):'—')+'</div>'+
+      '</div>';
+  }).join('');
+  cont.innerHTML=summary+'<div class="ci-admin-grid">'+cards+'</div>';
+  if(activeCount>0){
+    _ciAdminTimer=setInterval(function(){
+      rows.filter(function(r){return r.active;}).forEach(function(r){
+        const el=document.getElementById('ci-total-'+r.empId);
+        if(el) el.textContent=fmtDuration(totalMsToday(r.empId));
+      });
+    },1000);
+  }
 }
+
 
 // ══════════════════════════════════
 // CORE STATE
@@ -4414,17 +4521,11 @@ function startVisConfigPoll(){
       });
     }catch(e){}
   },15000);
-  // Auto-refresh check-in admin view every 30s
+  // Auto-refresh check-in admin badge every 30s (live timers handle the rest)
   setInterval(()=>{
     if(currentUser&&(currentUser.role==='admin'||currentUser.role==='manager')&&features.checkIn){
-      if(document.getElementById('page-checkin')?.classList.contains('active'))renderCheckInAdmin();
       const active=checkInRecords.filter(r=>r.date===getTodayKey()&&!r.checkOut).length;
       const nb=document.getElementById('nb-ci');if(nb)nb.textContent=active||'';
-    }
-    // Also keep employee timer accurate
-    if(currentUser?.empId&&getTodayRecord(currentUser.empId)){
-      const t=document.getElementById('ci-timer');
-      if(t)t.textContent=fmtDuration(totalMsToday(currentUser.empId));
     }
   },30000);
 }
