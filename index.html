@@ -1043,6 +1043,8 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
     <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);"><span style="display:inline-block;width:14px;height:14px;background:rgba(249,115,22,.18);border-radius:3px;"></span> Weekend</span>
     <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);"><span style="display:inline-block;width:14px;height:14px;background:rgba(139,92,246,.18);border-radius:3px;"></span> Holiday</span>
   </div>
+  <!-- ── Today's live dashboard ── -->
+  <div id="att-today-dash" style="margin-bottom:20px;"></div>
   <!-- ── Calendar grid ── -->
   <div id="attendList" style="overflow-x:auto;"></div>
   <!-- ── Daily detail panel (click a cell to see) ── -->
@@ -2008,7 +2010,6 @@ function renderCheckInBar(){
   }
   const rec=getActiveRecord(currentUser.empId);
   const totalMs=totalMsToday(currentUser.empId);
-  const checkedToday=checkInRecords.some(r=>r.empId===currentUser.empId&&r.date===getTodayKey()&&r.checkOut);
   if(rec){
     bar.innerHTML='<span class="ci-label">Attendance</span>'
       +'<div class="ci-divider"></div>'
@@ -2023,17 +2024,20 @@ function renderCheckInBar(){
     },1000);
   } else {
     if(_checkInTimer){ clearInterval(_checkInTimer); _checkInTimer=null; }
+    // Always allow re-check-in (supports breaks, multiple sessions per day)
+    const sessions = checkInRecords.filter(r=>r.empId===currentUser.empId&&r.date===getTodayKey());
+    const sessionCount = sessions.length;
     bar.innerHTML='<span class="ci-label">Attendance</span>'
       +'<div class="ci-divider"></div>'
       +'<div class="ci-status ci-idle"><i class="fas fa-circle" style="font-size:.5rem;opacity:.4;"></i> '
-      +(checkedToday?'Completed today':'Not checked in')+'</div>'
+      +(sessionCount>0?'On break':'Not checked in')+'</div>'
       +(totalMs>0?'<div class="ci-time" style="font-size:.9rem;">'+fmtDuration(totalMs)+' today</div>':'')
-      +(checkedToday?'':'<button class="ci-btn ci-btn-in" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>');
+      +'<div class="ci-divider"></div>'
+      +'<button class="ci-btn ci-btn-in" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>';
   }
 }
 function ciGoToday(){
-  const picker=document.getElementById('ci-date-picker');
-  if(picker){ picker.value=getTodayKey(); renderCheckInAdmin(); }
+  attGoThisMonth();
 }
 function renderCheckInAdmin(){
   const cont=document.getElementById('checkInAdminList');
@@ -2213,7 +2217,27 @@ function attGoThisMonth(){
   const p = document.getElementById('att-month');
   if(p){ p.value = getTodayKey().slice(0,7); renderAttendance(); }
 }
+function renderAttendanceTodayDash(){
+  const dash = document.getElementById('att-today-dash');
+  if(!dash||!features.checkIn) return;
+  const today = getTodayKey();
+  const activeNow  = employees.filter(e=>!!getActiveRecord(e.id)).length;
+  const doneIds    = new Set(checkInRecords.filter(r=>r.date===today&&r.checkOut).map(r=>r.empId));
+  const anyToday   = new Set(checkInRecords.filter(r=>r.date===today).map(r=>r.empId));
+  const checkedOut = [...doneIds].filter(id=>!getActiveRecord(id)).length;
+  const notIn      = employees.length - anyToday.size;
+  const todayFmt   = new Date().toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'});
+  const totalHrsToday = employees.reduce((s,e)=>s+totalMsToday(e.id),0);
+  dash.innerHTML = '<div style="font-size:.78rem;font-weight:700;color:var(--tx3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Today &nbsp;·&nbsp; '+todayFmt+'</div>'
+    + '<div class="ci-summary">'
+    + '<div class="ci-summary-card green"><div class="val">'+activeNow+'</div><div class="lbl">Active Now</div></div>'
+    + '<div class="ci-summary-card"><div class="val">'+checkedOut+'</div><div class="lbl">Checked Out</div></div>'
+    + '<div class="ci-summary-card red"><div class="val">'+notIn+'</div><div class="lbl">Not In</div></div>'
+    + '<div class="ci-summary-card"><div class="val">'+employees.length+'</div><div class="lbl">Total Staff</div></div>'
+    + '</div>';
+}
 function renderAttendance(){
+  renderAttendanceTodayDash();
   const cont = document.getElementById('attendList');
   if(!cont) return;
   const mEl = document.getElementById('att-month');
@@ -2429,110 +2453,6 @@ async function saveCiEdit(){
   renderStats();
 }
 
-
-// ══════════════════════════════════
-// ATTENDANCE CLASSIFICATION
-// ══════════════════════════════════
-// <8h = half day; 8-9h = full day + alert badge; 9h+ = full day
-function classifyDaySpec(empId, date){
-  const ms = totalMsOnDate(empId, date);
-  if(!ms) return {type:'absent', ms:0, alert:false};
-  const hrs = ms / 3600000;
-  if(hrs >= 9) return {type:'full',  ms, alert:false};
-  if(hrs >= 8) return {type:'short', ms, alert:true};   // counted as full, shows alert
-  return           {type:'half',  ms, alert:false};      // <8h = half day
-}
-function dayBadgeHtml(cls){
-  if(cls.type==='full')
-    return '<span class="att-full"><i class="fas fa-check"></i> Full Day</span>';
-  if(cls.type==='short')
-    return '<span class="att-full"><i class="fas fa-check"></i> Full Day</span><span class="att-alert"><i class="fas fa-exclamation"></i> Short</span>';
-  if(cls.type==='half')
-    return '<span class="att-half"><i class="fas fa-adjust"></i> Half Day</span>';
-  return '<span class="att-absent">Absent</span>';
-}
-
-// ══════════════════════════════════
-// MONTHLY ATTENDANCE
-// ══════════════════════════════════
-// attGoThisMonth merged above
-function attToggle(id){
-  const el = document.getElementById(id);
-  if(el) el.style.display = el.style.display === 'none' ? '' : 'none';
-}
-function renderAttendance(){
-  const cont = document.getElementById('attList');
-  if(!cont) return;
-  const picker = document.getElementById('att-month-picker');
-  if(!picker) return;
-  if(!picker.value) picker.value = getTodayKey().slice(0,7);
-  const ym = picker.value;
-  const yr = parseInt(ym.slice(0,4)), mo = parseInt(ym.slice(5,7));
-  const daysInMonth = new Date(yr, mo, 0).getDate();
-  const today = getTodayKey();
-  const monthLabel = new Date(yr, mo-1, 1).toLocaleDateString([], {month:'long', year:'numeric'});
-  const dates = [];
-  for(let d=1; d<=daysInMonth; d++){
-    const ds = yr+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
-    if(ds > today) break;
-    dates.push(ds);
-  }
-  if(!dates.length){
-    cont.innerHTML = '<div style="text-align:center;padding:40px;color:var(--tx3);">No data for this period.</div>';
-    return;
-  }
-  const isAdmin = currentUser&&(currentUser.role==='admin'||currentUser.role==='manager');
-  const empCards = employees.map(function(emp){
-    let fullDays=0, shortDays=0, halfDays=0, absentDays=0, totalMs=0;
-    const trs = dates.map(function(date){
-      const cls = classifyDaySpec(emp.id, date);
-      if(cls.type==='full')       { fullDays++; }
-      else if(cls.type==='short') { fullDays++; shortDays++; }
-      else if(cls.type==='half')  { halfDays++; }
-      else                        { absentDays++; }
-      totalMs += cls.ms;
-      const dow = new Date(date+'T12:00:00').getDay();
-      const isWE = dow===0||dow===6;
-      const dayLbl = new Date(date+'T12:00:00').toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});
-      const sess = checkInRecords.filter(function(r){return r.empId===emp.id&&r.date===date;});
-      const inT  = sess.length ? new Date(sess[0].checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '—';
-      const last = sess[sess.length-1];
-      const outT = last&&last.checkOut ? new Date(last.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : (cls.ms&&!last?.checkOut?'Active':'—');
-      const editCell = isAdmin
-        ? '<td><button class="att-edit-btn" data-empid="'+emp.id+'" data-empname="'+esc(emp.name)+'" data-date="'+date+'" onclick="openCiEdit(this.dataset.empid,this.dataset.empname,this.dataset.date)"><i class="fas fa-pen"></i></button></td>'
-        : '';
-      return '<tr style="'+(isWE?'opacity:.55;':'')+'">'
-        +'<td style="color:var(--tx3);">'+dayLbl+'</td>'
-        +'<td>'+dayBadgeHtml(cls)+'</td>'
-        +'<td style="font-size:.74rem;">'+inT+'</td>'
-        +'<td style="font-size:.74rem;">'+outT+'</td>'
-        +'<td style="font-size:.74rem;">'+(cls.ms?fmtDuration(cls.ms):'—')+'</td>'
-        +editCell
-        +'</tr>';
-    });
-    const editTh = isAdmin ? '<th></th>' : '';
-    const cardId = 'attc-'+emp.id;
-    const summaryHtml =
-      '<span style="color:var(--green);"><i class="fas fa-check"></i> '+fullDays+'F</span>'+
-      '<span style="color:var(--yellow);"><i class="fas fa-adjust"></i> '+halfDays+'H</span>'+
-      '<span style="color:var(--tx3);"><i class="fas fa-times"></i> '+absentDays+'A</span>'+
-      (shortDays?'<span style="color:#f97316;"><i class="fas fa-exclamation"></i> '+shortDays+' short</span>':'')+
-      '<span style="color:var(--tx);font-weight:600;">'+fmtDuration(totalMs)+'</span>';
-    return '<div class="att-emp-card">'
-      +'<div class="att-emp-card-hdr" data-cardid="'+cardId+'" onclick="attToggle(this.dataset.cardid)">'
-        +'<div class="att-emp-name">'+esc(emp.name)+'</div>'
-        +'<div class="att-emp-summary">'+summaryHtml+'</div>'
-      +'</div>'
-      +'<div id="'+cardId+'" style="display:none;">'
-        +'<table class="att-month-table"><thead><tr>'
-          +'<th>Date</th><th>Status</th><th>In</th><th>Out</th><th>Duration</th>'+editTh
-        +'</tr></thead><tbody>'+trs.join('')+'</tbody></table>'
-      +'</div>'
-      +'</div>';
-  }).join('');
-  cont.innerHTML = '<h3 style="font-size:.95rem;font-weight:600;margin-bottom:14px;">'+monthLabel
-    +' &mdash; <span style="font-weight:400;color:var(--tx3);">'+dates.length+' working days tracked</span></h3>'+empCards;
-}
 
 let currentFilter='all', searchQ='', openProjId=null, editEmpId=null, editProjId=null;
 let projDocs={};
@@ -2778,7 +2698,7 @@ function renderStats(){
     {l:'Reviewed',v:tR.toLocaleString(),s:`${pct(tR,tI)}% done`,c:'y',i:'fa-eye'},
     {l:'Employees',v:can('seeAll')?employees.length:visibleProjects().reduce((s,p)=>{(p.assignedEmployees||[]).forEach(id=>s.add(id));(p.reviewEmployees||[]).forEach(id=>s.add(id));return s;},new Set()).size,s:can('seeAll')?`${asd} assigned`:'in your projects',c:'p',i:'fa-users'},
     {l:'Conflicts',v:cc.length,s:cc.length>0?`${[...multiAnnotators()].length} overloaded, ${[...dualRoleIds()].length} dual-role`:'All clear ✓',c:cc.length>0?'r':'g',i:'fa-exclamation-triangle'},
-  ].concat(features.checkIn&&can('seeAll')?[{l:'Checked In Today',v:(()=>{const t=getTodayKey();return checkInRecords.filter(r=>r.date===t&&!r.checkOut).length;})(),s:(()=>{const t=getTodayKey();const done=checkInRecords.filter(r=>r.date===t&&r.checkOut).length;return done>0?done+' completed today':'of '+employees.length+' staff';})(),c:'g',i:'fa-user-check'}]:[]).map(x=>`<div class="sc ${x.c}"><div class="sc-l">${x.l}</div><div class="sc-v">${x.v}</div><div class="sc-s">${x.s}</div></div>`).join('');
+  ].map(x=>`<div class="sc ${x.c}"><div class="sc-l">${x.l}</div><div class="sc-v">${x.v}</div><div class="sc-s">${x.s}</div></div>`).join('');
   document.getElementById('nb-p').textContent=projects.length;
   document.getElementById('nb-e').textContent=employees.length;
   const cc2=conflicts();
