@@ -399,7 +399,7 @@ tr:hover td{background:var(--sur2);}
 .stab.on{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
 
 @media(max-width:900px){.charts-grid{grid-template-columns:1fr;}.kanban-wrap{grid-template-columns:1fr 1fr;}}
-@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;max-width:100%;padding:14px;}.proj-grid{grid-template-columns:1fr;}.kanban-wrap{grid-template-columns:1fr;}.settings-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;max-width:100%;padding:14px;}.proj-grid{grid-template-columns:1fr;}.kanban-wrap{grid-template-columns:1fr;}.settings-grid{grid-template-columns:1fr;}#checkInBar{left:0;}}
 
 /* ═══ LOGIN ═══ */
 #loginScr{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
@@ -536,20 +536,21 @@ tr:hover td{background:var(--sur2);}
 /* ══════════════════════════════════════════════
    CHECK-IN BAR & ADMIN PANEL
 ══════════════════════════════════════════════ */
-/* Bar sits at the bottom of .main content area */
+/* Bar fixed at bottom of screen, right of sidebar - never affects page layout */
 #checkInBar{
   display:none;
   align-items:center;gap:14px;
-  padding:10px 20px;
+  padding:10px 24px;
   background:var(--sur);
   border-top:2px solid var(--red);
-  border-radius:0 0 var(--r) var(--r);
   flex-wrap:wrap;
-  position:sticky;bottom:0;
-  margin:24px -24px -22px;
-  z-index:50;
-  box-shadow:0 -2px 12px rgba(0,0,0,.07);
+  position:fixed;
+  bottom:0; left:252px; right:0;
+  z-index:200;
+  box-shadow:0 -2px 16px rgba(0,0,0,.10);
 }
+/* Push page content up so bar doesn't cover it */
+body.ci-bar-visible .main{ padding-bottom:60px; }
 .ci-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);}
 .ci-status{display:flex;align-items:center;gap:7px;font-size:.85rem;font-weight:600;}
 .ci-status.ci-in{color:var(--green);}
@@ -728,8 +729,6 @@ window.onerror = function(msg, src, line) {
 
 <!-- ═══ MAIN ═══ -->
 <main class="main">
-<!-- ═══ CHECK-IN BAR (sticky bottom bar for employees/reviewers/managers) ═══ -->
-<div id="checkInBar" style="display:none;"></div>
 
 <!-- DASHBOARD -->
 <div class="page active" id="page-dashboard">
@@ -983,16 +982,16 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   <div class="topbar">
     <h1 class="pg-title"><i class="fas fa-clock" style="color:var(--red)"></i> Check-In Records</h1>
     <div class="topbar-r">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);padding:6px 12px;">
+        <i class="fas fa-calendar" style="color:var(--tx3);font-size:.8rem;"></i>
+        <input type="date" id="ci-date-picker" onchange="renderCheckInAdmin()"
+          style="border:none;background:none;color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;cursor:pointer;">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="ciGoToday()"><i class="fas fa-calendar-day"></i> Today</button>
       <button class="btn btn-ghost btn-sm" onclick="renderCheckInAdmin()"><i class="fas fa-sync"></i> Refresh</button>
     </div>
   </div>
-  <div class="checkin-admin-wrap">
-    <div class="checkin-admin-hdr">
-      <h3 style="font-size:.95rem;font-weight:600;margin:0;display:flex;align-items:center;gap:8px;"><i class="fas fa-users"></i> Today's Attendance</h3>
-      <span style="font-size:.75rem;color:var(--tx3);">Live — refreshes every 30s</span>
-    </div>
-    <div id="checkInAdminList" style="padding:4px 0;min-height:80px;"></div>
-  </div>
+  <div id="checkInAdminList" style="min-height:80px;"></div>
 </div>
 
 <!-- ACTIVITY LOG (Admin + configurable for Manager/Reviewer) -->
@@ -1018,6 +1017,9 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 
 </main>
 </div>
+
+<!-- ═══ CHECK-IN BAR (fixed bottom bar for employees/reviewers/managers) ═══ -->
+<div id="checkInBar" style="display:none;"></div>
 
 <!-- ═══ DETAIL PANEL ═══ -->
 <div class="dp-overlay" id="dpOvl" onclick="closeDpBg(event)"></div>
@@ -1918,9 +1920,12 @@ function renderCheckInBar(){
   const bar=document.getElementById('checkInBar');
   if(!bar) return;
   if(!features.checkIn||currentUser?.role==='admin'||currentUser?.role==='stakeholder'){
-    bar.style.display='none'; return;
+    bar.style.display='none';
+    document.body.classList.remove('ci-bar-visible');
+    return;
   }
   bar.style.display='flex';
+  document.body.classList.add('ci-bar-visible');
   if(!currentUser?.empId){
     bar.innerHTML='<span class="ci-label">Check-In</span>'
       +'<span style="font-size:.8rem;color:var(--tx3);"><i class="fas fa-exclamation-circle"></i> Account not linked to employee record</span>';
@@ -1951,55 +1956,87 @@ function renderCheckInBar(){
       +(checkedToday?'':'<button class="ci-btn ci-btn-in" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>');
   }
 }
+function ciGoToday(){
+  const picker=document.getElementById('ci-date-picker');
+  if(picker){ picker.value=getTodayKey(); renderCheckInAdmin(); }
+}
 function renderCheckInAdmin(){
   const cont=document.getElementById('checkInAdminList');
   if(!cont) return;
+  // Stop old live timer
   if(_ciAdminTimer){ clearInterval(_ciAdminTimer); _ciAdminTimer=null; }
-  const today=getTodayKey();
+
+  // Determine which date to show
+  const picker=document.getElementById('ci-date-picker');
+  if(!picker) return;
+  if(!picker.value) picker.value=getTodayKey();
+  const viewDate=picker.value; // 'YYYY-MM-DD'
+  const isToday=(viewDate===getTodayKey());
+
+  // Build per-employee map for this date
   const byEmp={};
-  checkInRecords.filter(r=>r.date===today).forEach(r=>{
+  checkInRecords.filter(r=>r.date===viewDate).forEach(r=>{
     if(!byEmp[r.empId]) byEmp[r.empId]={empId:r.empId,empName:r.empName,sessions:[],active:false};
     byEmp[r.empId].sessions.push(r);
-    if(!r.checkOut) byEmp[r.empId].active=true;
+    if(!r.checkOut&&isToday) byEmp[r.empId].active=true;
   });
+  // Show all employees (not just those with records)
   employees.forEach(e=>{
     if(!byEmp[e.id]) byEmp[e.id]={empId:e.id,empName:e.name,sessions:[],active:false};
   });
   const rows=Object.values(byEmp);
-  const activeCount=rows.filter(r=>r.active).length;
+  const activeCount=isToday?rows.filter(r=>r.active).length:0;
   const doneCount=rows.filter(r=>!r.active&&r.sessions.length>0).length;
   const notInCount=rows.filter(r=>r.sessions.length===0).length;
-  const summary='<div class="ci-summary">'
-    +'<div class="ci-summary-card green"><div class="val">'+activeCount+'</div><div class="lbl">Active Now</div></div>'
-    +'<div class="ci-summary-card"><div class="val">'+doneCount+'</div><div class="lbl">Checked Out</div></div>'
+
+  // Date label
+  const dateLabel=isToday?'Today — '+new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})
+    :new Date(viewDate+'T12:00:00').toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Summary
+  const summary='<div style="margin-bottom:6px;font-size:.78rem;color:var(--tx3);font-weight:600;">'+dateLabel+'</div>'
+    +'<div class="ci-summary">'
+    +(isToday?'<div class="ci-summary-card green"><div class="val">'+activeCount+'</div><div class="lbl">Active Now</div></div>':'')
+    +'<div class="ci-summary-card"><div class="val">'+doneCount+'</div><div class="lbl">'+(isToday?'Checked Out':'Worked')+'</div></div>'
     +'<div class="ci-summary-card red"><div class="val">'+notInCount+'</div><div class="lbl">Not In</div></div>'
     +'<div class="ci-summary-card"><div class="val">'+rows.length+'</div><div class="lbl">Total Staff</div></div>'
     +'</div>';
+
+  // Sort: active first (today), then by total time desc, then name
   const sorted=[
     ...rows.filter(r=>r.active),
-    ...rows.filter(r=>!r.active&&r.sessions.length>0),
+    ...rows.filter(r=>!r.active&&r.sessions.length>0).sort((a,b)=>totalMsOnDate(b.empId,viewDate)-totalMsOnDate(a.empId,viewDate)),
     ...rows.filter(r=>r.sessions.length===0)
   ];
+
   const cards=sorted.map(function(row){
-    const totalMs=totalMsToday(row.empId);
-    const lastSess=row.sessions.length?row.sessions[row.sessions.length-1]:null;
-    const ciTime=lastSess?new Date(lastSess.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
-    const coTime=lastSess&&lastSess.checkOut?new Date(lastSess.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):row.active?'Active':'—';
+    const totalMs=isToday?totalMsToday(row.empId):totalMsOnDate(row.empId,viewDate);
+    // Show all sessions for the day (multiple check-in/out cycles)
+    const sessionRows=row.sessions.map(function(s){
+      const inT=new Date(s.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const outT=s.checkOut?new Date(s.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
+      const dur=s.checkOut?(s.totalMs||0):(isToday?(Date.now()-new Date(s.checkIn).getTime()):0);
+      return '<div class="ci-card-row" style="font-size:.73rem;">'
+        +'<span>'+inT+' → '+outT+'</span>'
+        +'<span style="color:var(--tx3);">'+( dur>0?fmtDuration(dur):'' )+'</span></div>';
+    }).join('');
     const statusDot=row.active
       ?'<span class="ci-dot-live" style="width:7px;height:7px;flex-shrink:0;"></span><span style="color:var(--green);font-weight:600;font-size:.78rem;">Active</span>'
       :row.sessions.length
-        ?'<i class="fas fa-check-circle" style="color:var(--blue);font-size:.72rem;"></i><span style="color:var(--tx2);font-size:.78rem;">Checked Out</span>'
+        ?'<i class="fas fa-check-circle" style="color:var(--blue);font-size:.72rem;"></i><span style="color:var(--tx2);font-size:.78rem;">'+( isToday?'Checked Out':'Worked' )+'</span>'
         :'<i class="fas fa-minus-circle" style="color:var(--tx3);font-size:.72rem;opacity:.5;"></i><span style="color:var(--tx3);font-size:.78rem;">Not In</span>';
     return '<div class="ci-card'+(row.active?' active':'')+'">'+
       '<div class="ci-card-name">'+esc(row.empName)+'</div>'+
       '<div class="ci-card-status">'+statusDot+'</div>'+
-      '<div class="ci-card-row"><span>Check-In</span><span>'+ciTime+'</span></div>'+
-      '<div class="ci-card-row"><span>Check-Out</span><span>'+coTime+'</span></div>'+
+      ( row.sessions.length ? sessionRows : '<div style="font-size:.73rem;color:var(--tx3);">No attendance</div>' )+
       '<div class="'+(totalMs>0?'ci-total'+(row.active?'':' inactive'):'ci-total inactive')+'" id="ci-total-'+row.empId+'">'+(totalMs>0?fmtDuration(totalMs):'—')+'</div>'+
       '</div>';
   }).join('');
+
   cont.innerHTML=summary+'<div class="ci-admin-grid">'+cards+'</div>';
-  if(activeCount>0){
+
+  // Live timers only for today
+  if(isToday&&activeCount>0){
     _ciAdminTimer=setInterval(function(){
       rows.filter(function(r){return r.active;}).forEach(function(r){
         const el=document.getElementById('ci-total-'+r.empId);
@@ -2007,6 +2044,10 @@ function renderCheckInAdmin(){
       });
     },1000);
   }
+}
+function totalMsOnDate(empId, date){
+  return checkInRecords.filter(r=>r.empId===empId&&r.date===date)
+    .reduce(function(sum,r){ return sum+(r.totalMs||0); },0);
 }
 
 
@@ -2035,6 +2076,8 @@ async function appInit(){
     loadNotificationsFromDB(),
     loadCheckInFromDB()
   ]);
+  // Re-render check-in bar NOW that DB data is loaded (fixes post-refresh state)
+  renderCheckInBar();
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
   startRealtime();
@@ -2218,7 +2261,11 @@ function switchPage(p){
   if(p==='analytics'){renderCharts();renderGantt();populateBurndownSel();}
   if(p==='settings')renderSettings();
   if(p==='users')renderUsers();
-  if(p==='checkin'){renderCheckInAdmin();document.getElementById('ci-date-lbl'||'') && (()=>{const el=document.getElementById('ci-date-lbl');if(el)el.textContent=new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'});})();}
+  if(p==='checkin'){
+    const picker=document.getElementById('ci-date-picker');
+    if(picker&&!picker.value) picker.value=getTodayKey();
+    renderCheckInAdmin();
+  }
   if(p==='actlog')renderActivityLog();
   if(p==='stakeholder')renderStakeholderDashboard();
   if(p==='access')renderAccessControl();
