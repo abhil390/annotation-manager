@@ -536,6 +536,38 @@ tr:hover td{background:var(--sur2);}
 </style>
 </head>
 <body>
+<script>
+/* ═══ LAYER 1: Boot guard — runs BEFORE main script ═══
+   Sets a sentinel. If main script parse-fails, sentinel stays false.
+   A second script block AFTER main checks it and shows the error banner.
+   window.onerror alone does NOT catch SyntaxErrors in script blocks. */
+window._appReady = false;
+window._showScriptError = function(msg) {
+  var b = document.getElementById('_jsErrBanner');
+  if (b) return;
+  b = document.createElement('div');
+  b.id = '_jsErrBanner';
+  b.style.cssText = [
+    'position:fixed;top:0;left:0;right:0;z-index:99999',
+    'background:#b91c1c;color:#fff;padding:18px 22px',
+    'font-family:monospace;font-size:.83rem;line-height:1.8',
+    'box-shadow:0 4px 24px rgba(0,0,0,.4)'
+  ].join(';');
+  b.innerHTML = '<strong style="font-size:.95rem">⚠ App script failed to load — login is unavailable</strong><br>'
+    + (msg ? msg + '<br>' : '')
+    + 'This usually means a recent code edit introduced a syntax error.<br>'
+    + '<button onclick="location.reload(true)" style="margin-top:10px;padding:6px 18px;background:#fff;color:#b91c1c;border:none;border-radius:4px;cursor:pointer;font-weight:700;">↺ Hard Refresh</button>'
+    + '&nbsp;<button onclick="localStorage.clear();location.reload(true)" style="margin-top:10px;padding:6px 14px;background:transparent;color:#fca5a5;border:1px solid #fca5a5;border-radius:4px;cursor:pointer;">Clear Cache + Refresh</button>';
+  document.body.insertBefore(b, document.body.firstChild);
+};
+/* Also catch runtime errors (non-parse) */
+window.onerror = function(msg, src, line) {
+  if (!window._appReady) {
+    window._showScriptError(msg + ' (line ' + line + ')');
+  }
+  return false;
+};
+</script>
 <div id="lovl" style="display:none;"><div class="spin"></div><div style="font-size:.93rem;font-weight:600;">Loading CamCom data...</div></div>
 <div class="toasts" id="toasts"></div>
 
@@ -557,7 +589,7 @@ tr:hover td{background:var(--sur2);}
     <p>Enter your credentials to access the platform</p>
     <div class="lf"><label>Email</label><input type="email" id="li-email" placeholder="your email address" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div class="lf"><label>Password</label><input type="password" id="li-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="lbtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    <button class="lbtn" id="loginBtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
@@ -1603,9 +1635,15 @@ async function saveUsersToDB(){
 // ══════════════════════════════════
 // AUTH
 // ══════════════════════════════════
-function doLogin(){
+async function doLogin(){
   const email=document.getElementById('li-email').value.trim().toLowerCase();
   const pwd=document.getElementById('li-pwd').value;
+  if(!appUsers||appUsers.length===0){
+    const btn=document.getElementById('loginBtn');
+    if(btn){btn.disabled=true;btn.textContent='Loading\u2026';}
+    try{await Promise.all([loadUsersFromDB(),loadEmpsFromDB()]);}catch(e){}
+    if(btn){btn.disabled=false;btn.textContent='Login';}
+  }
   const user=appUsers.find(u=>u.email.toLowerCase()===email&&u.pwd===pwd);
   if(!user){
     const err=document.getElementById('loginErr');
@@ -1616,6 +1654,9 @@ function doLogin(){
   startSession(user);
 }
 function quickLogin(role){
+  if(typeof startSession==='undefined'){
+    alert('Script not fully loaded. Please hard refresh (Ctrl+Shift+R).');return;
+  }
   const user=appUsers.find(u=>u.role===role);
   if(user)startSession(user);
 }
@@ -1852,13 +1893,13 @@ function renderCheckInAdmin(){
     const ciTime=last?new Date(last.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
     const coTime=last?.checkOut?new Date(last.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):row.active?'<span style="color:var(--green);font-style:italic;">Active</span>':'—';
     const totalDisp=row.totalMs>0?fmtDuration(row.totalMs):'—';
-    return \`<tr style="border-top:1px solid var(--brd);">
-      <td style="padding:10px 12px;font-weight:500;font-size:.83rem;">\${esc(row.empName)}</td>
-      <td style="padding:10px 12px;">\${statusHtml}</td>
-      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">\${ciTime}</td>
-      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">\${coTime}</td>
-      <td style="padding:10px 12px;font-weight:600;font-size:.83rem;color:\${row.active?'var(--green)':'var(--tx)'};">\${totalDisp}</td>
-    </tr>\`;
+    return `<tr style="border-top:1px solid var(--brd);">
+      <td style="padding:10px 12px;font-weight:500;font-size:.83rem;">${esc(row.empName)}</td>
+      <td style="padding:10px 12px;">${statusHtml}</td>
+      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">${ciTime}</td>
+      <td style="padding:10px 12px;font-size:.78rem;color:var(--tx2);">${coTime}</td>
+      <td style="padding:10px 12px;font-weight:600;font-size:.83rem;color:${row.active?'var(--green)':'var(--tx)'};">${totalDisp}</td>
+    </tr>`;
   }).join('')}</tbody></table>`;
 }
 
@@ -4847,7 +4888,22 @@ function updateNbDot(){
 }
 
 fillDemoLabels();
+window._appReady = true; // main script fully parsed + executed — login is safe
 tryRestoreSession();
+</script>
+
+<!-- ═══ LAYER 2: Parse-error detector ═══
+  This script block runs AFTER the main block.
+  If the main block had a SyntaxError, it was silently skipped by the browser.
+  _appReady will still be false, so we show the error banner here.
+  This is the ONLY reliable way to detect JS parse failures. -->
+<script>
+(function() {
+  // Give the main script 0ms to complete (it's synchronous, so it already ran or didn't)
+  if (!window._appReady) {
+    window._showScriptError('Main script block did not execute — likely a SyntaxError from a recent code edit.');
+  }
+})();
 </script>
 
 <!-- ═══ MODAL: DAILY REPORT ═══ -->
