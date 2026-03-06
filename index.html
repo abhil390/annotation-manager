@@ -385,6 +385,30 @@ tr:hover td{background:var(--sur2);}
 
 /* TOAST + LOADING */
 .toasts{position:fixed;bottom:20px;right:20px;z-index:999;display:flex;flex-direction:column;gap:6px;}
+/* ── Check-in live alert banners ── */
+.ci-alerts{position:fixed;top:18px;right:18px;z-index:9998;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+.ci-alert{pointer-events:all;min-width:280px;max-width:340px;border-radius:12px;padding:14px 16px 10px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:flex;flex-direction:column;gap:6px;animation:ciIn .28s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;}
+.ci-alert.ci-in {background:var(--sur);border:1.5px solid var(--green);}
+.ci-alert.ci-out{background:var(--sur);border:1.5px solid #f97316;}
+.ci-alert-row{display:flex;align-items:center;gap:10px;}
+.ci-alert-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ci-in  .ci-alert-dot{background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 1.2s infinite;}
+.ci-out .ci-alert-dot{background:#f97316;}
+.ci-alert-name{font-weight:700;font-size:.88rem;color:var(--tx);flex:1;}
+.ci-alert-action{font-size:.75rem;color:var(--tx3);}
+.ci-alert-time{font-size:.7rem;color:var(--tx3);margin-left:auto;white-space:nowrap;}
+.ci-alert-close{position:absolute;top:8px;right:10px;background:none;border:none;cursor:pointer;color:var(--tx3);font-size:.8rem;padding:2px 5px;border-radius:4px;line-height:1;}
+.ci-alert-close:hover{background:var(--sur2);color:var(--tx);}
+.ci-alert-bar{position:absolute;bottom:0;left:0;height:3px;border-radius:0 0 12px 12px;animation:ciBar 8s linear forwards;}
+.ci-in  .ci-alert-bar{background:var(--green);}
+.ci-out .ci-alert-bar{background:#f97316;}
+.ci-alert-dur{font-size:.72rem;font-weight:600;margin-left:20px;}
+.ci-in  .ci-alert-dur{color:var(--green);}
+.ci-out .ci-alert-dur{color:#f97316;}
+@keyframes ciIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes ciOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(120%)}}
+@keyframes ciBar{from{width:100%}to{width:0%}}
+
 .toast{background:var(--sur);border:1px solid var(--brd);border-radius:10px;padding:9px 14px;font-size:.79rem;box-shadow:var(--sh);display:flex;align-items:center;gap:6px;animation:tIn .2s ease;max-width:270px;}
 .toast.ok{border-color:var(--green);color:var(--green);}.toast.err{border-color:#dc2626;color:#dc2626;}.toast.info{border-color:var(--blue);color:var(--blue);}
 @keyframes tIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -682,6 +706,7 @@ window.onerror = function(msg, src, line) {
 </script>
 <div id="lovl" style="display:none;"><div class="spin"></div><div style="font-size:.93rem;font-weight:600;">Loading CamCom data...</div></div>
 <div class="toasts" id="toasts"></div>
+<div class="ci-alerts" id="ciAlerts"></div>
 
 <!-- ══════════ LOGIN SCREEN ══════════ -->
 <div id="loginScr">
@@ -2034,12 +2059,48 @@ async function broadcastCiNotif(empName, type, duration){
     }catch(e){console.warn('ci notif push',e);}
   }
 }
-function receiveCiNotif(text,type){
+function receiveCiNotif(text,type,empName,duration){
   if(!currentUser) return;
   const ok=(currentUser.role==='admin'&&features.ciNotifAdmin)||(currentUser.role==='manager'&&features.ciNotifManager);
   if(!ok) return;
   playCiSound(type);
+  showCiAlert(empName||text, type, duration||0);
 }
+function showCiAlert(empName, type, duration){
+  const container=document.getElementById('ciAlerts');
+  if(!container) return;
+  const isIn=type==='in';
+  const action=isIn?'Checked In':'Checked Out';
+  const timeStr=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const durHtml=(!isIn&&duration)?'<span class="ci-alert-dur">'+fmtDuration(duration)+' today</span>':'';
+  const el=document.createElement('div');
+  el.className='ci-alert '+(isIn?'ci-in':'ci-out');
+  const uid='cia_'+Date.now();
+  el.id=uid;
+  el.innerHTML=
+    '<button class="ci-alert-close" onclick="closeCiAlert(\''+uid+'\')" title="Dismiss">✕</button>'
+    +'<div class="ci-alert-row">'
+      +'<span class="ci-alert-dot"></span>'
+      +'<span class="ci-alert-name">'+esc(empName)+'</span>'
+      +'<span class="ci-alert-time">'+timeStr+'</span>'
+    +'</div>'
+    +'<div class="ci-alert-row" style="padding-left:20px;">'
+      +'<span class="ci-alert-action">'+(isIn?'🟢':'🔴')+' '+action+'</span>'
+      +durHtml
+    +'</div>'
+    +'<div class="ci-alert-bar"></div>';
+  container.appendChild(el);
+  // Auto-dismiss with fade after 8s
+  setTimeout(()=>dismissCiAlert(uid), 8000);
+}
+function dismissCiAlert(uid){
+  const el=document.getElementById(uid);
+  if(!el) return;
+  el.style.animation='ciOut .4s ease forwards';
+  setTimeout(()=>el.remove(), 400);
+}
+function closeCiAlert(uid){ dismissCiAlert(uid); }
+
 async function doCheckIn(){
   if(!currentUser?.empId){ toast('Account not linked to employee record — contact admin','err'); return; }
   if(getActiveRecord(currentUser.empId)){ toast('Already checked in','info'); return; }
@@ -5301,7 +5362,16 @@ function startRealtime(){
             if(document.getElementById('notifPanel')?.classList.contains('open'))renderNotifList();
             // Sound for check-in/out notifications received via RT
             const newCi=remote.filter(n=>!n.read&&n.projId==='__ci__');
-            if(newCi.length){ const t=newCi[0].text.startsWith('🟢')?'in':'out'; receiveCiNotif(newCi[0].text,t); }
+            if(newCi.length){
+              const notif=newCi[0];
+              const ciType=notif.text.startsWith('🟢')?'in':'out';
+              // Extract name: text = '🟢 Manoj Kumar checked in  ·  1h 20m today'
+              const nameMatch=notif.text.match(/^[🟢🔴]\s(.+?)\s(?:checked in|checked out)/);
+              const ciName=nameMatch?nameMatch[1]:notif.text;
+              // Extract duration if present
+              const durMatch=notif.text.match(/·\s+(.*?)\stoday/);
+              receiveCiNotif(notif.text, ciType, ciName, durMatch?durMatch[1]:null);
+            }
           }
         }catch(e){}
       })
