@@ -239,6 +239,8 @@ select.fsel{padding:5px 11px;border-radius:var(--rp);font-size:.75rem;border:1px
 .np-proj{font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:2px;}
 .np-text{font-size:.78rem;color:var(--tx2);line-height:1.45;}
 .np-time{font-size:.65rem;color:var(--tx3);margin-top:3px;}
+.np-ci-item{border-left:3px solid var(--green);background:rgba(22,163,74,.04);}
+.np-ci-item .np-proj{color:var(--green);font-weight:700;}
 .np-empty{padding:36px 20px;text-align:center;color:var(--tx3);font-size:.82rem;}
 /* realtime indicator */
 .no-create .newproj-btn,
@@ -744,6 +746,7 @@ window.onerror = function(msg, src, line) {
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
   <button class="nav-btn" data-page="users" id="nav-users" style="display:none" onclick="switchPage('users')"><i class="fas fa-user-shield"></i> Manage Users</button>
   <button class="nav-btn" id="nav-checkin" data-page="checkin" style="display:none" onclick="switchPage('checkin')"><i class="fas fa-clock"></i> Attendance</button>
+  <button class="nav-btn" id="nav-myatt" data-page="myatt" style="display:none" onclick="switchPage('myatt')"><i class="fas fa-user-clock"></i> My Attendance</button>
   <button class="nav-btn" data-page="actlog" id="nav-actlog" style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
   <button class="nav-btn" data-page="stakeholder" id="nav-stakeholder" style="display:none" onclick="switchPage('stakeholder')"><i class="fas fa-eye"></i> My Dashboard</button>
   <div class="sidebar-foot">
@@ -1051,6 +1054,24 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   <div id="att-detail-panel" style="display:none;margin-top:16px;"></div>
 </div>
 
+
+<!-- EMPLOYEE MY ATTENDANCE PAGE -->
+<div class="page" id="page-myatt">
+  <div class="topbar">
+    <h1 class="pg-title"><i class="fas fa-user-clock" style="color:var(--red)"></i> My Attendance</h1>
+    <div class="topbar-r">
+      <div style="display:flex;align-items:center;gap:8px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);padding:6px 12px;">
+        <i class="fas fa-calendar-alt" style="color:var(--tx3);font-size:.8rem;"></i>
+        <input type="month" id="myatt-month" onchange="renderMyAttendance()"
+          style="border:none;background:none;color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;cursor:pointer;">
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="myAttGoThisMonth()"><i class="fas fa-calendar-day"></i> This Month</button>
+      <button class="btn btn-ghost btn-sm" onclick="renderMyAttendance()"><i class="fas fa-sync"></i> Refresh</button>
+    </div>
+  </div>
+  <div id="myatt-summary" style="margin-bottom:18px;"></div>
+  <div id="myatt-list"></div>
+</div>
 
 <!-- ACTIVITY LOG (Admin + configurable for Manager/Reviewer) -->
 <div class="page" id="page-actlog">
@@ -1886,6 +1907,7 @@ function applyRoleToUI(){
   const canLog=role==='admin'||!!(visConfig.actLogVisible[role]);
   showId('nav-actlog', canLog);
   showId('nav-checkin', (role==='admin'||role==='manager')&&features.checkIn);
+  showId('nav-myatt',   (role==='employee'||role==='reviewer'||role==='manager')&&features.checkIn);
     // Check-in bar for employees and reviewers
   if(features.checkIn&&(role==='employee'||role==='manager'||role==='reviewer')){
     renderCheckInBar();
@@ -1918,12 +1940,14 @@ function applyRoleToUI(){
   if(role==='employee'&&!currentUser.empId){
     setTimeout(()=>toast('⚠ Account not linked to an employee record — contact admin.','info'),600);
   }
+  // Sync project badge to visible count (not total)
+  setTimeout(()=>{ const el=document.getElementById('nb-p'); if(el) el.textContent=can('seeAll')?projects.length:visibleProjects().length; },50);
 }
 
 // ══════════════════════════════════
 // FEATURE FLAGS
 // ══════════════════════════════════
-let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true,exportCSV:true,workload:true,dailyTarget:true,fileUpload:true,checkIn:true};
+let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true,exportCSV:true,workload:true,dailyTarget:true,fileUpload:true,checkIn:true,ciNotifAdmin:true,ciNotifManager:true};
 
 // ══════════════════════════════════
 // CHECK-IN STATE
@@ -1966,6 +1990,56 @@ function totalMsToday(empId){
     return sum+(r.totalMs||0)+( r.checkOut?0:(Date.now()-new Date(r.checkIn).getTime()) );
   },0);
 }
+// ══════════════════════════════════
+// CHECK-IN SOUND NOTIFICATIONS
+// ══════════════════════════════════
+function playCiSound(type){
+  try{
+    const ctx=new (window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    if(type==='in'){
+      osc.frequency.setValueAtTime(660,ctx.currentTime);
+      osc.frequency.setValueAtTime(880,ctx.currentTime+0.12);
+    } else {
+      osc.frequency.setValueAtTime(880,ctx.currentTime);
+      osc.frequency.setValueAtTime(550,ctx.currentTime+0.12);
+    }
+    gain.gain.setValueAtTime(0.18,ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime+0.4);
+  }catch(e){}
+}
+async function broadcastCiNotif(empName, type, duration){
+  const emoji=type==='in'?'🟢':'🔴';
+  const action=type==='in'?'checked in':'checked out';
+  const durStr=duration?'  ·  '+fmtDuration(duration)+' today':'';
+  const text=emoji+' '+empName+' '+action+durStr;
+  const ts=new Date().toISOString();
+  const targets=appUsers.filter(u=>{
+    if(u.role==='admin')   return features.ciNotifAdmin;
+    if(u.role==='manager') return features.ciNotifManager;
+    return false;
+  });
+  for(const target of targets){
+    const isMe=currentUser&&target.id===currentUser.id;
+    const notif={id:'cin_'+Date.now()+'_'+target.id, userId:target.id,
+      projId:'__ci__', projName:'Attendance', text, ts, read:isMe};
+    try{
+      const{data}=await sb.from('app_settings').select('value').eq('key','notifs_'+target.id).single();
+      const arr=data?.value?JSON.parse(data.value):[];
+      arr.unshift(notif);
+      await sb.from('app_settings').upsert({key:'notifs_'+target.id,value:JSON.stringify(arr.slice(0,200))},{onConflict:'key'});
+    }catch(e){console.warn('ci notif push',e);}
+  }
+}
+function receiveCiNotif(text,type){
+  if(!currentUser) return;
+  const ok=(currentUser.role==='admin'&&features.ciNotifAdmin)||(currentUser.role==='manager'&&features.ciNotifManager);
+  if(!ok) return;
+  playCiSound(type);
+}
 async function doCheckIn(){
   if(!currentUser?.empId){ toast('Account not linked to employee record — contact admin','err'); return; }
   if(getActiveRecord(currentUser.empId)){ toast('Already checked in','info'); return; }
@@ -1975,7 +2049,8 @@ async function doCheckIn(){
   await saveCheckInRecords();
   renderCheckInBar();
   logActivity('checkin','','',currentUser.name+' checked in');
-  toast('Checked in','ok');
+  toast('Checked in ✓','ok');
+  broadcastCiNotif(currentUser.name,'in',0);
 }
 async function doCheckOut(){
   if(!currentUser?.empId) return;
@@ -1988,6 +2063,7 @@ async function doCheckOut(){
   renderCheckInBar();
   logActivity('checkin','','',currentUser.name+' checked out — '+fmtDuration(rec.totalMs)+' today');
   toast('Checked out — '+fmtDuration(rec.totalMs)+' today','ok');
+  broadcastCiNotif(currentUser.name,'out',rec.totalMs);
 }
 function stopCiTimers(){
   if(_checkInTimer){ clearInterval(_checkInTimer); _checkInTimer=null; }
@@ -2139,9 +2215,9 @@ function totalMsOnDate(empId, date){
 // PUBLIC HOLIDAYS
 // ══════════════════════════════════
 let publicHolidays = []; // [{date:'YYYY-MM-DD', name:'...'}]
-function saveHolidays(){
+async function saveHolidays(){
   try{ localStorage.setItem('cc_holidays', JSON.stringify(publicHolidays)); }catch(e){}
-  sb.from('app_settings').upsert({key:'public_holidays', value:JSON.stringify(publicHolidays)},{onConflict:'key'}).catch(()=>{});
+  try{ await sb.from('app_settings').upsert({key:'public_holidays', value:JSON.stringify(publicHolidays)},{onConflict:'key'}); }catch(e){ console.warn('Holiday save',e); }
 }
 function loadHolidaysLocal(){
   try{ const s=localStorage.getItem('cc_holidays'); if(s) publicHolidays=JSON.parse(s); }catch(e){}
@@ -2175,25 +2251,27 @@ function renderHolidayList(){
         +'</div>').join('')
     + '</div>';
 }
-function addHoliday(){
+async function addHoliday(){
   const d = document.getElementById('hol-date').value;
   const n = document.getElementById('hol-name').value.trim();
   if(!d){ toast('Select a date','err'); return; }
   if(!n){ toast('Enter holiday name','err'); return; }
   if(publicHolidays.some(h=>h.date===d)){ toast('Holiday already exists for this date','info'); return; }
   publicHolidays.push({date:d, name:n});
-  saveHolidays();
+  await saveHolidays();
   renderHolidayList();
-  if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+  renderAttendance();
+  renderMyAttendance();
   document.getElementById('hol-date').value='';
   document.getElementById('hol-name').value='';
   toast('Holiday added: '+n,'ok');
 }
-function deleteHoliday(date){
+async function deleteHoliday(date){
   publicHolidays = publicHolidays.filter(h=>h.date!==date);
-  saveHolidays();
+  await saveHolidays();
   renderHolidayList();
-  if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+  renderAttendance();
+  renderMyAttendance();
   toast('Holiday removed','ok');
 }
 
@@ -2216,6 +2294,92 @@ function classifyDaySpec(empId, date){
 function attGoThisMonth(){
   const p = document.getElementById('att-month');
   if(p){ p.value = getTodayKey().slice(0,7); renderAttendance(); }
+}
+function myAttGoThisMonth(){
+  const p=document.getElementById('myatt-month');
+  if(p){ const n=new Date(); p.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); renderMyAttendance(); }
+}
+function renderMyAttendance(){
+  const listEl=document.getElementById('myatt-list');
+  const sumEl=document.getElementById('myatt-summary');
+  if(!listEl) return;
+  if(!currentUser?.empId){
+    listEl.innerHTML='<div style="padding:30px;text-align:center;color:var(--tx3);">Account not linked to employee record. Contact admin.</div>';
+    return;
+  }
+  const mEl=document.getElementById('myatt-month');
+  if(!mEl) return;
+  if(!mEl.value){ const n=new Date(); mEl.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+  const ym=mEl.value;
+  const yr=parseInt(ym.slice(0,4)), mo=parseInt(ym.slice(5,7));
+  const today=getTodayKey();
+  const monthLabel=new Date(yr,mo-1,1).toLocaleDateString([],{month:'long',year:'numeric'});
+  const empId=currentUser.empId;
+  const dates=[];
+  for(let d=1;d<=new Date(yr,mo,0).getDate();d++){
+    const ds=yr+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    if(ds>today) break;
+    dates.push(ds);
+  }
+  if(!dates.length){
+    listEl.innerHTML='<div style="padding:30px;text-align:center;color:var(--tx3);">No data yet for this month.</div>';
+    if(sumEl) sumEl.innerHTML='';
+    return;
+  }
+  let full=0,half=0,short=0,absent=0,totalMs=0;
+  const rows=dates.map(function(date){
+    const dow=new Date(date+'T12:00:00').getDay();
+    const isWE=dow===0||dow===6;
+    const isHol=isHoliday(date);
+    const cls=classifyDaySpec(empId,date);
+    totalMs+=cls.ms;
+    if(!isWE&&!isHol){
+      if(cls.type==='full')       full++;
+      else if(cls.type==='short') { full++; short++; }
+      else if(cls.type==='half')  half++;
+      else                        absent++;
+    }
+    const sess=checkInRecords.filter(r=>r.empId===empId&&r.date===date);
+    const inT=sess.length?new Date(sess[0].checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
+    const last=sess.length?sess[sess.length-1]:null;
+    const activeNow=date===today&&!!getActiveRecord(empId);
+    const outT=activeNow?'<span style="color:var(--green);font-size:.72rem;font-weight:700;">● Active now</span>'
+      :(last&&last.checkOut?new Date(last.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—');
+    const holTag=isHol?'<span style="font-size:.65rem;color:rgba(139,92,246,.85);margin-left:5px;">🎉 '+esc(getHolidayName(date))+'</span>':'';
+    const dayFmt=new Date(date+'T12:00:00').toLocaleDateString([],{weekday:'short',day:'numeric',month:'short'});
+    const bgCol=date===today?'var(--red-l)':isHol?'rgba(139,92,246,.05)':isWE?'rgba(249,115,22,.05)':'';
+    const badge=activeNow?'<span class="att-full" style="font-size:.68rem;"><span class="ci-dot-live" style="width:6px;height:6px;"></span> Active</span>'
+      :cls.type==='full'&&!cls.alert?'<span class="att-full" style="font-size:.68rem;"><i class="fas fa-check"></i> Full Day</span>'
+      :cls.type==='short'?'<span class="att-full" style="font-size:.68rem;"><i class="fas fa-check"></i> Full</span><span class="att-alert" style="font-size:.62rem;"><i class="fas fa-exclamation"></i></span>'
+      :cls.type==='half'?'<span class="att-half" style="font-size:.68rem;"><i class="fas fa-adjust"></i> Half Day</span>'
+      :isHol?'<span class="att-absent" style="font-size:.68rem;">Holiday</span>'
+      :isWE?'<span class="att-absent" style="font-size:.68rem;">Weekend</span>'
+      :'<span class="att-absent" style="font-size:.68rem;">Absent</span>';
+    return '<tr style="background:'+bgCol+';border-bottom:1px solid var(--brd);">'
+      +'<td style="padding:9px 14px;font-size:.78rem;color:var(--tx2);">'+dayFmt+holTag+'</td>'
+      +'<td style="padding:9px 8px;">'+badge+'</td>'
+      +'<td style="padding:9px 8px;font-size:.76rem;">'+inT+'</td>'
+      +'<td style="padding:9px 8px;font-size:.76rem;">'+outT+'</td>'
+      +'<td style="padding:9px 8px;font-size:.76rem;font-weight:600;color:'+(cls.ms?'var(--tx)':'var(--tx3)')+';">'
+      +(cls.ms?fmtDuration(cls.ms):'—')+'</td></tr>';
+  });
+  if(sumEl) sumEl.innerHTML='<div class="ci-summary" style="margin-bottom:0;">'
+    +'<div class="ci-summary-card green"><div class="val">'+full+'</div><div class="lbl">Full Days</div></div>'
+    +'<div class="ci-summary-card"><div class="val" style="color:var(--blue);">'+half+'</div><div class="lbl">Half Days</div></div>'
+    +(short?'<div class="ci-summary-card"><div class="val" style="color:#f97316;">'+short+'</div><div class="lbl">Short ⚡</div></div>':'')
+    +'<div class="ci-summary-card red"><div class="val">'+absent+'</div><div class="lbl">Absent</div></div>'
+    +'<div class="ci-summary-card"><div class="val" style="font-size:1.1rem;">'+fmtDuration(totalMs)+'</div><div class="lbl">Total Hours</div></div>'
+    +'</div>';
+  const tHead='<thead><tr style="background:var(--sur2);">'
+    +'<th style="padding:8px 14px;text-align:left;font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--tx3);">Date</th>'
+    +'<th style="padding:8px 8px;font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--tx3);">Status</th>'
+    +'<th style="padding:8px 8px;font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--tx3);">In</th>'
+    +'<th style="padding:8px 8px;font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--tx3);">Out</th>'
+    +'<th style="padding:8px 8px;font-size:.69rem;font-weight:700;text-transform:uppercase;color:var(--tx3);">Duration</th>'
+    +'</tr></thead>';
+  listEl.innerHTML='<div style="font-size:.82rem;font-weight:700;color:var(--tx2);margin-bottom:10px;">'+monthLabel+'</div>'
+    +'<div style="overflow-x:auto;background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);">'
+    +'<table style="width:100%;border-collapse:collapse;">'+tHead+'<tbody>'+rows.join('')+'</tbody></table></div>';
 }
 function renderAttendanceTodayDash(){
   const dash = document.getElementById('att-today-dash');
@@ -2450,6 +2614,7 @@ async function saveCiEdit(){
   toast('Attendance updated for '+empName,'ok');
   closeCiEdit();
   renderAttendance();
+  renderMyAttendance();
   renderStats();
 }
 
@@ -2477,8 +2642,9 @@ async function appInit(){
     loadCheckInFromDB(),
     loadHolidaysFromDB()
   ]);
-  // Re-render check-in bar NOW that DB data is loaded (fixes post-refresh state)
+  // Re-render bar + attendance pages after DB load
   renderCheckInBar();
+  if(document.getElementById('page-myatt')?.classList.contains('active')) renderMyAttendance();
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
   startRealtime();
@@ -2667,6 +2833,11 @@ function switchPage(p){
     if(picker&&!picker.value){ const n=new Date(); picker.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
     renderAttendance();
   }
+  if(p==='myatt'){
+    const picker=document.getElementById('myatt-month');
+    if(picker&&!picker.value){ const n=new Date(); picker.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+    renderMyAttendance();
+  }
 
 
   if(p==='actlog')renderActivityLog();
@@ -2699,7 +2870,7 @@ function renderStats(){
     {l:'Employees',v:can('seeAll')?employees.length:visibleProjects().reduce((s,p)=>{(p.assignedEmployees||[]).forEach(id=>s.add(id));(p.reviewEmployees||[]).forEach(id=>s.add(id));return s;},new Set()).size,s:can('seeAll')?`${asd} assigned`:'in your projects',c:'p',i:'fa-users'},
     {l:'Conflicts',v:cc.length,s:cc.length>0?`${[...multiAnnotators()].length} overloaded, ${[...dualRoleIds()].length} dual-role`:'All clear ✓',c:cc.length>0?'r':'g',i:'fa-exclamation-triangle'},
   ].map(x=>`<div class="sc ${x.c}"><div class="sc-l">${x.l}</div><div class="sc-v">${x.v}</div><div class="sc-s">${x.s}</div></div>`).join('');
-  document.getElementById('nb-p').textContent=projects.length;
+  document.getElementById('nb-p').textContent=can('seeAll')?projects.length:visibleProjects().length;
   document.getElementById('nb-e').textContent=employees.length;
   const cc2=conflicts();
   const cb=document.getElementById('cBanner');
@@ -4307,6 +4478,8 @@ const FEATURE_DEFS=[
   {key:'dailyTarget',label:'Daily Image Target',desc:'Set a daily completion target per project'},
   {key:'fileUpload',label:'File Uploads',desc:'Attach documents and files to each project'},
   {key:'checkIn',label:'Employee Check-In / Check-Out',desc:'Allow employees to clock in and out. Admins and managers can view total hours worked per employee.'},
+  {key:'ciNotifAdmin',label:'Check-In Alerts — Admin',desc:'Admin receives a sound + bell alert whenever any employee checks in or out.'},
+  {key:'ciNotifManager',label:'Check-In Alerts — Manager',desc:'Manager receives sound notifications for employee check-ins/outs. Admin can disable this separately.'},
 ];
 function renderSettings(){
   document.getElementById('settingsGrid').innerHTML=FEATURE_DEFS.map(f=>`
@@ -5107,17 +5280,28 @@ function startRealtime(){
               checkInRecords=remote;
               try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
               renderCheckInBar();
-              if(document.getElementById('page-checkin')?.classList.contains('active'))renderCheckInAdmin();
-              if(document.getElementById('page-attend')?.classList.contains('active'))renderMonthlyAttendance();
-              // Update admin badge with active count
-              const active=checkInRecords.filter(r=>r.date===getTodayKey()&&!r.checkOut).length;
-              const nb=document.getElementById('nb-ci');if(nb)nb.textContent=active||'';
+              renderStats();
+              if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+              if(document.getElementById('page-myatt')?.classList.contains('active'))   renderMyAttendance();
+            }
+          } else if(row.key==='public_holidays'){
+            const remote=JSON.parse(row.value);
+            if(remote&&JSON.stringify(remote)!==JSON.stringify(publicHolidays)){
+              publicHolidays=remote;
+              try{localStorage.setItem('cc_holidays',JSON.stringify(publicHolidays));}catch(e){}
+              if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+              if(document.getElementById('page-myatt')?.classList.contains('active'))   renderMyAttendance();
+              if(document.getElementById('holidayOvl')?.classList.contains('open'))     renderHolidayList();
             }
           } else if(currentUser&&row.key==='notifs_'+currentUser.id){
             const remote=JSON.parse(row.value);
             notifications=[...notifications.filter(n=>n.userId!==currentUser.id),...remote];
             try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
-            updateNbDot();if(document.getElementById('notifPanel')?.classList.contains('open'))renderNotifList();
+            updateNbDot();
+            if(document.getElementById('notifPanel')?.classList.contains('open'))renderNotifList();
+            // Sound for check-in/out notifications received via RT
+            const newCi=remote.filter(n=>!n.read&&n.projId==='__ci__');
+            if(newCi.length){ const t=newCi[0].text.startsWith('🟢')?'in':'out'; receiveCiNotif(newCi[0].text,t); }
           }
         }catch(e){}
       })
@@ -5415,6 +5599,7 @@ function openNotif(projId,notifId){
   const n=notifications.find(x=>x.id===notifId);
   if(n)n.read=true;
   saveNotifications();updateNbDot();renderNotifList();
+  if(projId==='__ci__'){ toggleNotifPanel(); return; }
   toggleNotifPanel();
   const p=projects.find(x=>x.id===projId);if(p)openDP(p);
 }
