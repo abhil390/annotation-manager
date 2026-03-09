@@ -353,8 +353,13 @@ tr:hover td{background:var(--sur2);}
 .wlpdf-opt.selected .wlpdf-check{background:var(--red);color:#fff;}
 /* ════ SETTINGS ════ */
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.leave-emp-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;}
+.leave-emp-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;overflow:hidden;}
+.leave-emp-card table{width:100%;border-collapse:collapse;table-layout:fixed;}
+.leave-emp-card td,.leave-emp-card th{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .leave-bal-pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:20px;}
+.leave-absent-badge{font-size:.65rem;padding:1px 6px;border-radius:8px;background:#fee2e2;color:#dc2626;font-weight:600;}
+.leave-section-hdr{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);padding:10px 0 4px;border-top:1px solid var(--brd);margin-top:8px;}
+
 .setting-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:18px;display:flex;justify-content:space-between;align-items:center;}
 .setting-info strong{font-size:.9rem;display:block;margin-bottom:3px;}
 .setting-info span{font-size:.75rem;color:var(--tx2);}
@@ -1226,7 +1231,7 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 
 <!-- ADD/EDIT LEAVE MODAL -->
 <div class="overlay" id="leaveOvl" onclick="if(event.target===this)closeLeaveModal()">
-<div class="modal" style="width:420px;">
+<div class="modal" style="width:460px;max-height:90vh;overflow-y:auto;">
   <div class="modal-title"><i class="fas fa-calendar-plus" style="color:var(--red)"></i><span id="lMTtl">Add Leave</span></div>
   <div class="fgrid">
     <div class="ff full"><label>Employee *</label>
@@ -2125,6 +2130,42 @@ function totalMsToday(empId){
   },0);
 }
 
+
+// Returns working days this month that had NO check-in = potential absences
+function getAbsentDays(empId, year, month){
+  const daysInMonth = new Date(year, month, 0).getDate();
+  const result = [];
+  const today = new Date();
+  for(let d=1; d<=daysInMonth; d++){
+    const dt = new Date(year, month-1, d);
+    if(dt > today) break; // don't count future days
+    const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow = dt.getDay(); // 0=Sun
+    const isWeekend = dow===0; // Only Sunday is off (CamCom works Mon-Sat)
+    const isHoliday = (publicHolidays||[]).some(ph=>ph.date===dateStr);
+    const hasCheckin = checkInRecords.some(r=>r.empId===empId && r.date===dateStr);
+    const isAbsent = !isWeekend && !isHoliday && !hasCheckin;
+    result.push({date:dateStr, dow, isWeekend, isHoliday, hasCheckin, isAbsent});
+  }
+  return result;
+}
+
+// Returns summary: absences per month for the year
+function getAttendanceSummary(empId, year){
+  const now = new Date();
+  const maxMonth = year < now.getFullYear() ? 12 : now.getMonth()+1;
+  const months = [];
+  for(let m=1; m<=maxMonth; m++){
+    const days = getAbsentDays(empId, year, m);
+    const absent = days.filter(d=>d.isAbsent).length;
+    const present = days.filter(d=>d.hasCheckin).length;
+    const working = days.filter(d=>!d.isWeekend&&!d.isHoliday).length;
+    months.push({month:m, absent, present, working,
+      absentDates: days.filter(d=>d.isAbsent).map(d=>d.date)});
+  }
+  return months;
+}
+
 // ══════════════════════════════════
 // LEAVE MANAGEMENT UI
 // ══════════════════════════════════
@@ -2159,57 +2200,89 @@ function renderLeaveAdmin(){
     const bal = getLeaveBalance(emp.id, year);
     if(!bal) return '';
     const empLeaves = leaveRecords.filter(r=>r.empId===emp.id && r.year===year).sort((a,b)=>b.date.localeCompare(a.date));
+    const attSummary = getAttendanceSummary(emp.id, year);
+    const totalAbsent = attSummary.reduce((s,m)=>s+m.absent,0);
+    const totalPresent = attSummary.reduce((s,m)=>s+m.present,0);
+    const totalWorking = attSummary.reduce((s,m)=>s+m.working,0);
+    const initials = emp.name.split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();
 
-    let balanceHTML = '';
+    // Balance pills
+    let balPills = '';
     if(bal.type==='fulltime'){
-      balanceHTML = `
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 6px;">
-          <div class="leave-bal-pill" style="background:#dbeafe;color:#1d4ed8;">🤒 Sick/Casual: <strong>${bal.sickCasual.balance}</strong> / ${bal.sickCasual.accrued}</div>
-          <div class="leave-bal-pill" style="background:#dcfce7;color:#166534;">💰 Earned: <strong>${bal.earned.balance}</strong> / ${bal.earned.accrued}</div>
-          <div class="leave-bal-pill" style="background:#f3f4f6;color:var(--tx2);">Total taken: <strong>${bal.total.taken}</strong></div>
-        </div>`;
+      balPills=`<span class="leave-bal-pill" style="background:#dbeafe;color:#1d4ed8;">🤒 Sick/Casual <strong>${bal.sickCasual.balance}</strong>/${bal.sickCasual.accrued}</span>
+        <span class="leave-bal-pill" style="background:#dcfce7;color:#166534;">💰 Earned <strong>${bal.earned.balance}</strong>/${bal.earned.accrued}</span>`;
     } else if(bal.type==='contract'){
-      balanceHTML = `
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 6px;">
-          <div class="leave-bal-pill" style="background:#fef9c3;color:#854d0e;">📋 Regular: <strong>${bal.regular.balance}</strong> / ${bal.regular.accrued}</div>
-          ${bal.menstrual?`<div class="leave-bal-pill" style="background:#fce7f3;color:#9d174d;">🌸 Menstrual: <strong>${bal.menstrual.balance}</strong> / ${bal.menstrual.accrued}</div>`:''}
-        </div>`;
+      balPills=`<span class="leave-bal-pill" style="background:#fef9c3;color:#854d0e;">📋 Regular <strong>${bal.regular.balance}</strong>/${bal.regular.accrued}</span>
+        ${bal.menstrual?`<span class="leave-bal-pill" style="background:#fce7f3;color:#9d174d;">🌸 Menstrual <strong>${bal.menstrual.balance}</strong>/${bal.menstrual.accrued}</span>`:''}`;
     } else {
-      balanceHTML = `<div style="display:flex;gap:12px;margin:10px 0 6px;"><div class="leave-bal-pill" style="background:#dcfce7;color:#166534;">🎓 Leave: <strong>${bal.balance}</strong> / ${bal.accrued}</div></div>`;
+      balPills=`<span class="leave-bal-pill" style="background:#dcfce7;color:#166534;">🎓 Leave <strong>${bal.balance||bal.balance}</strong>/${bal.accrued}</span>`;
     }
 
+    // Attendance summary row per month (only months with absences)
+    const absMonthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const absMonthRows = attSummary.filter(m=>m.absent>0).map(m=>`
+      <tr style="background:var(--sur2);">
+        <td style="font-size:.74rem;padding:5px 8px;font-weight:500;">${absMonthNames[m.month-1]} ${year}</td>
+        <td style="font-size:.72rem;padding:5px 8px;color:var(--tx2);">${m.present}/${m.working} days present</td>
+        <td colspan="2" style="font-size:.71rem;padding:5px 8px;color:#dc2626;">
+          ${m.absentDates.map(d=>`<span class="leave-absent-badge">${d.slice(5)}</span>`).join(' ')}
+        </td>
+        <td style="padding:5px 8px;">
+          <button class="btn btn-ghost btn-sm" style="font-size:.65rem;padding:2px 7px;" onclick="markAbsentAsLeave('${emp.id}','${m.absentDates.join(',')}')">
+            <i class="fas fa-calendar-check"></i> Mark Leave
+          </button>
+        </td>
+      </tr>`).join('');
+
+    // Leave records rows
     const leaveRows = empLeaves.length ? empLeaves.map(r=>`
       <tr>
-        <td style="font-size:.76rem;">${r.date}</td>
-        <td style="font-size:.74rem;">${LEAVE_TYPE_LABEL[r.leaveType]||r.leaveType}${r.isMenstrual?' 🌸':''}</td>
-        <td><span style="font-size:.68rem;font-weight:600;color:${STATUS_COLOR[r.status]||'var(--tx)'};">${r.status.toUpperCase()}</span></td>
-        <td style="font-size:.73rem;color:var(--tx2);">${esc(r.note||'—')}</td>
-        <td style="white-space:nowrap;">
+        <td style="font-size:.74rem;padding:5px 8px;">${r.date}</td>
+        <td style="font-size:.72rem;padding:5px 8px;">${LEAVE_TYPE_LABEL[r.leaveType]||r.leaveType}${r.isMenstrual?' 🌸':''}</td>
+        <td style="padding:5px 8px;"><span style="font-size:.67rem;font-weight:700;color:${STATUS_COLOR[r.status]||'var(--tx)'};">${r.status.toUpperCase()}</span></td>
+        <td style="font-size:.71rem;color:var(--tx2);padding:5px 8px;max-width:140px;overflow:hidden;text-overflow:ellipsis;">${esc(r.note||'—')}</td>
+        <td style="padding:5px 8px;white-space:nowrap;">
           <button class="iBtn" onclick="openLeaveModal('${r.id}')" title="Edit"><i class="fas fa-pen"></i></button>
           <button class="iBtn del" onclick="deleteLeave('${r.id}')" title="Delete"><i class="fas fa-trash"></i></button>
         </td>
-      </tr>`).join('') : '<tr><td colspan="5" style="color:var(--tx3);font-size:.75rem;text-align:center;padding:12px;">No leaves recorded</td></tr>';
+      </tr>`).join('')
+      : '<tr><td colspan="5" style="color:var(--tx3);font-size:.74rem;text-align:center;padding:10px;">No leaves recorded this year</td></tr>';
 
     return `<div class="leave-emp-card">
-      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-        <div class="user-card-av" style="background:#6366f1;width:34px;height:34px;font-size:.75rem;">${emp.name.split(' ').map(w=>w[0]).join('').substr(0,2).toUpperCase()}</div>
-        <div>
-          <strong style="font-size:.88rem;">${esc(emp.name)}</strong>
-          <div style="font-size:.72rem;color:var(--tx2);">${emp.gender==='male'?'♂':'♀'} · ${EMP_TYPE_LABEL[emp.empType||'fulltime']}</div>
+      <!-- Header row -->
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="user-card-av" style="background:#6366f1;width:36px;height:36px;flex-shrink:0;font-size:.75rem;">${initials}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-weight:600;font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(emp.name)}</div>
+          <div style="font-size:.71rem;color:var(--tx2);">${emp.gender==='male'?'♂ Male':'♀ Female'} · ${EMP_TYPE_LABEL[emp.empType||'fulltime']}
+            <span style="margin-left:8px;color:${totalAbsent>0?'#dc2626':'var(--green)'};">● ${totalPresent}/${totalWorking} days present · ${totalAbsent} absent</span>
+          </div>
         </div>
-        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="openLeaveModal(null,'${emp.id}')"><i class="fas fa-plus"></i> Add</button>
+        <button class="btn btn-ghost btn-sm" style="flex-shrink:0;" onclick="openLeaveModal(null,'${emp.id}')"><i class="fas fa-plus"></i> Add Leave</button>
       </div>
-      ${balanceHTML}
-      <table style="width:100%;border-collapse:collapse;margin-top:4px;">
-        <thead><tr style="font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;">
-          <th style="text-align:left;padding:4px 6px;">Date</th>
-          <th style="text-align:left;padding:4px 6px;">Type</th>
-          <th style="text-align:left;padding:4px 6px;">Status</th>
-          <th style="text-align:left;padding:4px 6px;">Note</th>
-          <th></th>
-        </tr></thead>
-        <tbody>${leaveRows}</tbody>
-      </table>
+      <!-- Balance pills -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 6px;">${balPills}
+        <span class="leave-bal-pill" style="background:#f3f4f6;color:var(--tx2);">Taken: <strong>${empLeaves.filter(r=>r.status==='approved').length}</strong></span>
+        ${totalAbsent>0?`<span class="leave-bal-pill" style="background:#fee2e2;color:#dc2626;">⚠ ${totalAbsent} unrecorded absent</span>`:''}
+      </div>
+      <!-- Absent days from attendance -->
+      ${absMonthRows ? `<div class="leave-section-hdr"><i class="fas fa-exclamation-triangle" style="color:#f59e0b;"></i> Absent days from attendance (no check-in)</div>
+      <table><thead><tr style="font-size:.67rem;color:var(--tx3);text-transform:uppercase;">
+        <th style="text-align:left;padding:4px 8px;width:90px;">Month</th>
+        <th style="text-align:left;padding:4px 8px;width:130px;">Attendance</th>
+        <th style="text-align:left;padding:4px 8px;">Absent Dates</th>
+        <th style="padding:4px 8px;width:40px;"></th>
+        <th style="padding:4px 8px;width:100px;"></th>
+      </tr></thead><tbody>${absMonthRows}</tbody></table>` : ''}
+      <!-- Leave records -->
+      <div class="leave-section-hdr"><i class="fas fa-calendar-alt" style="color:#6366f1;"></i> Recorded Leaves</div>
+      <table><thead><tr style="font-size:.67rem;color:var(--tx3);text-transform:uppercase;">
+        <th style="text-align:left;padding:4px 8px;width:90px;">Date</th>
+        <th style="text-align:left;padding:4px 8px;width:110px;">Type</th>
+        <th style="text-align:left;padding:4px 8px;width:80px;">Status</th>
+        <th style="text-align:left;padding:4px 8px;">Note</th>
+        <th style="width:60px;"></th>
+      </tr></thead><tbody>${leaveRows}</tbody></table>
     </div>`;
   }).join('');
 }
@@ -2223,6 +2296,10 @@ function renderMyLeaves(){
   const year = getLeaveYear('myLeaveYearSel');
   const bal = getLeaveBalance(emp.id, year);
   const myLeaves = leaveRecords.filter(r=>r.empId===emp.id && r.year===year).sort((a,b)=>b.date.localeCompare(a.date));
+  const myAttSummary = getAttendanceSummary(emp.id, year);
+  const myTotalAbsent = myAttSummary.reduce((s,m)=>s+m.absent,0);
+  const myTotalPresent = myAttSummary.reduce((s,m)=>s+m.present,0);
+  const myTotalWorking = myAttSummary.reduce((s,m)=>s+m.working,0);
 
   let policyNote = '';
   if(bal?.type==='fulltime'){
@@ -2358,6 +2435,19 @@ async function saveLeave(){
   closeLeaveModal();
   renderLeaveAdmin();
   renderMyLeaves();
+}
+
+
+function markAbsentAsLeave(empId, datesStr){
+  const dates = datesStr.split(',').filter(Boolean);
+  if(!dates.length) return;
+  // Open leave modal for the first date; admin can add one by one
+  openLeaveModal(null, empId);
+  setTimeout(()=>{
+    const dateInput = document.getElementById('fl-date');
+    if(dateInput) dateInput.value = dates[0];
+    toast(`${dates.length} absent day(s) — fill in leave type and save`,'info');
+  }, 100);
 }
 
 async function deleteLeave(id){
