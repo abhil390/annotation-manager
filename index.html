@@ -5339,8 +5339,18 @@ function startVisConfigPoll(){
       const{data}=await sb.from('app_settings').select('value').eq('key','vis_config').single();
       if(data?.value){
         const remote=JSON.parse(data.value);
-        if(JSON.stringify(remote)!==JSON.stringify(visConfig)){
-          Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();
+        // Deep-merge: only overwrite keys that exist in remote, preserve new local keys
+        const merged=JSON.parse(JSON.stringify(visConfig)); // deep clone local
+        if(remote.pageAccess){
+          if(remote.pageAccess.manager)Object.assign(merged.pageAccess.manager,remote.pageAccess.manager);
+          if(remote.pageAccess.reviewer)Object.assign(merged.pageAccess.reviewer,remote.pageAccess.reviewer);
+        }
+        if(remote.dateFilter)Object.assign(merged.dateFilter,remote.dateFilter);
+        if(remote.actLogVisible)Object.assign(merged.actLogVisible,remote.actLogVisible);
+        if(remote.ciAccess)Object.assign(merged.ciAccess,remote.ciAccess);
+        if(remote.stakeholderFields)Object.assign(merged.stakeholderFields,remote.stakeholderFields);
+        if(JSON.stringify(merged)!==JSON.stringify(visConfig)){
+          Object.assign(visConfig,merged);saveVisConfig();applyRoleToUI();
           if(currentUser.role!=='admin')toast('⚙️ Access settings updated','info');
         }
       }
@@ -5459,7 +5469,13 @@ function startRealtime(){
         try{
           if(row.key==='vis_config'){
             const remote=JSON.parse(row.value);
-            if(JSON.stringify(remote)!==JSON.stringify(visConfig)){Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();if(currentUser?.role!=='admin')toast('Access settings updated','info');}
+            const mergedRt=JSON.parse(JSON.stringify(visConfig));
+            if(remote.pageAccess){if(remote.pageAccess.manager)Object.assign(mergedRt.pageAccess.manager,remote.pageAccess.manager);if(remote.pageAccess.reviewer)Object.assign(mergedRt.pageAccess.reviewer,remote.pageAccess.reviewer);}
+            if(remote.dateFilter)Object.assign(mergedRt.dateFilter,remote.dateFilter);
+            if(remote.actLogVisible)Object.assign(mergedRt.actLogVisible,remote.actLogVisible);
+            if(remote.ciAccess)Object.assign(mergedRt.ciAccess,remote.ciAccess);
+            if(remote.stakeholderFields)Object.assign(mergedRt.stakeholderFields,remote.stakeholderFields);
+            if(JSON.stringify(mergedRt)!==JSON.stringify(visConfig)){Object.assign(visConfig,mergedRt);saveVisConfig();applyRoleToUI();if(currentUser?.role!=='admin')toast('Access settings updated','info');}
           } else if(row.key==='app_users'){
             const remote=JSON.parse(row.value);
             if(remote&&remote.length){
