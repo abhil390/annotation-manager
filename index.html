@@ -353,6 +353,8 @@ tr:hover td{background:var(--sur2);}
 .wlpdf-opt.selected .wlpdf-check{background:var(--red);color:#fff;}
 /* ════ SETTINGS ════ */
 .settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.leave-emp-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:16px 18px;margin-bottom:14px;}
+.leave-bal-pill{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:600;padding:4px 10px;border-radius:20px;}
 .setting-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);padding:18px;display:flex;justify-content:space-between;align-items:center;}
 .setting-info strong{font-size:.9rem;display:block;margin-bottom:3px;}
 .setting-info span{font-size:.75rem;color:var(--tx2);}
@@ -896,7 +898,7 @@ window.onerror = function(msg, src, line) {
     </div>
   </div>
   <div id="empCBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="ecTxt"></span></div>
-  <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Gender</th><th>Status</th><th>Annotating</th><th>Reviewing</th><th></th></tr></thead><tbody id="empTbody"></tbody></table></div>
+  <div class="tbl-wrap"><table><thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Gender</th><th>Type</th><th>Status</th><th>Annotating</th><th>Reviewing</th><th></th></tr></thead><tbody id="empTbody"></tbody></table></div>
 </div>
 
 <!-- WORKLOAD -->
@@ -1190,10 +1192,73 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
     <div class="ff full"><label>Full Name *</label><input type="text" id="fe-name" placeholder="e.g. Ramyashree V R"></div>
     <div class="ff full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="name at camcom.ai"></div>
     <div class="ff full"><label>Gender</label><select id="fe-gender"><option value="female">♀ Female</option><option value="male">♂ Male</option></select></div>
+    <div class="ff full"><label>Employment Type</label><select id="fe-emptype"><option value="fulltime">🏢 Full-time</option><option value="contract">📋 Contract</option><option value="intern">🎓 Intern</option></select></div>
   </div>
   <div class="modal-foot">
     <button class="btn btn-ghost" onclick="closeEmpModal()">Cancel</button>
     <button class="btn btn-red" onclick="saveEmployee()"><i class="fas fa-save"></i> Save</button>
+  </div>
+</div></div>
+
+
+<!-- LEAVE MANAGEMENT PAGE -->
+<div class="page" id="page-leaves">
+  <div class="topbar">
+    <h1 class="pg-title">Leave Management</h1>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <select id="leaveYearSel" onchange="renderLeaveAdmin()" style="padding:6px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.82rem;"></select>
+      <input id="leaveSearch" type="text" placeholder="Search employee…" oninput="renderLeaveAdmin()" style="padding:6px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.82rem;width:170px;">
+      <button class="btn btn-red btn-sm" onclick="openLeaveModal()"><i class="fas fa-plus"></i> Add Leave</button>
+    </div>
+  </div>
+  <div id="leaveAdminGrid"></div>
+</div>
+
+<!-- MY LEAVES PAGE (employee view) -->
+<div class="page" id="page-myleaves">
+  <div class="topbar"><h1 class="pg-title">My Leaves</h1>
+    <select id="myLeaveYearSel" onchange="renderMyLeaves()" style="padding:6px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.82rem;"></select>
+  </div>
+  <div id="myLeavesContent"></div>
+</div>
+
+<!-- ADD/EDIT LEAVE MODAL -->
+<div class="overlay" id="leaveOvl" onclick="if(event.target===this)closeLeaveModal()">
+<div class="modal" style="width:420px;">
+  <div class="modal-title"><i class="fas fa-calendar-plus" style="color:var(--red)"></i><span id="lMTtl">Add Leave</span></div>
+  <div class="fgrid">
+    <div class="ff full"><label>Employee *</label>
+      <select id="fl-emp" onchange="onLeaveEmpChange()" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;"></select>
+    </div>
+    <div class="ff"><label>Leave Date *</label><input type="date" id="fl-date"></div>
+    <div class="ff"><label>Leave Type</label>
+      <select id="fl-type" onchange="onLeaveTypeChange()" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;">
+        <option value="sickCasual">🤒 Sick / Casual</option>
+        <option value="earned">💰 Earned Leave</option>
+        <option value="contract">📋 Contract Leave</option>
+        <option value="intern">🎓 Intern Leave</option>
+      </select>
+    </div>
+    <div class="ff" id="fl-menstrual-wrap" style="display:none;">
+      <label>Menstrual Leave?</label>
+      <label style="display:flex;align-items:center;gap:8px;padding:8px 0;">
+        <input type="checkbox" id="fl-menstrual"> <span style="font-size:.83rem;">Yes — mark as menstrual leave</span>
+      </label>
+    </div>
+    <div class="ff"><label>Status</label>
+      <select id="fl-status" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;">
+        <option value="approved">✅ Approved</option>
+        <option value="pending">⏳ Pending</option>
+        <option value="rejected">❌ Rejected</option>
+      </select>
+    </div>
+    <div class="ff full"><label>Note <span style="font-weight:400;color:var(--tx3);font-size:.73rem;">(optional)</span></label>
+      <input type="text" id="fl-note" placeholder="e.g. Medical appointment" style="width:100%;"></div>
+    <div id="fl-balance-info" style="grid-column:1/-1;font-size:.75rem;color:var(--tx2);background:var(--sur2);border-radius:var(--rsm);padding:8px 12px;display:none;"></div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 20px 20px;border-top:1px solid var(--brd);margin-top:8px;">
+    <button class="btn" onclick="closeLeaveModal()" style="background:var(--sur2);color:var(--tx);border:1px solid var(--brd);">Cancel</button>
+    <button class="btn btn-red" onclick="saveLeave()"><i class="fas fa-check"></i> Save</button>
   </div>
 </div></div>
 
@@ -1211,48 +1276,48 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 let projects=[];
 const AT='@'; // prevents proxy email obfuscation
 let employees=[
-  {id:'e1', name:'Ramyashree V R',             email:'ramyashree.ragupathy'+AT+'camcom.ai',  gender:'female'},
-  {id:'e2', name:'Manoj Kumar Devanga Kotha',   email:'manoj.kotha'+AT+'camcom.ai',           gender:'male'},
-  {id:'e3', name:'Dande Kalyani',               email:'dande.kalyani'+AT+'camcom.ai',         gender:'female'},
-  {id:'e4', name:'Dande Sandhya',               email:'dande.sandhya'+AT+'camcom.ai',         gender:'female'},
-  {id:'e5', name:'Challa Koteswaramma',         email:'challa.koteswaramma'+AT+'camcom.ai',   gender:'female'},
-  {id:'e6', name:'Kadagandla Hariprasad',       email:'kadagandla.hariprasad'+AT+'camcom.ai', gender:'male'},
-  {id:'e7', name:'Uma Krishnappa',              email:'uma.krishnappa'+AT+'camcom.ai',        gender:'female'},
-  {id:'e8', name:'Manjunath Kalakappa Bandihal',email:'manjunath.bandihal'+AT+'camcom.ai',    gender:'male'},
-  {id:'e9', name:'Akshay Phatale',              email:'akshay.phatale'+AT+'camcom.ai',        gender:'male'},
-  {id:'e10',name:'Maitra Salimath',             email:'maitra.salimath'+AT+'camcom.ai',       gender:'female'},
-  {id:'e11',name:'Yathish Gowda K H',           email:'yathish.gowda'+AT+'camcom.ai',         gender:'male'},
-  {id:'e12',name:'Pavan Kalyan Yeddala',        email:'pavan.yeddala'+AT+'camcom.ai',         gender:'male'},
-  {id:'e13',name:'Sabharmathi Selvam',          email:'sabarmathi.selvam'+AT+'camcom.ai',     gender:'female'},
-  {id:'e14',name:'G Umesh',                     email:'umesh.g'+AT+'camcom.ai',               gender:'male'},
-  {id:'e15',name:'Shilpa E',                    email:'shilpa.e'+AT+'camcom.ai',              gender:'female'},
-  {id:'e16',name:'Prema Joshi',                 email:'prema.joshi'+AT+'camcom.ai',           gender:'female'},
-  {id:'e17',name:'Keerti Doddwad',              email:'keerti.doddwad'+AT+'camcom.ai',        gender:'female'},
-  {id:'e18',name:'Ajay Reddy H',                email:'ajay.reddy'+AT+'camcom.ai',            gender:'male'},
-  {id:'e19',name:'Varun Kumar H N',             email:'varun.kumar'+AT+'camcom.ai',           gender:'male'},
-  {id:'e20',name:'Sneha B V',                   email:'sneha.bv'+AT+'camcom.ai',              gender:'female'},
-  {id:'e21',name:'Fathima Reneesha',            email:'fathima.reneesha'+AT+'camcom.ai',      gender:'female'},
-  {id:'e22',name:'Vishruthi Raghu',             email:'vishruthi.raghu'+AT+'camcom.ai',       gender:'female'},
-  {id:'e23',name:'Sanjana G P',                 email:'sanjana.gp'+AT+'camcom.ai',            gender:'female'},
-  {id:'e24',name:'Dhanyasri A S',               email:'dhanyasri.as'+AT+'camcom.ai',          gender:'female'},
-  {id:'e25',name:'Siddharth Anandan',           email:'siddharth.anandan'+AT+'camcom.ai',     gender:'male'},
-  {id:'e26',name:'Bindusree S N',               email:'bindusree.sn'+AT+'camcom.ai',          gender:'female'},
-  {id:'e27',name:'Anil Kumar Pasala',           email:'anilkumar.pasala'+AT+'camcom.ai',      gender:'male'},
-  {id:'e28',name:'Mihir',                       email:'mihir.singh'+AT+'camcom.ai',           gender:'male'},
-  {id:'e29',name:'Suzan',                       email:'suzan.john'+AT+'camcom.ai',            gender:'female'},
-  {id:'e30',name:'Umesh Nagappa Barker',        email:'umesh'+AT+'zuru.ai',                   gender:'male'},
-  {id:'e31',name:'Sunil Kumar',                 email:'sunilkumar'+AT+'zuru.ai',              gender:'male'},
-  {id:'e32',name:'Shanta Mantri',               email:'shanta'+AT+'zuru.ai',                  gender:'female'},
-  {id:'e33',name:'Nandini Keni',                email:'nandini'+AT+'zuru.ai',                 gender:'female'},
-  {id:'e34',name:'Shweta Kannagar',             email:'shwetak'+AT+'zuru.ai',                 gender:'female'},
-  {id:'e35',name:'Kishore Devaragudi',          email:'kishored'+AT+'zuru.ai',                gender:'male'},
-  {id:'e36',name:'Anil Gandredi',               email:'anilg'+AT+'zuru.ai',                   gender:'male'},
-  {id:'e37',name:'K Ganesh',                    email:'ganeshk'+AT+'zuru.ai',                 gender:'male'},
-  {id:'e38',name:'Kiran Y',                     email:'kirany'+AT+'zuru.ai',                  gender:'male'},
-  {id:'e39',name:'Vishwas Reddy',               email:'vishwasreddy'+AT+'zuru.ai',            gender:'male'},
-  {id:'e40',name:'Sandhya K',                   email:'sandhya.k'+AT+'camcom.ai',             gender:'female'},
-  {id:'e41',name:'Venkatesh Chilukuri',         email:'venkatesh.chilukuri'+AT+'camcom.ai',   gender:'male'},
-  {id:'e42',name:'Abhil C Sasindran',           email:'abhil.sasindran'+AT+'camcom.ai',       gender:'male'}
+  {id:'e1', name:'Ramyashree V R',             email:'ramyashree.ragupathy'+AT+'camcom.ai',  gender:'female', empType:'fulltime'},
+  {id:'e2', name:'Manoj Kumar Devanga Kotha',   email:'manoj.kotha'+AT+'camcom.ai',           gender:'male', empType:'fulltime'},
+  {id:'e3', name:'Dande Kalyani',               email:'dande.kalyani'+AT+'camcom.ai',         gender:'female', empType:'fulltime'},
+  {id:'e4', name:'Dande Sandhya',               email:'dande.sandhya'+AT+'camcom.ai',         gender:'female', empType:'fulltime'},
+  {id:'e5', name:'Challa Koteswaramma',         email:'challa.koteswaramma'+AT+'camcom.ai',   gender:'female', empType:'fulltime'},
+  {id:'e6', name:'Kadagandla Hariprasad',       email:'kadagandla.hariprasad'+AT+'camcom.ai', gender:'male', empType:'fulltime'},
+  {id:'e7', name:'Uma Krishnappa',              email:'uma.krishnappa'+AT+'camcom.ai',        gender:'female', empType:'fulltime'},
+  {id:'e8', name:'Manjunath Kalakappa Bandihal',email:'manjunath.bandihal'+AT+'camcom.ai',    gender:'male', empType:'fulltime'},
+  {id:'e9', name:'Akshay Phatale',              email:'akshay.phatale'+AT+'camcom.ai',        gender:'male', empType:'fulltime'},
+  {id:'e10',name:'Maitra Salimath',             email:'maitra.salimath'+AT+'camcom.ai',       gender:'female', empType:'fulltime'},
+  {id:'e11',name:'Yathish Gowda K H',           email:'yathish.gowda'+AT+'camcom.ai',         gender:'male', empType:'fulltime'},
+  {id:'e12',name:'Pavan Kalyan Yeddala',        email:'pavan.yeddala'+AT+'camcom.ai',         gender:'male', empType:'fulltime'},
+  {id:'e13',name:'Sabharmathi Selvam',          email:'sabarmathi.selvam'+AT+'camcom.ai',     gender:'female', empType:'fulltime'},
+  {id:'e14',name:'G Umesh',                     email:'umesh.g'+AT+'camcom.ai',               gender:'male', empType:'fulltime'},
+  {id:'e15',name:'Shilpa E',                    email:'shilpa.e'+AT+'camcom.ai',              gender:'female', empType:'fulltime'},
+  {id:'e16',name:'Prema Joshi',                 email:'prema.joshi'+AT+'camcom.ai',           gender:'female', empType:'fulltime'},
+  {id:'e17',name:'Keerti Doddwad',              email:'keerti.doddwad'+AT+'camcom.ai',        gender:'female', empType:'fulltime'},
+  {id:'e18',name:'Ajay Reddy H',                email:'ajay.reddy'+AT+'camcom.ai',            gender:'male', empType:'fulltime'},
+  {id:'e19',name:'Varun Kumar H N',             email:'varun.kumar'+AT+'camcom.ai',           gender:'male', empType:'fulltime'},
+  {id:'e20',name:'Sneha B V',                   email:'sneha.bv'+AT+'camcom.ai',              gender:'female', empType:'fulltime'},
+  {id:'e21',name:'Fathima Reneesha',            email:'fathima.reneesha'+AT+'camcom.ai',      gender:'female', empType:'fulltime'},
+  {id:'e22',name:'Vishruthi Raghu',             email:'vishruthi.raghu'+AT+'camcom.ai',       gender:'female', empType:'fulltime'},
+  {id:'e23',name:'Sanjana G P',                 email:'sanjana.gp'+AT+'camcom.ai',            gender:'female', empType:'fulltime'},
+  {id:'e24',name:'Dhanyasri A S',               email:'dhanyasri.as'+AT+'camcom.ai',          gender:'female', empType:'fulltime'},
+  {id:'e25',name:'Siddharth Anandan',           email:'siddharth.anandan'+AT+'camcom.ai',     gender:'male', empType:'fulltime'},
+  {id:'e26',name:'Bindusree S N',               email:'bindusree.sn'+AT+'camcom.ai',          gender:'female', empType:'fulltime'},
+  {id:'e27',name:'Anil Kumar Pasala',           email:'anilkumar.pasala'+AT+'camcom.ai',      gender:'male', empType:'fulltime'},
+  {id:'e28',name:'Mihir',                       email:'mihir.singh'+AT+'camcom.ai',           gender:'male', empType:'fulltime'},
+  {id:'e29',name:'Suzan',                       email:'suzan.john'+AT+'camcom.ai',            gender:'female', empType:'fulltime'},
+  {id:'e30',name:'Umesh Nagappa Barker',        email:'umesh'+AT+'zuru.ai',                   gender:'male', empType:'fulltime'},
+  {id:'e31',name:'Sunil Kumar',                 email:'sunilkumar'+AT+'zuru.ai',              gender:'male', empType:'fulltime'},
+  {id:'e32',name:'Shanta Mantri',               email:'shanta'+AT+'zuru.ai',                  gender:'female', empType:'fulltime'},
+  {id:'e33',name:'Nandini Keni',                email:'nandini'+AT+'zuru.ai',                 gender:'female', empType:'fulltime'},
+  {id:'e34',name:'Shweta Kannagar',             email:'shwetak'+AT+'zuru.ai',                 gender:'female', empType:'fulltime'},
+  {id:'e35',name:'Kishore Devaragudi',          email:'kishored'+AT+'zuru.ai',                gender:'male', empType:'fulltime'},
+  {id:'e36',name:'Anil Gandredi',               email:'anilg'+AT+'zuru.ai',                   gender:'male', empType:'fulltime'},
+  {id:'e37',name:'K Ganesh',                    email:'ganeshk'+AT+'zuru.ai',                 gender:'male', empType:'fulltime'},
+  {id:'e38',name:'Kiran Y',                     email:'kirany'+AT+'zuru.ai',                  gender:'male', empType:'fulltime'},
+  {id:'e39',name:'Vishwas Reddy',               email:'vishwasreddy'+AT+'zuru.ai',            gender:'male', empType:'fulltime'},
+  {id:'e40',name:'Sandhya K',                   email:'sandhya.k'+AT+'camcom.ai',             gender:'female', empType:'fulltime'},
+  {id:'e41',name:'Venkatesh Chilukuri',         email:'venkatesh.chilukuri'+AT+'camcom.ai',   gender:'male', empType:'fulltime'},
+  {id:'e42',name:'Abhil C Sasindran',           email:'abhil.sasindran'+AT+'camcom.ai',       gender:'male', empType:'fulltime'}
 ];
 
 // ══════════════════════════════════
@@ -1973,6 +2038,8 @@ function applyRoleToUI(){
   // Manager sees attendance dashboard only if ciAccess.manager is on
   if(role==='manager'&&features.checkIn&&visConfig.ciAccess?.manager) document.getElementById('nav-checkin').style.display='';
   showId('nav-myatt', ciOn&&role!=='admin');  // My Attendance for non-admin roles with access
+  showId('nav-leaves', features.checkIn&&(role==='admin'||role==='manager'));  // Leave management admin/manager only
+  showId('nav-myleaves', features.checkIn&&role!=='admin'&&role!=='stakeholder'&&ciOn);  // My Leaves for employees
   if(ciOn&&role!=='admin'){
     renderCheckInBar();
   } else {
@@ -2055,6 +2122,250 @@ function totalMsToday(empId){
     return sum+(r.totalMs||0)+( r.checkOut?0:(Date.now()-new Date(r.checkIn).getTime()) );
   },0);
 }
+
+// ══════════════════════════════════
+// LEAVE MANAGEMENT UI
+// ══════════════════════════════════
+let editLeaveId = null;
+
+function initLeaveYearSelectors(){
+  const now = new Date();
+  const yr = now.getFullYear();
+  const years = [yr-1, yr, yr+1];
+  ['leaveYearSel','myLeaveYearSel'].forEach(id=>{
+    const sel=document.getElementById(id);
+    if(!sel)return;
+    sel.innerHTML=years.map(y=>`<option value="${y}" ${y===yr?'selected':''}>${y}</option>`).join('');
+  });
+}
+
+function getLeaveYear(selId){ return parseInt(document.getElementById(selId)?.value||new Date().getFullYear()); }
+
+const EMP_TYPE_LABEL = {fulltime:'🏢 Full-time', contract:'📋 Contract', intern:'🎓 Intern'};
+const LEAVE_TYPE_LABEL = {sickCasual:'Sick/Casual', earned:'Earned', contract:'Contract', intern:'Intern Leave', elCarryForward:'EL Carry Fwd'};
+const STATUS_COLOR = {approved:'var(--green)', pending:'var(--yellow)', rejected:'#ef4444'};
+
+function renderLeaveAdmin(){
+  initLeaveYearSelectors();
+  const year = getLeaveYear('leaveYearSel');
+  const q = (document.getElementById('leaveSearch')?.value||'').toLowerCase();
+  const list = q ? employees.filter(e=>e.name.toLowerCase().includes(q)) : employees;
+  const grid = document.getElementById('leaveAdminGrid');
+  if(!grid) return;
+
+  grid.innerHTML = list.map(emp=>{
+    const bal = getLeaveBalance(emp.id, year);
+    if(!bal) return '';
+    const empLeaves = leaveRecords.filter(r=>r.empId===emp.id && r.year===year).sort((a,b)=>b.date.localeCompare(a.date));
+
+    let balanceHTML = '';
+    if(bal.type==='fulltime'){
+      balanceHTML = `
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 6px;">
+          <div class="leave-bal-pill" style="background:#dbeafe;color:#1d4ed8;">🤒 Sick/Casual: <strong>${bal.sickCasual.balance}</strong> / ${bal.sickCasual.accrued}</div>
+          <div class="leave-bal-pill" style="background:#dcfce7;color:#166534;">💰 Earned: <strong>${bal.earned.balance}</strong> / ${bal.earned.accrued}</div>
+          <div class="leave-bal-pill" style="background:#f3f4f6;color:var(--tx2);">Total taken: <strong>${bal.total.taken}</strong></div>
+        </div>`;
+    } else if(bal.type==='contract'){
+      balanceHTML = `
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin:10px 0 6px;">
+          <div class="leave-bal-pill" style="background:#fef9c3;color:#854d0e;">📋 Regular: <strong>${bal.regular.balance}</strong> / ${bal.regular.accrued}</div>
+          ${bal.menstrual?`<div class="leave-bal-pill" style="background:#fce7f3;color:#9d174d;">🌸 Menstrual: <strong>${bal.menstrual.balance}</strong> / ${bal.menstrual.accrued}</div>`:''}
+        </div>`;
+    } else {
+      balanceHTML = `<div style="display:flex;gap:12px;margin:10px 0 6px;"><div class="leave-bal-pill" style="background:#dcfce7;color:#166534;">🎓 Leave: <strong>${bal.balance}</strong> / ${bal.accrued}</div></div>`;
+    }
+
+    const leaveRows = empLeaves.length ? empLeaves.map(r=>`
+      <tr>
+        <td style="font-size:.76rem;">${r.date}</td>
+        <td style="font-size:.74rem;">${LEAVE_TYPE_LABEL[r.leaveType]||r.leaveType}${r.isMenstrual?' 🌸':''}</td>
+        <td><span style="font-size:.68rem;font-weight:600;color:${STATUS_COLOR[r.status]||'var(--tx)'};">${r.status.toUpperCase()}</span></td>
+        <td style="font-size:.73rem;color:var(--tx2);">${esc(r.note||'—')}</td>
+        <td style="white-space:nowrap;">
+          <button class="iBtn" onclick="openLeaveModal('${r.id}')" title="Edit"><i class="fas fa-pen"></i></button>
+          <button class="iBtn del" onclick="deleteLeave('${r.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+        </td>
+      </tr>`).join('') : '<tr><td colspan="5" style="color:var(--tx3);font-size:.75rem;text-align:center;padding:12px;">No leaves recorded</td></tr>';
+
+    return `<div class="leave-emp-card">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="user-card-av" style="background:#6366f1;width:34px;height:34px;font-size:.75rem;">${emp.name.split(' ').map(w=>w[0]).join('').substr(0,2).toUpperCase()}</div>
+        <div>
+          <strong style="font-size:.88rem;">${esc(emp.name)}</strong>
+          <div style="font-size:.72rem;color:var(--tx2);">${emp.gender==='male'?'♂':'♀'} · ${EMP_TYPE_LABEL[emp.empType||'fulltime']}</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="openLeaveModal(null,'${emp.id}')"><i class="fas fa-plus"></i> Add</button>
+      </div>
+      ${balanceHTML}
+      <table style="width:100%;border-collapse:collapse;margin-top:4px;">
+        <thead><tr style="font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;">
+          <th style="text-align:left;padding:4px 6px;">Date</th>
+          <th style="text-align:left;padding:4px 6px;">Type</th>
+          <th style="text-align:left;padding:4px 6px;">Status</th>
+          <th style="text-align:left;padding:4px 6px;">Note</th>
+          <th></th>
+        </tr></thead>
+        <tbody>${leaveRows}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+function renderMyLeaves(){
+  initLeaveYearSelectors();
+  const emp = employees.find(e=>e.id===currentUser?.empId||e.email===currentUser?.email);
+  const cont = document.getElementById('myLeavesContent');
+  if(!cont) return;
+  if(!emp){ cont.innerHTML='<p style="color:var(--tx2);padding:20px;">No employee record linked to your account.</p>'; return; }
+  const year = getLeaveYear('myLeaveYearSel');
+  const bal = getLeaveBalance(emp.id, year);
+  const myLeaves = leaveRecords.filter(r=>r.empId===emp.id && r.year===year).sort((a,b)=>b.date.localeCompare(a.date));
+
+  let policyNote = '';
+  if(bal?.type==='fulltime'){
+    policyNote='<p style="font-size:.75rem;color:var(--tx2);margin:0 0 4px;"><i class="fas fa-info-circle"></i> <strong>Full-time:</strong> 1 Sick/Casual + 1.25 Earned Leave per month. S&C carries till December. Earned Leave carries forward indefinitely.</p>';
+  } else if(bal?.type==='contract'){
+    policyNote=`<p style="font-size:.75rem;color:var(--tx2);margin:0 0 4px;"><i class="fas fa-info-circle"></i> <strong>Contract:</strong> ${emp.gender==='female'?'2 leaves/month (1 regular + 1 menstrual). No carry forward.':'1 leave/month. No carry forward.'}</p>`;
+  } else if(bal?.type==='intern'){
+    policyNote='<p style="font-size:.75rem;color:var(--tx2);margin:0 0 4px;"><i class="fas fa-info-circle"></i> <strong>Intern:</strong> 1 leave per month. No carry forward.</p>';
+  }
+
+  let balCards = '';
+  if(bal?.type==='fulltime'){
+    balCards=`<div class="leave-bal-pill" style="background:#dbeafe;color:#1d4ed8;font-size:.82rem;padding:10px 16px;">🤒 Sick/Casual<br><strong style="font-size:1.4rem;">${bal.sickCasual.balance}</strong><span style="font-size:.7rem;"> / ${bal.sickCasual.accrued} accrued</span></div>
+    <div class="leave-bal-pill" style="background:#dcfce7;color:#166534;font-size:.82rem;padding:10px 16px;">💰 Earned<br><strong style="font-size:1.4rem;">${bal.earned.balance}</strong><span style="font-size:.7rem;"> / ${bal.earned.accrued} accrued</span></div>`;
+  } else if(bal?.type==='contract'){
+    balCards=`<div class="leave-bal-pill" style="background:#fef9c3;color:#854d0e;font-size:.82rem;padding:10px 16px;">📋 Regular<br><strong style="font-size:1.4rem;">${bal.regular.balance}</strong><span style="font-size:.7rem;"> / ${bal.regular.accrued} accrued</span></div>
+    ${bal.menstrual?`<div class="leave-bal-pill" style="background:#fce7f3;color:#9d174d;font-size:.82rem;padding:10px 16px;">🌸 Menstrual<br><strong style="font-size:1.4rem;">${bal.menstrual.balance}</strong><span style="font-size:.7rem;"> / ${bal.menstrual.accrued} accrued</span></div>`:''}`;
+  } else if(bal){
+    balCards=`<div class="leave-bal-pill" style="background:#dcfce7;color:#166534;font-size:.82rem;padding:10px 16px;">🎓 Leave Balance<br><strong style="font-size:1.4rem;">${bal.balance}</strong><span style="font-size:.7rem;"> / ${bal.accrued} accrued</span></div>`;
+  }
+
+  const leaveRows = myLeaves.length ? myLeaves.map(r=>`
+    <tr>
+      <td style="font-size:.76rem;font-weight:500;">${r.date}</td>
+      <td style="font-size:.74rem;">${LEAVE_TYPE_LABEL[r.leaveType]||r.leaveType}${r.isMenstrual?' 🌸':''}</td>
+      <td><span style="font-size:.7rem;font-weight:600;color:${STATUS_COLOR[r.status]||'var(--tx)'};">${r.status.toUpperCase()}</span></td>
+      <td style="font-size:.73rem;color:var(--tx2);">${esc(r.note||'—')}</td>
+    </tr>`).join('')
+    : '<tr><td colspan="4" style="color:var(--tx3);font-size:.75rem;text-align:center;padding:16px;">No leaves recorded this year</td></tr>';
+
+  cont.innerHTML=`
+    ${policyNote}
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">${balCards}</div>
+    <div style="background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:var(--sur2);font-size:.68rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.4px;">
+          <th style="text-align:left;padding:10px 14px;">Date</th>
+          <th style="text-align:left;padding:10px 14px;">Type</th>
+          <th style="text-align:left;padding:10px 14px;">Status</th>
+          <th style="text-align:left;padding:10px 14px;">Note</th>
+        </tr></thead>
+        <tbody>${leaveRows}</tbody>
+      </table>
+    </div>`;
+}
+
+// ── Leave Modal ──
+function openLeaveModal(leaveId=null, preEmpId=null){
+  editLeaveId=leaveId;
+  // populate employee dropdown
+  const sel=document.getElementById('fl-emp');
+  sel.innerHTML=employees.map(e=>`<option value="${e.id}">${esc(e.name)} (${EMP_TYPE_LABEL[e.empType||'fulltime']})</option>`).join('');
+  document.getElementById('lMTtl').textContent=leaveId?'Edit Leave':'Add Leave';
+  if(leaveId){
+    const r=leaveRecords.find(x=>x.id===leaveId);
+    if(!r)return;
+    sel.value=r.empId;
+    document.getElementById('fl-date').value=r.date;
+    document.getElementById('fl-type').value=r.leaveType;
+    document.getElementById('fl-status').value=r.status;
+    document.getElementById('fl-note').value=r.note||'';
+    const men=document.getElementById('fl-menstrual');
+    if(men)men.checked=!!r.isMenstrual;
+  } else {
+    if(preEmpId) sel.value=preEmpId;
+    document.getElementById('fl-date').value=new Date().toISOString().slice(0,10);
+    document.getElementById('fl-status').value='approved';
+    document.getElementById('fl-note').value='';
+    const men=document.getElementById('fl-menstrual');
+    if(men)men.checked=false;
+  }
+  onLeaveEmpChange();
+  document.getElementById('leaveOvl').classList.add('open');
+}
+function closeLeaveModal(){document.getElementById('leaveOvl').classList.remove('open');}
+
+function onLeaveEmpChange(){
+  const empId=document.getElementById('fl-emp').value;
+  const emp=employees.find(e=>e.id===empId);
+  if(!emp)return;
+  const type=emp.empType||'fulltime';
+  const sel=document.getElementById('fl-type');
+  // Set appropriate leave type options
+  sel.innerHTML='';
+  if(type==='fulltime'){
+    sel.innerHTML='<option value="sickCasual">🤒 Sick / Casual</option><option value="earned">💰 Earned Leave</option>';
+  } else if(type==='contract'){
+    sel.innerHTML='<option value="contract">📋 Contract Leave</option>';
+  } else {
+    sel.innerHTML='<option value="intern">🎓 Intern Leave</option>';
+  }
+  onLeaveTypeChange();
+  // Show balance info
+  const bal=getLeaveBalance(empId, new Date().getFullYear());
+  const info=document.getElementById('fl-balance-info');
+  if(bal&&info){
+    let txt='';
+    if(bal.type==='fulltime') txt=`Current balance — S&C: ${bal.sickCasual.balance} | Earned: ${bal.earned.balance}`;
+    else if(bal.type==='contract') txt=`Current balance — Regular: ${bal.regular.balance}${bal.menstrual?` | Menstrual: ${bal.menstrual.balance}`:''}`;
+    else txt=`Current balance: ${bal.balance}`;
+    info.textContent=txt; info.style.display='';
+  }
+}
+
+function onLeaveTypeChange(){
+  const empId=document.getElementById('fl-emp').value;
+  const emp=employees.find(e=>e.id===empId);
+  const leaveType=document.getElementById('fl-type').value;
+  const menWrap=document.getElementById('fl-menstrual-wrap');
+  menWrap.style.display=(leaveType==='contract'&&emp?.gender==='female')?'':'none';
+}
+
+async function saveLeave(){
+  const empId=document.getElementById('fl-emp').value;
+  const date=document.getElementById('fl-date').value;
+  const leaveType=document.getElementById('fl-type').value;
+  const status=document.getElementById('fl-status').value;
+  const note=document.getElementById('fl-note').value.trim();
+  const isMenstrual=document.getElementById('fl-menstrual')?.checked||false;
+  if(!empId){toast('Select employee','err');return;}
+  if(!date){toast('Select date','err');return;}
+  const year=parseInt(date.split('-')[0]);
+  const month=parseInt(date.split('-')[1]);
+  if(editLeaveId){
+    const idx=leaveRecords.findIndex(r=>r.id===editLeaveId);
+    if(idx>-1) leaveRecords[idx]={...leaveRecords[idx],empId,date,leaveType,status,note,isMenstrual,year,month};
+    toast('Leave updated ✓','ok');
+  } else {
+    leaveRecords.push({id:'lv_'+Date.now(),empId,date,leaveType,status,note,isMenstrual,year,month});
+    toast('Leave added ✓','ok');
+  }
+  await saveLeaveToDB();
+  closeLeaveModal();
+  renderLeaveAdmin();
+  renderMyLeaves();
+}
+
+async function deleteLeave(id){
+  if(!confirm('Delete this leave record?'))return;
+  leaveRecords=leaveRecords.filter(r=>r.id!==id);
+  await saveLeaveToDB();
+  renderLeaveAdmin();
+  toast('Deleted','info');
+}
+
 // ══════════════════════════════════
 // SLACK NOTIFICATIONS
 // ══════════════════════════════════
@@ -2764,6 +3075,7 @@ async function appInit(){
     loadEmpsFromDB(),
     loadActLogFromDB(),
     loadFeaturesFromDB(),
+    loadLeaveFromDB(),
     loadDocsFromDB(),
     loadNotificationsFromDB(),
     loadCheckInFromDB(),
@@ -2851,6 +3163,93 @@ async function saveProjDB(p){
 async function delProjDB(id){const{error}=await sb.from('projects').delete().eq('id',id);if(error)toast('Delete: '+error.message,'err');}
 
 function saveEmpsLocal(){try{localStorage.setItem('cc_emps',JSON.stringify(employees));}catch(e){}} // keep for fallback
+
+// ══════════════════════════════════
+// LEAVE MANAGEMENT STATE
+// ══════════════════════════════════
+let leaveRecords = []; // [{id, empId, type, date, year, month, status:'approved'|'pending'|'rejected', note, isMenstrual}]
+
+// Leave policy engine
+const LEAVE_POLICY = {
+  fulltime: {
+    sickCasual: { perMonth: 1, carryTillDec: true, carryForward: false },
+    earned:     { perMonth: 1.25, carryTillDec: false, carryForward: true }
+  },
+  contract: {
+    male:   { perMonth: 1, carryForward: false },
+    female: { perMonth: 2, carryForward: false, menstrual: 1 } // 1 regular + 1 menstrual
+  },
+  intern: {
+    perMonth: 1, carryForward: false
+  }
+};
+
+function saveLeaveLocal(){try{localStorage.setItem('cc_leaves',JSON.stringify(leaveRecords));}catch(e){}}
+function loadLeaveLocal(){try{const s=localStorage.getItem('cc_leaves');if(s)leaveRecords=JSON.parse(s);}catch(e){}}
+async function saveLeaveToDB(){
+  saveLeaveLocal();
+  try{await sb.from('app_settings').upsert({key:'leave_records',value:JSON.stringify(leaveRecords)},{onConflict:'key'});}catch(e){}
+}
+async function loadLeaveFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','leave_records').single();
+    if(data?.value){leaveRecords=JSON.parse(data.value);saveLeaveLocal();}
+    else{await saveLeaveToDB();}
+  }catch(e){loadLeaveLocal();}
+}
+
+// Compute leave balance for an employee
+function getLeaveBalance(empId, year){
+  const emp = employees.find(e=>e.id===empId);
+  if(!emp) return null;
+  const type = emp.empType||'fulltime';
+  const gender = emp.gender||'male';
+  const now = new Date();
+  const y = year || now.getFullYear();
+  const currentMonth = now.getMonth()+1; // 1-indexed
+  // months elapsed this year (up to current month)
+  const monthsElapsed = y < now.getFullYear() ? 12 : currentMonth;
+
+  // leaves taken this year (approved)
+  const taken = leaveRecords.filter(r=>r.empId===empId && r.year===y && r.status==='approved');
+
+  if(type==='fulltime'){
+    const scAccrued = monthsElapsed * 1;      // 1 S&C per month
+    const elAccrued = monthsElapsed * 1.25;   // 1.25 EL per month
+    const scTaken   = taken.filter(r=>r.leaveType==='sickCasual').length;
+    const elTaken   = taken.filter(r=>r.leaveType==='earned').length;
+    // carry forward EL from prev years
+    const prevEl = leaveRecords.filter(r=>r.empId===empId && r.year<y && r.leaveType==='elCarryForward' && r.status==='approved').reduce((s,r)=>s+(r.days||0),0);
+    const prevElUsed = leaveRecords.filter(r=>r.empId===empId && r.year<y && r.leaveType==='earned' && r.status==='approved').length;
+    return {
+      type:'fulltime',
+      sickCasual:{ accrued:scAccrued, taken:scTaken, balance:Math.max(0,scAccrued-scTaken) },
+      earned:{ accrued:parseFloat(elAccrued.toFixed(2)), taken:elTaken, balance:parseFloat(Math.max(0,elAccrued-elTaken).toFixed(2)) },
+      total:{ accrued:parseFloat((scAccrued+elAccrued).toFixed(2)), taken:scTaken+elTaken }
+    };
+  }
+  if(type==='contract'){
+    const perMonth = gender==='female' ? 2 : 1;
+    const accrued  = monthsElapsed * perMonth;
+    const takenReg = taken.filter(r=>r.leaveType==='contract' && !r.isMenstrual).length;
+    const takenMen = taken.filter(r=>r.leaveType==='contract' && r.isMenstrual).length;
+    const menAccrued = gender==='female' ? monthsElapsed : 0;
+    const regAccrued = gender==='female' ? monthsElapsed : accrued;
+    return {
+      type:'contract', gender,
+      regular:{ accrued:regAccrued, taken:takenReg, balance:Math.max(0,regAccrued-takenReg) },
+      menstrual: gender==='female' ? { accrued:menAccrued, taken:takenMen, balance:Math.max(0,menAccrued-takenMen) } : null,
+      total:{ accrued, taken:takenReg+takenMen }
+    };
+  }
+  if(type==='intern'){
+    const accrued = monthsElapsed * 1;
+    const takenN  = taken.filter(r=>r.leaveType==='intern').length;
+    return { type:'intern', accrued, taken:takenN, balance:Math.max(0,accrued-takenN) };
+  }
+  return null;
+}
+
 async function saveEmpsToDB(){
   saveEmpsLocal(); // local backup
   try{
@@ -2985,6 +3384,8 @@ function switchPage(p){
   if(p==='actlog')renderActivityLog();
   if(p==='stakeholder')renderStakeholderDashboard();
   if(p==='access')renderAccessControl();
+  if(p==='leaves'){initLeaveYearSelectors();renderLeaveAdmin();}
+  if(p==='myleaves'){initLeaveYearSelectors();renderMyLeaves();}
 }
 function renderAll(){
   renderProjects();   // updates #projGrid (home/dashboard cards)
@@ -3570,17 +3971,17 @@ async function saveProject(){
 
 function openEmpModal(id=null){
   editEmpId=id;
-  if(id){const e=employees.find(x=>x.id===id);if(!e)return;document.getElementById('eMTtl').textContent='Edit Employee';document.getElementById('fe-name').value=e.name;document.getElementById('fe-email').value=e.email;document.getElementById('fe-gender').value=e.gender;}
-  else{document.getElementById('eMTtl').textContent='Add Employee';['fe-name','fe-email'].forEach(f=>document.getElementById(f).value='');document.getElementById('fe-gender').value='female';}
+  if(id){const e=employees.find(x=>x.id===id);if(!e)return;document.getElementById('eMTtl').textContent='Edit Employee';document.getElementById('fe-name').value=e.name;document.getElementById('fe-email').value=e.email;document.getElementById('fe-gender').value=e.gender;document.getElementById('fe-emptype').value=e.empType||'fulltime';}
+  else{document.getElementById('eMTtl').textContent='Add Employee';['fe-name','fe-email'].forEach(f=>document.getElementById(f).value='');document.getElementById('fe-gender').value='female';document.getElementById('fe-emptype').value='fulltime';}
   document.getElementById('empOvl').classList.add('open');
 }
 function closeEmpModal(){document.getElementById('empOvl').classList.remove('open');}
 function closeEmpOvlBg(e){if(e.target===document.getElementById('empOvl'))closeEmpModal();}
 function saveEmployee(){
-  const name=document.getElementById('fe-name').value.trim();const email=document.getElementById('fe-email').value.trim();const gender=document.getElementById('fe-gender').value;
+  const name=document.getElementById('fe-name').value.trim();const email=document.getElementById('fe-email').value.trim();const gender=document.getElementById('fe-gender').value;const empType=document.getElementById('fe-emptype').value;
   if(!name){toast('Name required','err');return;}if(!email){toast('Email required','err');return;}
-  if(editEmpId){const idx=employees.findIndex(e=>e.id===editEmpId);if(idx>-1){employees[idx]={...employees[idx],name,email,gender};toast('Updated ✓','ok');}}
-  else{employees.push({id:'e_'+Date.now(),name,email,gender});toast('Added ✓','ok');}
+  if(editEmpId){const idx=employees.findIndex(e=>e.id===editEmpId);if(idx>-1){employees[idx]={...employees[idx],name,email,gender,empType};toast('Updated ✓','ok');}}
+  else{employees.push({id:'e_'+Date.now(),name,email,gender,empType});toast('Added ✓','ok');}
   saveEmpsLocal();closeEmpModal();renderEmps();renderStats();
 }
 async function delEmp(id){
@@ -3629,6 +4030,7 @@ function renderEmps(){
     else{sc='st-f';st='Free';}
     return`<tr><td style="color:var(--tx3);font-size:.7rem;">${i+1}</td><td><strong>${esc(e.name)}</strong></td><td style="color:var(--tx2);font-size:.76rem;">${esc(e.email)}</td>
       <td><span class="${e.gender==='male'?'gm':'gf'}">${e.gender==='male'?'♂ Male':'♀ Female'}</span></td>
+      <td><span style="font-size:.68rem;padding:2px 7px;border-radius:10px;font-weight:600;background:${{fulltime:'#dbeafe',contract:'#fef9c3',intern:'#dcfce7'}[e.empType||'fulltime']||'#dbeafe'};color:${{fulltime:'#1d4ed8',contract:'#854d0e',intern:'#166534'}[e.empType||'fulltime']||'#1d4ed8'};">${{fulltime:'🏢 Full-time',contract:'📋 Contract',intern:'🎓 Intern'}[e.empType||'fulltime']||'🏢 Full-time'}</span></td>
       <td><span class="${sc}">${st}</span></td>
       <td style="font-size:.73rem;color:var(--tx2);">${projs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
       <td style="font-size:.73rem;color:var(--yellow);">${revProjs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
@@ -5222,10 +5624,16 @@ function openUserModal(id=null){
     document.getElementById('fu-role').value=u.role;
     // populate emp select
     populateEmpSelect();document.getElementById('fu-empId').value=u.empId||'';
+    // populate empType and gender from linked employee
+    const linkedE=u.empId?employees.find(e=>e.id===u.empId):null;
+    if(document.getElementById('fu-emptype')) document.getElementById('fu-emptype').value=(linkedE?.empType||u.empType||'fulltime');
+    if(document.getElementById('fu-gender'))  document.getElementById('fu-gender').value=(linkedE?.gender||u.gender||'female');
     onRoleChange();
   } else {
     ['fu-name','fu-email','fu-pwd'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('fu-role').value='employee';
+    if(document.getElementById('fu-emptype')) document.getElementById('fu-emptype').value='fulltime';
+    if(document.getElementById('fu-gender'))  document.getElementById('fu-gender').value='female';
     populateEmpSelect();onRoleChange();
   }
   document.getElementById('userOvl').classList.add('open');
@@ -5235,6 +5643,8 @@ function onRoleChange(){
   const role=document.getElementById('fu-role').value;
   const showLink=['employee','reviewer','manager'].includes(role);
   document.getElementById('empLinkWrap').style.display=showLink?'':'none';
+  document.getElementById('empTypeWrap').style.display=showLink?'':'none';
+  document.getElementById('empGenderWrap').style.display=showLink?'':'none';
   const note=document.getElementById('emp-auto-note');
   if(note)note.style.display=showLink?'':'none';
 }
@@ -5268,14 +5678,14 @@ async function saveUser(){
   if(empRole){
     // Use empId if linked, otherwise use uid as emp id
     const eid = empId || uid;
+    const fuEmpType=document.getElementById('fu-emptype')?.value||'fulltime';
+    const fuGender=document.getElementById('fu-gender')?.value||'female';
     const existing = employees.find(e=>e.id===eid || e.email===email);
     if(existing){
-      // Update name/email if changed
-      existing.name = name;
-      existing.email = email;
+      existing.name = name; existing.email = email;
+      existing.empType = fuEmpType; existing.gender = fuGender;
     } else {
-      // Add new employee record
-      employees.push({id:eid, name, email, gender:'male'});
+      employees.push({id:eid, name, email, gender:fuGender, empType:fuEmpType});
     }
     // Ensure the user's empId is linked
     const uIdx = appUsers.findIndex(u=>u.id===uid||u.id===editUserId);
@@ -5948,6 +6358,8 @@ tryRestoreSession();
         <option value="stakeholder">&#x1F7E3; Stakeholder</option>
       </select>
     </div>
+    <div class="ff" id="empTypeWrap" style="display:none;"><label>Employment Type</label><select id="fu-emptype"><option value="fulltime">🏢 Full-time</option><option value="contract">📋 Contract</option><option value="intern">🎓 Intern</option></select></div>
+    <div class="ff" id="empGenderWrap" style="display:none;"><label>Gender</label><select id="fu-gender"><option value="female">♀ Female</option><option value="male">♂ Male</option></select></div>
     <div class="ff full" id="empLinkWrap" style="display:none;">
       <label>Link to Existing Employee Record <span style="font-weight:400;color:var(--tx3);font-size:.75rem;">(optional — leave blank to auto-create)</span></label>
       <select id="fu-empId" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;"><option value="">— Auto-create new employee record —</option></select>
