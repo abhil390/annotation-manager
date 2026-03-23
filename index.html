@@ -176,6 +176,76 @@ select.fsel{padding:5px 11px;border-radius:var(--rp);font-size:.75rem;border:1px
 /* comments */
 .cmt-ta{width:100%;padding:8px 11px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-family:'Inter',sans-serif;font-size:.81rem;resize:vertical;min-height:65px;outline:none;}
 .cmt-ta:focus{border-color:var(--red);}
+/* ── Threaded comments ── */
+.tc-list{display:flex;flex-direction:column;}
+.tc-item{padding:14px 16px;border-bottom:1px solid var(--brd);transition:background .15s;}
+.tc-item:last-child{border-bottom:none;}
+.tc-item.tc-mine{background:rgba(220,38,38,.03);}
+.tc-item.tc-unread{background:rgba(37,99,235,.05);}
+.tc-item:hover{background:var(--sur2);}
+.tc-hdr{display:flex;align-items:center;gap:9px;margin-bottom:8px;}
+.tc-av{width:30px;height:30px;border-radius:50%;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tc-meta{display:flex;flex-direction:column;gap:1px;}
+.tc-name{font-size:.8rem;font-weight:700;color:var(--tx);}
+.tc-role{font-size:.64rem;font-weight:600;padding:1px 6px;border-radius:8px;}
+.tc-time{font-size:.67rem;color:var(--tx3);margin-left:auto;white-space:nowrap;}
+.tc-body{font-size:.84rem;color:var(--tx2);line-height:1.7;white-space:pre-wrap;word-break:break-word;padding-left:39px;margin-bottom:8px;}
+.tc-mention{color:var(--blue);font-weight:600;background:rgba(37,99,235,.1);border-radius:4px;padding:1px 5px;}
+.tc-actions{display:flex;gap:8px;padding-left:39px;}
+.tc-btn{background:none;border:none;color:var(--tx3);font-size:.7rem;cursor:pointer;padding:3px 8px;border-radius:5px;display:inline-flex;align-items:center;gap:4px;font-weight:500;}
+.tc-btn:hover{background:var(--sur2);color:var(--tx);}
+.tc-btn.del:hover{background:rgba(220,38,38,.08);color:var(--red);}
+.tc-replies{border-left:3px solid var(--brd);margin:10px 0 0 15px;}
+.tc-replies .tc-item{padding-left:12px;}
+/* reply banner */
+.tc-reply-banner{display:flex;align-items:center;justify-content:space-between;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);border-radius:var(--rsm);padding:7px 12px;margin-bottom:10px;font-size:.76rem;color:var(--blue);}
+/* compose area */
+.tc-compose{display:flex;align-items:flex-start;gap:10px;padding:14px 16px;background:var(--sur2);border-top:1px solid var(--brd);}
+.tc-compose-av{width:30px;height:30px;border-radius:50%;color:#fff;font-size:.65rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.tc-compose-right{flex:1;display:flex;flex-direction:column;gap:6px;}
+.tc-textarea{width:100%;padding:10px 13px;border:1.5px solid var(--brd);border-radius:10px;background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;resize:none;min-height:48px;max-height:200px;outline:none;transition:border-color .2s;line-height:1.55;box-sizing:border-box;}
+.tc-textarea:focus{border-color:var(--red);}
+.tc-compose-foot{display:flex;align-items:center;justify-content:space-between;}
+.tc-hint{font-size:.64rem;color:var(--tx3);}
+.tc-send{padding:7px 16px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:.78rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:opacity .15s;}
+.tc-send:hover{opacity:.82;}
+/* @mention popup */
+.mention-pop{position:fixed;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);box-shadow:0 8px 28px rgba(0,0,0,.18);z-index:9999;max-height:240px;overflow-y:auto;min-width:210px;}
+.mention-row{padding:9px 14px;cursor:pointer;font-size:.81rem;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--brd);}
+.mention-row:last-child{border-bottom:none;}
+.mention-row:hover,.mention-row.active{background:var(--sur2);}
+.mention-row .m-av{width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font-size:.62rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.mention-row .m-info{display:flex;flex-direction:column;gap:1px;}
+.mention-row .m-name{font-size:.79rem;font-weight:600;color:var(--tx);}
+.mention-row .m-email{font-size:.64rem;color:var(--tx3);}
+/* notification bell */
+.nb-btn{position:relative;background:none;border:none;color:var(--tx2);cursor:pointer;padding:5px 7px;border-radius:var(--rsm);font-size:.95rem;}
+.nb-btn:hover{background:var(--sur2);}
+.nb-dot{position:absolute;top:3px;right:3px;width:8px;height:8px;background:#dc2626;border-radius:50%;display:none;}
+.nb-dot.on{display:block;}
+.notif-panel{position:fixed;top:56px;right:16px;width:340px;max-height:480px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);box-shadow:0 8px 32px rgba(0,0,0,.18);z-index:600;display:none;flex-direction:column;}
+.notif-panel.open{display:flex;}
+.np-hdr{padding:12px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;}
+.np-hdr strong{font-size:.88rem;}
+.np-hdr button{background:none;border:none;color:var(--tx3);font-size:.72rem;cursor:pointer;padding:3px 8px;border-radius:var(--rsm);}
+.np-hdr button:hover{background:var(--sur2);color:var(--tx);}
+.np-list{overflow-y:auto;flex:1;}
+.np-item{padding:11px 14px 11px 12px;border-bottom:1px solid var(--brd);cursor:pointer;display:flex;gap:0;transition:background .12s;}
+.np-item:hover{background:var(--sur2);}
+.np-item.unread{background:rgba(37,99,235,.05);}
+.np-unread-dot{width:7px;height:7px;background:var(--blue);border-radius:50%;flex-shrink:0;margin-top:5px;margin-right:7px;}
+.np-read-dot{width:7px;flex-shrink:0;margin-right:7px;}
+.np-body{flex:1;}
+.np-proj{font-size:.7rem;font-weight:700;color:var(--red);margin-bottom:2px;}
+.np-text{font-size:.78rem;color:var(--tx2);line-height:1.45;}
+.np-time{font-size:.65rem;color:var(--tx3);margin-top:3px;}
+.np-empty{padding:36px 20px;text-align:center;color:var(--tx3);font-size:.82rem;}
+/* realtime indicator */
+.no-create .newproj-btn,
+.no-create #nav-newproj{display:none !important;}
+.rt-badge{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:20px;font-size:.65rem;font-weight:600;background:rgba(22,163,74,.1);color:#16a34a;border:1px solid rgba(22,163,74,.25);}
+.rt-dot{width:7px;height:7px;border-radius:50%;background:#16a34a;animation:rtP 1.8s infinite;}
+@keyframes rtP{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
 
 /* ════ KANBAN ════ */
 .kanban-wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;min-height:500px;}
@@ -329,7 +399,7 @@ tr:hover td{background:var(--sur2);}
 .stab.on{color:var(--red);border-bottom-color:var(--red);font-weight:600;}
 
 @media(max-width:900px){.charts-grid{grid-template-columns:1fr;}.kanban-wrap{grid-template-columns:1fr 1fr;}}
-@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;max-width:100%;padding:14px;}.proj-grid{grid-template-columns:1fr;}.kanban-wrap{grid-template-columns:1fr;}.settings-grid{grid-template-columns:1fr;}}
+@media(max-width:768px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;max-width:100%;padding:14px;}.proj-grid{grid-template-columns:1fr;}.kanban-wrap{grid-template-columns:1fr;}.settings-grid{grid-template-columns:1fr;}#checkInBar{left:0;}}
 
 /* ═══ LOGIN ═══ */
 #loginScr{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
@@ -463,9 +533,151 @@ tr:hover td{background:var(--sur2);}
 .acc2-role-hdr{font-size:.75rem;font-weight:700;color:var(--tx2);margin:12px 0 5px;display:flex;align-items:center;gap:6px;}
 .acc2-section{margin-top:18px;padding-top:16px;border-top:1px solid var(--brd);}
 
+/* ══════════════════════════════════════════════
+   CHECK-IN BAR & ADMIN PANEL
+══════════════════════════════════════════════ */
+/* Bar fixed at bottom of screen, right of sidebar - never affects page layout */
+#checkInBar{
+  display:none;
+  align-items:center;gap:14px;
+  padding:10px 24px;
+  background:var(--sur);
+  border-top:2px solid var(--red);
+  flex-wrap:wrap;
+  position:fixed;
+  bottom:0; left:252px; right:0;
+  z-index:200;
+  box-shadow:0 -2px 16px rgba(0,0,0,.10);
+}
+/* Push page content up so bar doesn't cover it */
+body.ci-bar-visible .main{ padding-bottom:60px; }
+.ci-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--tx3);}
+.ci-status{display:flex;align-items:center;gap:7px;font-size:.85rem;font-weight:600;}
+.ci-status.ci-in{color:var(--green);}
+.ci-status.ci-idle{color:var(--tx3);}
+.ci-dot-live{
+  display:inline-block;width:8px;height:8px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 0 0 rgba(22,163,74,.4);
+  animation:ciPulse 1.4s infinite;
+}
+@keyframes ciPulse{0%{box-shadow:0 0 0 0 rgba(22,163,74,.4)}70%{box-shadow:0 0 0 7px rgba(22,163,74,0)}100%{box-shadow:0 0 0 0 rgba(22,163,74,0)}}
+.ci-time{
+  font-size:1.15rem;font-weight:800;
+  color:var(--tx);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:.5px;
+  min-width:68px;
+}
+.ci-divider{width:1px;height:28px;background:var(--brd);flex-shrink:0;}
+.ci-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:7px 18px;border-radius:20px;border:none;
+  cursor:pointer;font-size:.8rem;font-weight:700;
+  transition:all .18s;font-family:'Inter',sans-serif;
+  letter-spacing:.3px;
+}
+.ci-btn-in{background:var(--green);color:#fff;}
+.ci-btn-in:hover{background:#15803d;transform:translateY(-1px);}
+.ci-btn-out{background:var(--red);color:#fff;}
+.ci-btn-out:hover{background:var(--red-d,#b91c1c);transform:translateY(-1px);}
+/* Admin check-in page */
+.ci-admin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:4px;}
+.ci-card{
+  background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);
+  padding:16px 18px;display:flex;flex-direction:column;gap:8px;
+  transition:box-shadow .15s;
+}
+.ci-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);}
+.ci-card.active{border-color:var(--green);background:var(--green-l,rgba(22,163,74,.05));}
+.ci-card-name{font-weight:700;font-size:.9rem;color:var(--tx);}
+.ci-card-status{display:flex;align-items:center;gap:6px;font-size:.78rem;}
+.ci-card-row{display:flex;justify-content:space-between;font-size:.76rem;color:var(--tx2);}
+.ci-card-row span:last-child{font-weight:600;color:var(--tx);}
+.ci-total{font-size:1.05rem;font-weight:800;color:var(--green);margin-top:4px;}
+.ci-total.inactive{color:var(--tx2);}
+.ci-live-timer{font-size:.78rem;color:var(--green);font-variant-numeric:tabular-nums;}
+/* Summary bar at top of admin page */
+.ci-summary{
+  display:flex;gap:16px;margin-bottom:18px;flex-wrap:wrap;
+}
+.ci-summary-card{
+  flex:1;min-width:120px;
+  background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);
+  padding:14px 18px;text-align:center;
+}
+.ci-summary-card .val{font-size:1.6rem;font-weight:800;color:var(--tx);line-height:1;}
+.ci-summary-card .lbl{font-size:.7rem;color:var(--tx3);margin-top:4px;text-transform:uppercase;letter-spacing:.6px;}
+.ci-summary-card.green .val{color:var(--green);}
+.ci-summary-card.red .val{color:var(--red);}
+/* Attendance badges */
+.att-badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:.68rem;font-weight:700;}
+.att-full{background:var(--green-l);color:var(--green);}
+.att-half{background:var(--blue-l);color:var(--blue);}
+.att-short{background:var(--yel-l,rgba(234,179,8,.12));color:var(--yellow);}
+.att-absent{background:rgba(0,0,0,.06);color:var(--tx3);}
+.att-active{background:var(--green-l);color:var(--green);}
+.ci-card .att-badge{margin-top:4px;}
+/* Monthly attendance table */
+.att-topbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.att-topbar select,.att-topbar input[type=month]{padding:6px 10px;border:1px solid var(--brd);border-radius:var(--rp);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;cursor:pointer;}
+/* Admin CI edit modal */
+#ciEditOvl .modal{width:420px;}
+
+/* ── Attendance day classification badges ── */
+.att-full{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:.68rem;font-weight:700;background:rgba(22,163,74,.1);color:var(--green);}
+.att-half{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:.68rem;font-weight:700;background:rgba(234,179,8,.1);color:var(--yellow);}
+.att-absent{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:20px;font-size:.68rem;font-weight:700;background:var(--sur2);color:var(--tx3);}
+.att-alert{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:.63rem;font-weight:700;background:rgba(249,115,22,.14);color:#f97316;margin-left:4px;}
+.att-emp-card{background:var(--sur);border:1px solid var(--brd);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+.att-emp-card-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--sur2);border-bottom:1px solid var(--brd);cursor:pointer;user-select:none;}
+.att-emp-card-hdr:hover{background:var(--red-l);}
+.att-emp-name{font-weight:700;font-size:.88rem;}
+.att-emp-summary{display:flex;gap:14px;font-size:.74rem;color:var(--tx3);}
+.att-emp-summary span{display:flex;align-items:center;gap:3px;}
+.att-month-table{width:100%;border-collapse:collapse;font-size:.78rem;}
+.att-month-table th{padding:7px 12px;text-align:left;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);border-bottom:1px solid var(--brd);}
+.att-month-table td{padding:8px 12px;border-bottom:1px solid var(--brd);color:var(--tx);}
+.att-month-table tr:last-child td{border-bottom:none;}
+.att-month-table tr:hover td{background:var(--sur2);}
+.att-edit-btn{background:none;border:1px solid var(--brd);border-radius:var(--rsm);padding:3px 9px;font-size:.7rem;cursor:pointer;color:var(--tx2);font-family:inherit;transition:all .13s;}
+.att-edit-btn:hover{background:var(--red-l);color:var(--red);border-color:var(--red);}
+.ci-summary-card.blue .val{color:var(--blue);}
 </style>
 </head>
 <body>
+<script>
+/* ═══ LAYER 1: Boot guard — runs BEFORE main script ═══
+   Sets a sentinel. If main script parse-fails, sentinel stays false.
+   A second script block AFTER main checks it and shows the error banner.
+   window.onerror alone does NOT catch SyntaxErrors in script blocks. */
+window._appReady = false;
+window._showScriptError = function(msg) {
+  var b = document.getElementById('_jsErrBanner');
+  if (b) return;
+  b = document.createElement('div');
+  b.id = '_jsErrBanner';
+  b.style.cssText = [
+    'position:fixed;top:0;left:0;right:0;z-index:99999',
+    'background:#b91c1c;color:#fff;padding:18px 22px',
+    'font-family:monospace;font-size:.83rem;line-height:1.8',
+    'box-shadow:0 4px 24px rgba(0,0,0,.4)'
+  ].join(';');
+  b.innerHTML = '<strong style="font-size:.95rem">⚠ App script failed to load — login is unavailable</strong><br>'
+    + (msg ? msg + '<br>' : '')
+    + 'This usually means a recent code edit introduced a syntax error.<br>'
+    + '<button onclick="location.reload(true)" style="margin-top:10px;padding:6px 18px;background:#fff;color:#b91c1c;border:none;border-radius:4px;cursor:pointer;font-weight:700;">↺ Hard Refresh</button>'
+    + '&nbsp;<button onclick="localStorage.clear();location.reload(true)" style="margin-top:10px;padding:6px 14px;background:transparent;color:#fca5a5;border:1px solid #fca5a5;border-radius:4px;cursor:pointer;">Clear Cache + Refresh</button>';
+  document.body.insertBefore(b, document.body.firstChild);
+};
+/* Also catch runtime errors (non-parse) */
+window.onerror = function(msg, src, line) {
+  if (!window._appReady) {
+    window._showScriptError(msg + ' (line ' + line + ')');
+  }
+  return false;
+};
+</script>
 <div id="lovl" style="display:none;"><div class="spin"></div><div style="font-size:.93rem;font-weight:600;">Loading CamCom data...</div></div>
 <div class="toasts" id="toasts"></div>
 
@@ -481,19 +693,19 @@ tr:hover td{background:var(--sur2);}
         <path fill="#fff" d="M139,348.5c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.8c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.7s9.1-7.6,14.7-10c5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2s-1.9,2.3-3.4,2.7-2.9.2-4.3-.5c-2.6-1.6-5.5-2.7-8.4-3.5-2.9-.7-6-1.2-9.3-1.2-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5s1.1,2.7.7,4.2-1.2,2.6-2.5,3.6c-7.6,4.5-15.9,6.8-24.9,6.8"/>
         <path fill="#fff" d="M371.3,348.2c-1.5,0-2.7-.5-3.8-1.7-1.1-1.1-1.6-2.4-1.6-3.9v-56.7l-25.1,58.9c-.4,1.1-1.1,1.8-1.9,2.4-.8.6-1.9.9-2.9,1.1-1.1,0-2.1-.3-3-.8-.9-.6-1.6-1.4-2-2.2l-29.2-61.6v59.3c0,1.5-.5,2.7-1.6,3.8s-2.3,1.6-3.8,1.6-2.8-.5-3.9-1.6c-1.1-1.1-1.7-2.3-1.7-3.8v-83.5c0-1.3.4-2.4,1.2-3.4.7-.9,1.8-1.7,3-1.9,1.3-.2,2.4-.1,3.6.4s2,1.4,2.5,2.5l34.4,72.4,30.8-72.2c.5-1.2,1.4-2,2.5-2.6s2.4-.7,3.6-.5c1.3.2,2.3.8,3.2,1.9s1.3,2.1,1.3,3.4v83.4c0,1.5-.5,2.8-1.6,3.9-1.1.9-2.4,1.6-3.9,1.6"/>
       </svg>
-      <div class="lcard-logo-txt"><strong>CamCom</strong><span>Annotation Tracker</span></div>
+      <div class="lcard-logo-txt"><strong>CamCom</strong><span>Annotation Tracker <span class="rt-badge" id="rt-badge" style="display:none;"><span class="rt-dot" id="rt-dot"></span>Live</span></span></div>
     </div>
     <h2>Sign in to your account</h2>
     <p>Enter your credentials to access the platform</p>
-    <div class="lf"><label>Email</label><input type="email" id="li-email" placeholder="you@camcom.ai" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <div class="lf"><label>Email</label><input type="email" id="li-email" placeholder="your email address" onkeydown="if(event.key==='Enter')doLogin()"></div>
     <div class="lf"><label>Password</label><input type="password" id="li-pwd" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
-    <button class="lbtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
+    <button class="lbtn" id="loginBtn" onclick="doLogin()"><i class="fas fa-sign-in-alt"></i> Sign In</button>
     <div class="lerr" id="loginErr"></div>
     <div class="ldiv"><span>Quick demo access</span></div>
     <div class="demo-grid">
-      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7312171e1a1d3310121e101c1e5d121a">[email&#160;protected]</a> / admin123</span></button>
-      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9cf1fdf2fdfbf9eedcfffdf1fff3f1b2fdf5">[email&#160;protected]</a> / mgr123</span></button>
-      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="146671627d7163716654777579777b793a757d">[email&#160;protected]</a> / rev123</span></button>
+      <button class="dbtn" onclick="quickLogin('admin')"><span class="dname">👑 Admin</span><span class="dsub"> / admin123</span></button>
+      <button class="dbtn" onclick="quickLogin('manager')"><span class="dname">🔵 Manager</span><span class="dsub"> / mgr123</span></button>
+      <button class="dbtn" onclick="quickLogin('reviewer')"><span class="dname">🟡 Reviewer</span><span class="dsub"> / rev123</span></button>
       <button class="dbtn" onclick="quickLogin('employee')"><span class="dname">🟢 Employee</span><span class="dsub">My assigned projects only</span></button>
       <button class="dbtn" onclick="quickLogin('stakeholder')" style="grid-column:1/-1;"><span class="dname">🟣 Stakeholder</span><span class="dsub">Executive / investor view — admin configures what they see</span></button>
     </div>
@@ -513,7 +725,7 @@ tr:hover td{background:var(--sur2);}
       <path fill="#fff" d="M139,348.5c-6.4,0-12.4-1.3-18.1-3.7-5.7-2.4-10.5-5.8-14.7-10s-7.6-9.1-10-14.8c-2.4-5.7-3.7-11.7-3.7-18.1s1.3-12.4,3.7-18.1c2.4-5.7,5.8-10.5,10-14.7s9.1-7.6,14.7-10c5.7-2.4,11.7-3.7,18.1-3.7s16,2,23.1,6.1c1.4.7,2.3,1.9,2.7,3.4.4,1.5.2,2.8-.5,4.2s-1.9,2.3-3.4,2.7-2.9.2-4.3-.5c-2.6-1.6-5.5-2.7-8.4-3.5-2.9-.7-6-1.2-9.3-1.2-4.9,0-9.6.9-13.9,2.8-4.3,1.9-8,4.4-11.3,7.6-3.2,3.2-5.7,6.9-7.6,11.3-1.9,4.3-2.8,8.9-2.8,13.8s.9,9.6,2.8,13.9c1.9,4.3,4.4,8.1,7.6,11.3,3.2,3.3,6.9,5.8,11.3,7.7,4.3,1.9,8.9,2.8,13.9,2.8s6.7-.5,10-1.5c3.2-.9,6.2-2.3,9-4.1,1.4-.9,2.7-1.3,4.2-.8,1.5.3,2.6,1.2,3.5,2.5s1.1,2.7.7,4.2-1.2,2.6-2.5,3.6c-7.6,4.5-15.9,6.8-24.9,6.8"/>
       <path fill="#fff" d="M371.3,348.2c-1.5,0-2.7-.5-3.8-1.7-1.1-1.1-1.6-2.4-1.6-3.9v-56.7l-25.1,58.9c-.4,1.1-1.1,1.8-1.9,2.4-.8.6-1.9.9-2.9,1.1-1.1,0-2.1-.3-3-.8-.9-.6-1.6-1.4-2-2.2l-29.2-61.6v59.3c0,1.5-.5,2.7-1.6,3.8s-2.3,1.6-3.8,1.6-2.8-.5-3.9-1.6c-1.1-1.1-1.7-2.3-1.7-3.8v-83.5c0-1.3.4-2.4,1.2-3.4.7-.9,1.8-1.7,3-1.9,1.3-.2,2.4-.1,3.6.4s2,1.4,2.5,2.5l34.4,72.4,30.8-72.2c.5-1.2,1.4-2,2.5-2.6s2.4-.7,3.6-.5c1.3.2,2.3.8,3.2,1.9s1.3,2.1,1.3,3.4v83.4c0,1.5-.5,2.8-1.6,3.9-1.1.9-2.4,1.6-3.9,1.6"/>
     </svg>
-    <div class="logo-text"><strong>CamCom</strong><span>Annotation Tracker</span></div>
+    <div class="logo-text"><strong>CamCom</strong><span>Annotation Tracker <span class="rt-badge" id="rt-badge" style="display:none;"><span class="rt-dot" id="rt-dot"></span>Live</span></span></div>
   </div>
   <div class="nav-grp">Main</div>
   <button class="nav-btn active" id="nav-dashboard" data-page="dashboard" onclick="switchPage('dashboard')"><i class="fas fa-th-large"></i> Dashboard</button>
@@ -522,10 +734,8 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" id="nav-analytics" data-page="analytics" onclick="switchPage('analytics')"><i class="fas fa-chart-pie"></i> Analytics</button>
   <button class="nav-btn" id="nav-employees" data-page="employees" onclick="switchPage('employees')"><i class="fas fa-users"></i> Employees <span class="nbadge" id="nb-e">0</span></button>
   <button class="nav-btn" id="nav-workload" data-page="workload" onclick="switchPage('workload')"><i class="fas fa-chart-bar"></i> Workload</button>
-  <button class="nav-btn" id="nav-leave" data-page="leave" onclick="switchPage('leave')"><i class="fas fa-calendar-check"></i> Leave Management <span class="nbadge" id="nb-leave" style="display:none;">0</span></button>
   <div class="nav-grp">Actions</div>
   <button class="nav-btn" id="nav-newproj" onclick="openNewProj()"><i class="fas fa-plus-circle"></i> New Project</button>
-  <button class="nav-btn" id="nav-addemp" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
   <button class="nav-btn" id="nav-exportcsv" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
   <button class="nav-btn" id="nav-exportpdf" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
   <button class="nav-btn" id="nav-dailyreport" onclick="openDailyReport()"><i class="fas fa-paper-plane" style="color:var(--blue)"></i> Daily Report</button>
@@ -533,6 +743,7 @@ tr:hover td{background:var(--sur2);}
   <button class="nav-btn" data-page="settings" onclick="switchPage('settings')"><i class="fas fa-cog"></i> Feature Settings</button>
   <button class="nav-btn" data-page="access" id="nav-access" style="display:none" onclick="switchPage('access')"><i class="fas fa-shield-alt"></i> Access Control</button>
   <button class="nav-btn" data-page="users" id="nav-users" style="display:none" onclick="switchPage('users')"><i class="fas fa-user-shield"></i> Manage Users</button>
+  <button class="nav-btn" id="nav-checkin" data-page="checkin" style="display:none" onclick="switchPage('checkin')"><i class="fas fa-clock"></i> Attendance</button>
   <button class="nav-btn" data-page="actlog" id="nav-actlog" style="display:none" onclick="switchPage('actlog')"><i class="fas fa-history"></i> Activity Log <span class="nbadge" id="nb-act">0</span></button>
   <button class="nav-btn" data-page="stakeholder" id="nav-stakeholder" style="display:none" onclick="switchPage('stakeholder')"><i class="fas fa-eye"></i> My Dashboard</button>
   <div class="sidebar-foot">
@@ -542,6 +753,7 @@ tr:hover td{background:var(--sur2);}
         <div class="user-name" id="userName">—</div>
         <div id="userRole"></div>
       </div>
+      <button class="nb-btn" id="nbBtn" onclick="toggleNotifPanel()" title="Notifications"><i class="fas fa-bell"></i><span class="nb-dot" id="nbDot"></span></button>
       <button class="logout-btn" onclick="doLogout()" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>
     </div>
     <button class="theme-btn" onclick="toggleTheme()"><i class="fas fa-moon" id="tIco"></i><span id="tLbl">Dark mode</span></button>
@@ -557,7 +769,7 @@ tr:hover td{background:var(--sur2);}
     <h1 class="pg-title">Dashboard</h1>
     <div class="topbar-r">
       <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search projects..." id="gSearch" oninput="handleSearch()"></div>
-      <button class="btn btn-red" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="btn btn-red newproj-btn" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
     </div>
   </div>
   <div class="stat-grid" id="statGrid"></div>
@@ -597,7 +809,7 @@ tr:hover td{background:var(--sur2);}
     <div class="topbar-r">
       <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search projects..." id="projSearch" oninput="renderProjFull()"></div>
       <button class="btn btn-green btn-sm" onclick="exportCSV()"><i class="fas fa-file-csv"></i> CSV</button>
-      <button class="btn btn-red" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="btn btn-red newproj-btn" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
     </div>
   </div>
   <div class="proj-grid" id="projGridFull"></div>
@@ -609,7 +821,7 @@ tr:hover td{background:var(--sur2);}
     <h1 class="pg-title">Kanban Board</h1>
     <div class="topbar-r">
       <span style="font-size:.78rem;color:var(--tx3);"><i class="fas fa-grip-vertical"></i> Drag cards between columns</span>
-      <button class="btn btn-red" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
+      <button class="btn btn-red newproj-btn" onclick="openNewProj()"><i class="fas fa-plus"></i> New Project</button>
     </div>
   </div>
   <div class="kanban-wrap" id="kanbanWrap"></div>
@@ -652,7 +864,7 @@ tr:hover td{background:var(--sur2);}
   <div class="topbar"><h1 class="pg-title">Employees</h1>
     <div class="topbar-r">
       <div class="sbox"><i class="fas fa-search"></i><input type="text" placeholder="Search name or email..." id="empSearch" oninput="renderEmps()"></div>
-      <button class="btn btn-red" onclick="openEmpModal()"><i class="fas fa-user-plus"></i> Add Employee</button>
+      
     </div>
   </div>
   <div id="empCBanner" style="display:none;" class="cbanner"><i class="fas fa-exclamation-triangle"></i><span id="ecTxt"></span></div>
@@ -678,84 +890,21 @@ tr:hover td{background:var(--sur2);}
   <div class="wl-card"><div id="wlList"></div></div>
 </div>
 
-<!-- ═══ LEAVE MANAGEMENT ═══ -->
-<div class="page" id="page-leave">
-  <div class="topbar">
-    <h1 class="pg-title">Leave Management</h1>
-    <div class="topbar-r">
-      <button class="btn btn-red" onclick="openLeaveModal()"><i class="fas fa-plus"></i> Apply for Leave</button>
+
+<!-- ═══ NOTIFICATION PANEL ═══ -->
+<div class="notif-panel" id="notifPanel">
+  <div class="np-hdr">
+    <strong><i class="fas fa-bell" style="color:var(--red);margin-right:6px;"></i>Notifications</strong>
+    <div style="display:flex;gap:4px;">
+      <button onclick="markAllNotifsRead()">Mark all read</button>
+      <button onclick="clearNotifs()">Clear all</button>
+      <button onclick="toggleNotifPanel()" style="font-size:.9rem;padding:3px 7px;">✕</button>
     </div>
   </div>
-  <div class="stat-grid" style="grid-template-columns:repeat(auto-fill,minmax(185px,1fr));margin-bottom:20px;">
-    <div class="sc b" style="cursor:default;">
-      <div class="sc-l">Annual Leave</div>
-      <div class="sc-v" id="lv-annual-rem">12</div>
-      <div class="sc-s">of 20 days remaining</div>
-      <div style="margin-top:10px;background:var(--brd);border-radius:99px;height:4px;overflow:hidden;"><div style="height:100%;border-radius:99px;background:var(--blue);width:60%;"></div></div>
-    </div>
-    <div class="sc g" style="cursor:default;">
-      <div class="sc-l">Sick Leave</div>
-      <div class="sc-v" id="lv-sick-rem">7</div>
-      <div class="sc-s">of 10 days remaining</div>
-      <div style="margin-top:10px;background:var(--brd);border-radius:99px;height:4px;overflow:hidden;"><div style="height:100%;border-radius:99px;background:var(--green);width:70%;"></div></div>
-    </div>
-    <div class="sc y" style="cursor:default;">
-      <div class="sc-l">Casual Leave</div>
-      <div class="sc-v" id="lv-casual-rem">3</div>
-      <div class="sc-s">of 6 days remaining</div>
-      <div style="margin-top:10px;background:var(--brd);border-radius:99px;height:4px;overflow:hidden;"><div style="height:100%;border-radius:99px;background:var(--yellow);width:50%;"></div></div>
-    </div>
-    <div class="sc p" style="cursor:default;">
-      <div class="sc-l">Compensatory</div>
-      <div class="sc-v" id="lv-comp-rem">2</div>
-      <div class="sc-s">of 4 days remaining</div>
-      <div style="margin-top:10px;background:var(--brd);border-radius:99px;height:4px;overflow:hidden;"><div style="height:100%;border-radius:99px;background:var(--purple);width:50%;"></div></div>
-    </div>
-  </div>
-  <div class="section-tabs" style="margin-bottom:16px;">
-    <button class="stab on" id="lv-tab-pending" onclick="switchLeaveTab('pending',this)"><i class="fas fa-clock"></i> Pending <span class="nbadge" id="lv-nb-pending" style="margin-left:4px;">0</span></button>
-    <button class="stab" onclick="switchLeaveTab('all',this)"><i class="fas fa-list"></i> All Requests</button>
-    <button class="stab" onclick="switchLeaveTab('approved',this)"><i class="fas fa-check-circle"></i> Approved</button>
-    <button class="stab" onclick="switchLeaveTab('rejected',this)"><i class="fas fa-times-circle"></i> Rejected</button>
-  </div>
-  <div class="tbl-wrap">
-    <table>
-      <thead><tr><th>Employee</th><th>Leave Type</th><th>From</th><th>To</th><th>Days</th><th>Status</th><th>Actions</th></tr></thead>
-      <tbody id="lv-tbody"></tbody>
-    </table>
-  </div>
+  <div class="np-list" id="np-list"></div>
 </div>
 
-<!-- LEAVE MODAL -->
-<div class="overlay" id="leaveOvl" onclick="if(event.target===this)closeLeaveModal()">
-<div class="modal" style="width:460px;">
-  <div class="modal-title"><i class="fas fa-calendar-plus" style="color:var(--red)"></i><span>Apply for Leave</span>
-    <button class="modal-cls" onclick="closeLeaveModal()"><i class="fas fa-times"></i></button>
-  </div>
-  <div class="fgrid">
-    <div class="ff full"><label>Leave Type *</label>
-      <select id="lv-type" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;font-family:'Inter',sans-serif;outline:none;">
-        <option value="">— Select type —</option>
-        <option>Annual Leave</option>
-        <option>Sick Leave</option>
-        <option>Casual Leave</option>
-        <option>Compensatory Leave</option>
-      </select>
-    </div>
-    <div class="ff"><label>Start Date *</label><input type="date" id="lv-start"></div>
-    <div class="ff"><label>End Date *</label><input type="date" id="lv-end"></div>
-    <div class="ff full"><label>Reason <span style="font-weight:400;color:var(--tx3)">(optional)</span></label>
-      <textarea id="lv-reason" style="width:100%;padding:8px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;resize:vertical;min-height:70px;outline:none;" placeholder="Brief reason for leave..."></textarea>
-    </div>
-  </div>
-  <div class="modal-foot">
-    <button class="btn btn-ghost" onclick="closeLeaveModal()">Cancel</button>
-    <button class="btn btn-red" onclick="submitLeaveRequest()"><i class="fas fa-paper-plane"></i> Submit Request</button>
-  </div>
-</div>
-</div>
-
-
+<!-- realtime indicator in logo area -->
 
 <!-- ═══ MODAL: WORKLOAD PDF OPTIONS ═══ -->
 <div class="overlay" id="wlPdfOvl" onclick="if(event.target===this)closeWLPdfModal()">
@@ -861,6 +1010,48 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   <div id="visConfigGrid" class="vis-config-grid"></div>
 </div>
 
+<!-- MONTHLY ATTENDANCE PAGE -->
+<!-- UNIFIED ATTENDANCE PAGE -->
+<div class="page" id="page-checkin">
+  <!-- ── Topbar ── -->
+  <div class="topbar">
+    <h1 class="pg-title"><i class="fas fa-calendar-check" style="color:var(--red)"></i> Attendance</h1>
+    <div class="topbar-r">
+      <!-- Month picker -->
+      <div style="display:flex;align-items:center;gap:8px;background:var(--sur);border:1px solid var(--brd);border-radius:var(--rp);padding:6px 12px;">
+        <i class="fas fa-calendar-alt" style="color:var(--tx3);font-size:.8rem;"></i>
+        <input type="month" id="att-month" onchange="renderAttendance()"
+          style="border:none;background:none;color:var(--tx);font-family:'Inter',sans-serif;font-size:.83rem;outline:none;cursor:pointer;">
+      </div>
+      <!-- Employee filter -->
+      <select id="att-emp" onchange="renderAttendance()"
+        style="padding:7px 12px;border:1px solid var(--brd);border-radius:var(--rp);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;">
+        <option value="all">All Employees</option>
+      </select>
+      <button class="btn btn-ghost btn-sm" onclick="attGoThisMonth()"><i class="fas fa-calendar-day"></i> This Month</button>
+      <button class="btn btn-red btn-sm" onclick="openHolidayMgr()"><i class="fas fa-umbrella-beach"></i> Holidays</button>
+      <button class="btn btn-ghost btn-sm" onclick="renderAttendance()"><i class="fas fa-sync"></i> Refresh</button>
+    </div>
+  </div>
+  <!-- ── Legend ── -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center;">
+    <span style="font-size:.7rem;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;">Legend:</span>
+    <span class="att-full" style="font-size:.7rem;"><i class="fas fa-check"></i> Full Day (9h+)</span>
+    <span style="display:inline-flex;align-items:center;gap:3px;"><span class="att-full" style="font-size:.7rem;"><i class="fas fa-check"></i> Full</span><span class="att-alert" style="font-size:.63rem;"><i class="fas fa-exclamation"></i> Short</span> <span style="font-size:.7rem;color:var(--tx3);">(8–9h)</span></span>
+    <span class="att-half" style="font-size:.7rem;"><i class="fas fa-adjust"></i> Half (&lt;8h)</span>
+    <span class="att-absent" style="font-size:.7rem;">Absent</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);"><span style="display:inline-block;width:14px;height:14px;background:rgba(249,115,22,.18);border-radius:3px;"></span> Weekend</span>
+    <span style="display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:var(--tx3);"><span style="display:inline-block;width:14px;height:14px;background:rgba(139,92,246,.18);border-radius:3px;"></span> Holiday</span>
+  </div>
+  <!-- ── Today's live dashboard ── -->
+  <div id="att-today-dash" style="margin-bottom:20px;"></div>
+  <!-- ── Calendar grid ── -->
+  <div id="attendList" style="overflow-x:auto;"></div>
+  <!-- ── Daily detail panel (click a cell to see) ── -->
+  <div id="att-detail-panel" style="display:none;margin-top:16px;"></div>
+</div>
+
+
 <!-- ACTIVITY LOG (Admin + configurable for Manager/Reviewer) -->
 <div class="page" id="page-actlog">
   <div class="topbar">
@@ -884,6 +1075,9 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 
 </main>
 </div>
+
+<!-- ═══ CHECK-IN BAR (fixed bottom bar for employees/reviewers/managers) ═══ -->
+<div id="checkInBar" style="display:none;"></div>
 
 <!-- ═══ DETAIL PANEL ═══ -->
 <div class="dp-overlay" id="dpOvl" onclick="closeDpBg(event)"></div>
@@ -924,12 +1118,31 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
 </div></div>
 
 <!-- ═══ MODAL: EMPLOYEE ═══ -->
+<!-- CHECK-IN EDIT MODAL -->
+<div class="overlay" id="ciEditOvl" onclick="if(event.target===this)closeCiEdit()">
+<div class="modal" style="width:440px;">
+  <div class="modal-title"><i class="fas fa-user-clock" style="color:var(--red)"></i><span>Edit Attendance</span></div>
+  <div id="ciEditEmpName" style="font-size:.84rem;font-weight:600;color:var(--tx);margin-bottom:4px;"></div>
+  <div id="ciEditDateLbl" style="font-size:.76rem;color:var(--tx3);margin-bottom:14px;"></div>
+  <div class="fgrid">
+    <div class="ff"><label>Check-In Time *</label><input type="time" id="ciEdit-in" step="60"></div>
+    <div class="ff"><label>Check-Out Time <span style="font-weight:400;color:var(--tx3);">(blank=active)</span></label><input type="time" id="ciEdit-out" step="60"></div>
+  </div>
+  <input type="hidden" id="ciEdit-empId">
+  <input type="hidden" id="ciEdit-date">
+  <div id="ciEditNote" style="font-size:.74rem;color:var(--tx3);margin-top:8px;padding:8px 10px;background:var(--sur2);border-radius:var(--rsm);min-height:30px;"></div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeCiEdit()">Cancel</button>
+    <button class="btn btn-red" onclick="saveCiEdit()"><i class="fas fa-save"></i> Save</button>
+  </div>
+</div></div>
+
 <div class="overlay" id="empOvl" onclick="closeEmpOvlBg(event)">
 <div class="modal" style="width:400px;">
   <div class="modal-title"><i class="fas fa-user-plus" style="color:var(--red)"></i><span id="eMTtl">Add Employee</span></div>
   <div class="fgrid">
     <div class="ff full"><label>Full Name *</label><input type="text" id="fe-name" placeholder="e.g. Ramyashree V R"></div>
-    <div class="ff full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="name@camcom.ai"></div>
+    <div class="ff full"><label>Email ID *</label><input type="email" id="fe-email" placeholder="name at camcom.ai"></div>
     <div class="ff full"><label>Gender</label><select id="fe-gender"><option value="female">♀ Female</option><option value="male">♂ Male</option></select></div>
   </div>
   <div class="modal-foot">
@@ -938,7 +1151,7 @@ ALTER TABLE projects ADD COLUMN IF NOT EXISTS tags TEXT DEFAULT '';</code>
   </div>
 </div></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ═══════════════════════
 // SUPABASE
 // ═══════════════════════
@@ -950,46 +1163,50 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 // STATE
 // ═══════════════════════
 let projects=[];
+const AT='@'; // prevents proxy email obfuscation
 let employees=[
-  {id:'e1',name:'Ramyashree V R',email:'ramyashree@camcom.ai',gender:'female'},
-  {id:'e2',name:'Manoj Kumar Devanga Kotha',email:'manoj.devanga@camcom.ai',gender:'male'},
-  {id:'e3',name:'Dande Kalyani',email:'dande.kalyani@camcom.ai',gender:'female'},
-  {id:'e4',name:'Dande Sandhya',email:'dande.sandhya@camcom.ai',gender:'female'},
-  {id:'e5',name:'Challa Koteswaramma',email:'challa.kotes@camcom.ai',gender:'female'},
-  {id:'e6',name:'Kadagandla Hariprasad',email:'kadagandla.hari@camcom.ai',gender:'male'},
-  {id:'e7',name:'Uma Krishnappa',email:'uma.krishnappa@camcom.ai',gender:'female'},
-  {id:'e8',name:'Manjunath Kalakappa Bandihal',email:'manjunath.kb@camcom.ai',gender:'male'},
-  {id:'e9',name:'Akshay Phatale',email:'akshay.phatale@camcom.ai',gender:'male'},
-  {id:'e10',name:'Maitra Salimath',email:'maitra.salimath@camcom.ai',gender:'female'},
-  {id:'e11',name:'Yathish Gowda K H',email:'yathish.gowda@camcom.ai',gender:'male'},
-  {id:'e12',name:'Pavan Kalyan Yeddala',email:'pavan.kalyan@camcom.ai',gender:'male'},
-  {id:'e13',name:'Sabharmathi Selvam',email:'sabharmathi@camcom.ai',gender:'female'},
-  {id:'e14',name:'G Umesh',email:'g.umesh@camcom.ai',gender:'male'},
-  {id:'e15',name:'Shilpa E',email:'shilpa.e@camcom.ai',gender:'female'},
-  {id:'e16',name:'Prema Joshi',email:'prema.joshi@camcom.ai',gender:'female'},
-  {id:'e17',name:'Keerti Doddwad',email:'keerti.doddwad@camcom.ai',gender:'female'},
-  {id:'e18',name:'Ajay Reddy H',email:'ajay.reddy@camcom.ai',gender:'male'},
-  {id:'e19',name:'Varun Kumar H N',email:'varun.kumar@camcom.ai',gender:'male'},
-  {id:'e20',name:'Sneha B V',email:'sneha.bv@camcom.ai',gender:'female'},
-  {id:'e21',name:'Fathima Reneesha',email:'fathima.reneesha@camcom.ai',gender:'female'},
-  {id:'e22',name:'Vishruthi Raghu',email:'vishruthi.raghu@camcom.ai',gender:'female'},
-  {id:'e23',name:'Sanjana G P',email:'sanjana.gp@camcom.ai',gender:'female'},
-  {id:'e24',name:'Dhanyasri A S',email:'dhanyasri.as@camcom.ai',gender:'female'},
-  {id:'e25',name:'Siddharth Anandan',email:'siddharth.anandan@camcom.ai',gender:'male'},
-  {id:'e26',name:'Bindusree S N',email:'bindusree.sn@camcom.ai',gender:'female'},
-  {id:'e27',name:'Anil Kumar Pasala',email:'anil.pasala@camcom.ai',gender:'male'},
-  {id:'e28',name:'Mihir',email:'mihir@camcom.ai',gender:'male'},
-  {id:'e29',name:'Suzan',email:'suzan@camcom.ai',gender:'female'},
-  {id:'e30',name:'Umesh Nagappa Barker',email:'umesh.barker@camcom.ai',gender:'male'},
-  {id:'e31',name:'Sunil Kumar',email:'sunil.kumar@camcom.ai',gender:'male'},
-  {id:'e32',name:'Shanta Mantri',email:'shanta.mantri@camcom.ai',gender:'female'},
-  {id:'e33',name:'Nandini Keni',email:'nandini.keni@camcom.ai',gender:'female'},
-  {id:'e34',name:'Shweta Kannagar',email:'shweta.kannagar@camcom.ai',gender:'female'},
-  {id:'e35',name:'Kishore Devaragudi',email:'kishore.dev@camcom.ai',gender:'male'},
-  {id:'e36',name:'Anil Gandreddi',email:'anil.gandreddi@camcom.ai',gender:'male'},
-  {id:'e37',name:'K Ganesh',email:'k.ganesh@camcom.ai',gender:'male'},
-  {id:'e38',name:'Kiran Y',email:'kiran.y@camcom.ai',gender:'male'},
-  {id:'e39',name:'Vishwas Reddy',email:'vishwas.reddy@camcom.ai',gender:'male'},
+  {id:'e1', name:'Ramyashree V R',             email:'ramyashree.ragupathy'+AT+'camcom.ai',  gender:'female'},
+  {id:'e2', name:'Manoj Kumar Devanga Kotha',   email:'manoj.kotha'+AT+'camcom.ai',           gender:'male'},
+  {id:'e3', name:'Dande Kalyani',               email:'dande.kalyani'+AT+'camcom.ai',         gender:'female'},
+  {id:'e4', name:'Dande Sandhya',               email:'dande.sandhya'+AT+'camcom.ai',         gender:'female'},
+  {id:'e5', name:'Challa Koteswaramma',         email:'challa.koteswaramma'+AT+'camcom.ai',   gender:'female'},
+  {id:'e6', name:'Kadagandla Hariprasad',       email:'kadagandla.hariprasad'+AT+'camcom.ai', gender:'male'},
+  {id:'e7', name:'Uma Krishnappa',              email:'uma.krishnappa'+AT+'camcom.ai',        gender:'female'},
+  {id:'e8', name:'Manjunath Kalakappa Bandihal',email:'manjunath.bandihal'+AT+'camcom.ai',    gender:'male'},
+  {id:'e9', name:'Akshay Phatale',              email:'akshay.phatale'+AT+'camcom.ai',        gender:'male'},
+  {id:'e10',name:'Maitra Salimath',             email:'maitra.salimath'+AT+'camcom.ai',       gender:'female'},
+  {id:'e11',name:'Yathish Gowda K H',           email:'yathish.gowda'+AT+'camcom.ai',         gender:'male'},
+  {id:'e12',name:'Pavan Kalyan Yeddala',        email:'pavan.yeddala'+AT+'camcom.ai',         gender:'male'},
+  {id:'e13',name:'Sabharmathi Selvam',          email:'sabarmathi.selvam'+AT+'camcom.ai',     gender:'female'},
+  {id:'e14',name:'G Umesh',                     email:'umesh.g'+AT+'camcom.ai',               gender:'male'},
+  {id:'e15',name:'Shilpa E',                    email:'shilpa.e'+AT+'camcom.ai',              gender:'female'},
+  {id:'e16',name:'Prema Joshi',                 email:'prema.joshi'+AT+'camcom.ai',           gender:'female'},
+  {id:'e17',name:'Keerti Doddwad',              email:'keerti.doddwad'+AT+'camcom.ai',        gender:'female'},
+  {id:'e18',name:'Ajay Reddy H',                email:'ajay.reddy'+AT+'camcom.ai',            gender:'male'},
+  {id:'e19',name:'Varun Kumar H N',             email:'varun.kumar'+AT+'camcom.ai',           gender:'male'},
+  {id:'e20',name:'Sneha B V',                   email:'sneha.bv'+AT+'camcom.ai',              gender:'female'},
+  {id:'e21',name:'Fathima Reneesha',            email:'fathima.reneesha'+AT+'camcom.ai',      gender:'female'},
+  {id:'e22',name:'Vishruthi Raghu',             email:'vishruthi.raghu'+AT+'camcom.ai',       gender:'female'},
+  {id:'e23',name:'Sanjana G P',                 email:'sanjana.gp'+AT+'camcom.ai',            gender:'female'},
+  {id:'e24',name:'Dhanyasri A S',               email:'dhanyasri.as'+AT+'camcom.ai',          gender:'female'},
+  {id:'e25',name:'Siddharth Anandan',           email:'siddharth.anandan'+AT+'camcom.ai',     gender:'male'},
+  {id:'e26',name:'Bindusree S N',               email:'bindusree.sn'+AT+'camcom.ai',          gender:'female'},
+  {id:'e27',name:'Anil Kumar Pasala',           email:'anilkumar.pasala'+AT+'camcom.ai',      gender:'male'},
+  {id:'e28',name:'Mihir',                       email:'mihir.singh'+AT+'camcom.ai',           gender:'male'},
+  {id:'e29',name:'Suzan',                       email:'suzan.john'+AT+'camcom.ai',            gender:'female'},
+  {id:'e30',name:'Umesh Nagappa Barker',        email:'umesh'+AT+'zuru.ai',                   gender:'male'},
+  {id:'e31',name:'Sunil Kumar',                 email:'sunilkumar'+AT+'zuru.ai',              gender:'male'},
+  {id:'e32',name:'Shanta Mantri',               email:'shanta'+AT+'zuru.ai',                  gender:'female'},
+  {id:'e33',name:'Nandini Keni',                email:'nandini'+AT+'zuru.ai',                 gender:'female'},
+  {id:'e34',name:'Shweta Kannagar',             email:'shwetak'+AT+'zuru.ai',                 gender:'female'},
+  {id:'e35',name:'Kishore Devaragudi',          email:'kishored'+AT+'zuru.ai',                gender:'male'},
+  {id:'e36',name:'Anil Gandredi',               email:'anilg'+AT+'zuru.ai',                   gender:'male'},
+  {id:'e37',name:'K Ganesh',                    email:'ganeshk'+AT+'zuru.ai',                 gender:'male'},
+  {id:'e38',name:'Kiran Y',                     email:'kirany'+AT+'zuru.ai',                  gender:'male'},
+  {id:'e39',name:'Vishwas Reddy',               email:'vishwasreddy'+AT+'zuru.ai',            gender:'male'},
+  {id:'e40',name:'Sandhya K',                   email:'sandhya.k'+AT+'camcom.ai',             gender:'female'},
+  {id:'e41',name:'Venkatesh Chilukuri',         email:'venkatesh.chilukuri'+AT+'camcom.ai',   gender:'male'},
+  {id:'e42',name:'Abhil C Sasindran',           email:'abhil.sasindran'+AT+'camcom.ai',       gender:'male'}
 ];
 
 // ══════════════════════════════════
@@ -1022,8 +1239,12 @@ function can(perm){
 function visibleProjects(){
   if(!currentUser) return [];
   if(can('seeAll')) return projects;
-  if(currentUser.role==='stakeholder') return projects; // all but filtered display
-  return projects.filter(p=>(p.assignedEmployees||[]).includes(currentUser.empId));
+  if(currentUser.role==='stakeholder') return projects;
+  // Employees see projects they're assigned to (as annotator OR reviewer)
+  const eid=currentUser.empId;
+  return projects.filter(p=>
+    (p.assignedEmployees||[]).includes(eid)||(p.reviewEmployees||[]).includes(eid)
+  );
 }
 
 // ══════════════════════════════════
@@ -1093,23 +1314,34 @@ let actLog=[]; // [{id, ts, type, user, projId, projName, msg}]
 // types: create, edit, assign, status, delete, comment
 
 function loadActLog(){try{const s=localStorage.getItem('cc_actlog');if(s)actLog=JSON.parse(s);}catch(e){}}
-function saveActLog(){try{localStorage.setItem('cc_actlog',JSON.stringify(actLog.slice(0,500)));}catch(e){}}
+async function saveActLog(){
+  try{localStorage.setItem('cc_actlog',JSON.stringify(actLog.slice(0,500)));}catch(e){}
+  try{await sb.from('app_settings').upsert({key:'act_log',value:JSON.stringify(actLog.slice(0,500))},{onConflict:'key'});}catch(e){}
+}
+async function loadActLogFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','act_log').single();
+    if(data?.value){actLog=JSON.parse(data.value);try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}}
+    else{loadActLog();}
+  }catch(e){loadActLog();}
+}
 
-function logActivity(type, projId, projName, msg){
+async function logActivity(type, projId, projName, msg){
   if(!currentUser)return;
   actLog.unshift({
     id:'al_'+Date.now(),
     ts:new Date().toISOString(),
-    type, // create|edit|assign|status|delete|comment
+    type,
     user:currentUser.name,
     userRole:currentUser.role,
     projId, projName:projName||'Unknown',
     msg
   });
-  saveActLog();
-  // update badge
+  await saveActLog();
   const nb=document.getElementById('nb-act');
   if(nb)nb.textContent=actLog.length;
+  // Live-update activity log panel if open
+  if(document.getElementById('page-actlog')?.classList.contains('active'))renderActivityLog();
 }
 
 function canSeeLog(){
@@ -1438,40 +1670,77 @@ function renderAccessControl(){
 function togglePageAccess(role,page,val){
   if(!visConfig.pageAccess[role])visConfig.pageAccess[role]={};
   visConfig.pageAccess[role][page]=val;
-  saveVisConfig();
-  renderAccessControl(); // re-render chips
-  applyRoleToUI();       // update nav for currently logged-in user if role matches
-  toast(`${role}: "${page}" access ${val?'enabled':'disabled'}`,'ok');
+  saveVisConfigDB(); // saves locally + broadcasts to all browsers
+  renderAccessControl();
+  applyRoleToUI();
+  toast(`${role}: "${page}" ${val?'enabled':'disabled'}`,'ok');
 }
 function toggleDateFilter(role,val){
   visConfig.dateFilter[role]=val;
-  saveVisConfig();
+  saveVisConfigDB();
   applyRoleToUI();
-  toast(`Date filter ${val?'enabled for':'disabled for'} ${role}s`,'ok');
+  toast(`Date filter ${val?'on':'off'} for ${role}s`,'ok');
 }
-function toggleActLogAccess(role, val){
+function toggleActLogAccess(role,val){
   visConfig.actLogVisible[role]=val;
-  saveVisConfig();
-  applyRoleToUI(); // re-apply nav visibility
+  saveVisConfigDB();
+  applyRoleToUI();
   toast(`Activity Log ${val?'visible to':'hidden from'} ${role}s`,'ok');
 }
-function toggleStakeholderField(key, val){
+function toggleStakeholderField(key,val){
   visConfig.stakeholderFields[key]=val;
-  saveVisConfig();
+  saveVisConfigDB();
   toast(`Stakeholder field "${key}" ${val?'enabled':'disabled'}`,'ok');
 }
 
 // Default users (persisted in localStorage so Admin can add more)
 const DEFAULT_USERS=[
-  {id:'u1',name:'CamCom Admin',  email:'admin@camcom.ai',    pwd:'admin123', role:'admin',       empId:null},
-  {id:'u2',name:'Priya Manager', email:'manager@camcom.ai',  pwd:'mgr123',   role:'manager',     empId:null},
-  {id:'u3',name:'Ravi Reviewer', email:'reviewer@camcom.ai', pwd:'rev123',   role:'reviewer',    empId:null},
-  {id:'u8',name:'Investor View', email:'stakeholder@camcom.ai',pwd:'stake123',role:'stakeholder',empId:null},
-  // Employee demo accounts linked to real emp records
-  {id:'u4',name:'Ramyashree V R',      email:'ramyashree@camcom.ai',       pwd:'emp123',role:'employee',empId:'e1'},
-  {id:'u5',name:'Akshay Phatale',      email:'akshay.phatale@camcom.ai',   pwd:'emp123',role:'employee',empId:'e9'},
-  {id:'u6',name:'Sneha B V',           email:'sneha.bv@camcom.ai',         pwd:'emp123',role:'employee',empId:'e20'},
-  {id:'u7',name:'Siddharth Anandan',   email:'siddharth.anandan@camcom.ai',pwd:'emp123',role:'employee',empId:'e25'},
+  {id:'u1', name:'CamCom Admin',    email:'admin'+AT+'camcom.ai',        pwd:'admin123',  role:'admin',       empId:null},
+  {id:'u2', name:'Priya Manager',   email:'manager'+AT+'camcom.ai',      pwd:'mgr123',    role:'manager',     empId:null},
+  {id:'u3', name:'Ravi Reviewer',   email:'reviewer'+AT+'camcom.ai',     pwd:'rev123',    role:'reviewer',    empId:null},
+  {id:'u8', name:'Investor View',   email:'stakeholder'+AT+'camcom.ai',  pwd:'stake123',  role:'stakeholder', empId:null},
+  {id:'u10',name:'Ramyashree V R',              email:'ramyashree.ragupathy'+AT+'camcom.ai',  pwd:'emp123', role:'manager',  empId:'e1'},
+  {id:'u11',name:'Manoj Kumar Devanga Kotha',   email:'manoj.kotha'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e2'},
+  {id:'u12',name:'Dande Kalyani',               email:'dande.kalyani'+AT+'camcom.ai',         pwd:'emp123', role:'employee', empId:'e3'},
+  {id:'u13',name:'Dande Sandhya',               email:'dande.sandhya'+AT+'camcom.ai',         pwd:'emp123', role:'reviewer', empId:'e4'},
+  {id:'u14',name:'Challa Koteswaramma',         email:'challa.koteswaramma'+AT+'camcom.ai',   pwd:'emp123', role:'employee', empId:'e5'},
+  {id:'u15',name:'Kadagandla Hariprasad',       email:'kadagandla.hariprasad'+AT+'camcom.ai', pwd:'emp123', role:'reviewer', empId:'e6'},
+  {id:'u16',name:'Uma Krishnappa',              email:'uma.krishnappa'+AT+'camcom.ai',        pwd:'emp123', role:'employee', empId:'e7'},
+  {id:'u17',name:'Manjunath Kalakappa Bandihal',email:'manjunath.bandihal'+AT+'camcom.ai',    pwd:'emp123', role:'employee', empId:'e8'},
+  {id:'u18',name:'Akshay Phatale',              email:'akshay.phatale'+AT+'camcom.ai',        pwd:'emp123', role:'reviewer', empId:'e9'},
+  {id:'u19',name:'Maitra Salimath',             email:'maitra.salimath'+AT+'camcom.ai',       pwd:'emp123', role:'reviewer', empId:'e10'},
+  {id:'u20',name:'Yathish Gowda K H',           email:'yathish.gowda'+AT+'camcom.ai',         pwd:'emp123', role:'reviewer', empId:'e11'},
+  {id:'u21',name:'Pavan Kalyan Yeddala',        email:'pavan.yeddala'+AT+'camcom.ai',         pwd:'emp123', role:'employee', empId:'e12'},
+  {id:'u22',name:'Sabharmathi Selvam',          email:'sabarmathi.selvam'+AT+'camcom.ai',     pwd:'emp123', role:'employee', empId:'e13'},
+  {id:'u23',name:'G Umesh',                     email:'umesh.g'+AT+'camcom.ai',               pwd:'emp123', role:'employee', empId:'e14'},
+  {id:'u24',name:'Shilpa E',                    email:'shilpa.e'+AT+'camcom.ai',              pwd:'emp123', role:'employee', empId:'e15'},
+  {id:'u25',name:'Prema Joshi',                 email:'prema.joshi'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e16'},
+  {id:'u26',name:'Keerti Doddwad',              email:'keerti.doddwad'+AT+'camcom.ai',        pwd:'emp123', role:'employee', empId:'e17'},
+  {id:'u27',name:'Ajay Reddy H',                email:'ajay.reddy'+AT+'camcom.ai',            pwd:'emp123', role:'employee', empId:'e18'},
+  {id:'u28',name:'Varun Kumar H N',             email:'varun.kumar'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e19'},
+  {id:'u29',name:'Sneha B V',                   email:'sneha.bv'+AT+'camcom.ai',              pwd:'emp123', role:'employee', empId:'e20'},
+  {id:'u30',name:'Fathima Reneesha',            email:'fathima.reneesha'+AT+'camcom.ai',      pwd:'emp123', role:'employee', empId:'e21'},
+  {id:'u31',name:'Vishruthi Raghu',             email:'vishruthi.raghu'+AT+'camcom.ai',       pwd:'emp123', role:'employee', empId:'e22'},
+  {id:'u32',name:'Sanjana G P',                 email:'sanjana.gp'+AT+'camcom.ai',            pwd:'emp123', role:'employee', empId:'e23'},
+  {id:'u33',name:'Dhanyasri A S',               email:'dhanyasri.as'+AT+'camcom.ai',          pwd:'emp123', role:'employee', empId:'e24'},
+  {id:'u34',name:'Siddharth Anandan',           email:'siddharth.anandan'+AT+'camcom.ai',     pwd:'emp123', role:'employee', empId:'e25'},
+  {id:'u35',name:'Bindusree S N',               email:'bindusree.sn'+AT+'camcom.ai',          pwd:'emp123', role:'employee', empId:'e26'},
+  {id:'u36',name:'Anil Kumar Pasala',           email:'anilkumar.pasala'+AT+'camcom.ai',      pwd:'emp123', role:'employee', empId:'e27'},
+  {id:'u37',name:'Mihir',                       email:'mihir.singh'+AT+'camcom.ai',           pwd:'emp123', role:'employee', empId:'e28'},
+  {id:'u38',name:'Suzan',                       email:'suzan.john'+AT+'camcom.ai',            pwd:'emp123', role:'employee', empId:'e29'},
+  {id:'u39',name:'Umesh Nagappa Barker',        email:'umesh'+AT+'zuru.ai',                   pwd:'emp123', role:'employee', empId:'e30'},
+  {id:'u40',name:'Sunil Kumar',                 email:'sunilkumar'+AT+'zuru.ai',              pwd:'emp123', role:'employee', empId:'e31'},
+  {id:'u41',name:'Shanta Mantri',               email:'shanta'+AT+'zuru.ai',                  pwd:'emp123', role:'employee', empId:'e32'},
+  {id:'u42',name:'Nandini Keni',                email:'nandini'+AT+'zuru.ai',                 pwd:'emp123', role:'employee', empId:'e33'},
+  {id:'u43',name:'Shweta Kannagar',             email:'shwetak'+AT+'zuru.ai',                 pwd:'emp123', role:'employee', empId:'e34'},
+  {id:'u44',name:'Kishore Devaragudi',          email:'kishored'+AT+'zuru.ai',                pwd:'emp123', role:'employee', empId:'e35'},
+  {id:'u45',name:'Anil Gandredi',               email:'anilg'+AT+'zuru.ai',                   pwd:'emp123', role:'employee', empId:'e36'},
+  {id:'u46',name:'K Ganesh',                    email:'ganeshk'+AT+'zuru.ai',                 pwd:'emp123', role:'employee', empId:'e37'},
+  {id:'u47',name:'Kiran Y',                     email:'kirany'+AT+'zuru.ai',                  pwd:'emp123', role:'employee', empId:'e38'},
+  {id:'u48',name:'Vishwas Reddy',               email:'vishwasreddy'+AT+'zuru.ai',            pwd:'emp123', role:'employee', empId:'e39'},
+  {id:'u49',name:'Sandhya K',                   email:'sandhya.k'+AT+'camcom.ai',             pwd:'emp123', role:'employee', empId:'e40'},
+  {id:'u50',name:'Venkatesh Chilukuri',         email:'venkatesh.chilukuri'+AT+'camcom.ai',   pwd:'emp123', role:'employee', empId:'e41'},
+  {id:'u51',name:'Abhil C Sasindran',           email:'abhil.sasindran'+AT+'camcom.ai',       pwd:'emp123', role:'manager',  empId:'e42'}
 ];
 let appUsers=[...DEFAULT_USERS];
 let currentUser=null;
@@ -1483,7 +1752,6 @@ function loadUsersLocal(){
     if(s){
       const a=JSON.parse(s);
       if(a&&a.length){
-        // Merge: always include DEFAULT_USERS so default credentials always work
         const savedIds=new Set(a.map(u=>u.id));
         const merged=[...a];
         DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
@@ -1492,14 +1760,45 @@ function loadUsersLocal(){
     }
   }catch(e){appUsers=[...DEFAULT_USERS];}
 }
-function saveUsersLocal(){try{localStorage.setItem('cc_users',JSON.stringify(appUsers));}catch(e){}}
+async function loadUsersFromDB(){
+  try{
+    const{data,error}=await sb.from('app_settings').select('value').eq('key','app_users').single();
+    if(error||!data?.value){
+      // First time: push DEFAULT_USERS to DB so all browsers get them
+      await saveUsersToDB();
+      return;
+    }
+    const remote=JSON.parse(data.value);
+    if(remote&&remote.length){
+      // Merge: always include DEFAULT_USERS so hardcoded accounts always work
+      const savedIds=new Set(remote.map(u=>u.id));
+      const merged=[...remote];
+      DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
+      appUsers=merged;
+      saveUsersLocal(); // sync to local cache
+    }
+  }catch(e){console.warn('loadUsersFromDB failed, using local:',e);loadUsersLocal();}
+}
+function saveUsersLocal(){try{localStorage.setItem('cc_users',JSON.stringify(appUsers));}catch(e){}} // keep for fallback
+async function saveUsersToDB(){
+  saveUsersLocal(); // local backup
+  try{
+    await sb.from('app_settings').upsert({key:'app_users',value:JSON.stringify(appUsers)},{onConflict:'key'});
+  }catch(e){console.warn('saveUsersToDB failed:',e);}
+}
 
 // ══════════════════════════════════
 // AUTH
 // ══════════════════════════════════
-function doLogin(){
+async function doLogin(){
   const email=document.getElementById('li-email').value.trim().toLowerCase();
   const pwd=document.getElementById('li-pwd').value;
+  if(!appUsers||appUsers.length===0){
+    const btn=document.getElementById('loginBtn');
+    if(btn){btn.disabled=true;btn.textContent='Loading\u2026';}
+    try{await Promise.all([loadUsersFromDB(),loadEmpsFromDB()]);}catch(e){}
+    if(btn){btn.disabled=false;btn.textContent='Login';}
+  }
   const user=appUsers.find(u=>u.email.toLowerCase()===email&&u.pwd===pwd);
   if(!user){
     const err=document.getElementById('loginErr');
@@ -1510,6 +1809,9 @@ function doLogin(){
   startSession(user);
 }
 function quickLogin(role){
+  if(typeof startSession==='undefined'){
+    alert('Script not fully loaded. Please hard refresh (Ctrl+Shift+R).');return;
+  }
   const user=appUsers.find(u=>u.role===role);
   if(user)startSession(user);
 }
@@ -1520,7 +1822,9 @@ function startSession(user){
   applyRoleToUI();
   appInit();
 }
-function tryRestoreSession(){
+async function tryRestoreSession(){
+  // Always load latest users+emps from DB before checking session
+  try{await Promise.all([loadUsersFromDB(),loadEmpsFromDB()]);}catch(e){}
   loadUsersLocal();
   loadActLog();
   try{
@@ -1564,7 +1868,8 @@ function applyRoleToUI(){
 
   // ─── Action buttons ───────────────────────────────────────────────────────
   showId('nav-newproj',   can('canCreate'));
-  showId('nav-addemp',    can('canManageUsers'));
+  document.body.classList.toggle('no-create', !can('canCreate'));
+  // nav-addemp removed — employees added via Manage Users
   showId('nav-exportcsv', canSeePage('exportCSV'));
   showId('nav-exportpdf', canSeePage('exportPDF'));
   showId('nav-dailyreport', role==='admin'||role==='manager');
@@ -1580,6 +1885,14 @@ function applyRoleToUI(){
   // ─── Activity Log nav ─────────────────────────────────────────────────────
   const canLog=role==='admin'||!!(visConfig.actLogVisible[role]);
   showId('nav-actlog', canLog);
+  showId('nav-checkin', (role==='admin'||role==='manager')&&features.checkIn);
+    // Check-in bar for employees and reviewers
+  if(features.checkIn&&(role==='employee'||role==='manager'||role==='reviewer')){
+    renderCheckInBar();
+  } else {
+    const bar=document.getElementById('checkInBar');
+    if(bar)bar.style.display='none';
+  }
 
   // ─── Stakeholder-only nav ─────────────────────────────────────────────────
   showId('nav-stakeholder', role==='stakeholder');
@@ -1610,11 +1923,537 @@ function applyRoleToUI(){
 // ══════════════════════════════════
 // FEATURE FLAGS
 // ══════════════════════════════════
-let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true,exportCSV:true,workload:true,dailyTarget:true,fileUpload:true};
+let features={kanban:true,analytics:true,gantt:true,burndown:true,exportPDF:true,exportCSV:true,workload:true,dailyTarget:true,fileUpload:true,checkIn:true};
 
 // ══════════════════════════════════
-// CORE STATE
+// CHECK-IN STATE
 // ══════════════════════════════════
+let checkInRecords = [];
+let _checkInTimer = null;
+let _ciAdminTimer = null;
+
+async function saveCheckInRecords(){
+  const payload=JSON.stringify(checkInRecords.slice(0,3000));
+  try{ await sb.from('app_settings').upsert({key:'check_in_records',value:payload},{onConflict:'key'}); }
+  catch(e){ console.warn('CI save error',e); }
+}
+function loadCheckInLocal(){
+  try{ const s=localStorage.getItem('cc_checkins'); if(s) checkInRecords=JSON.parse(s); }catch(e){}
+}
+async function loadCheckInFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','check_in_records').single();
+    if(data?.value){
+      checkInRecords=JSON.parse(data.value);
+      try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
+    } else { loadCheckInLocal(); }
+  }catch(e){ loadCheckInLocal(); }
+}
+function getTodayKey(){ return new Date().toISOString().split('T')[0]; }
+function getActiveRecord(empId){
+  return checkInRecords.find(r=>r.empId===empId&&r.date===getTodayKey()&&!r.checkOut);
+}
+function fmtDuration(ms){
+  if(!ms||ms<=0) return '0m';
+  const h=Math.floor(ms/3600000), m=Math.floor((ms%3600000)/60000), s=Math.floor((ms%60000)/1000);
+  if(h>0) return h+'h '+m+'m';
+  if(m>0) return m+'m '+s+'s';
+  return s+'s';
+}
+function totalMsToday(empId){
+  const today=getTodayKey();
+  return checkInRecords.filter(r=>r.empId===empId&&r.date===today).reduce((sum,r)=>{
+    return sum+(r.totalMs||0)+( r.checkOut?0:(Date.now()-new Date(r.checkIn).getTime()) );
+  },0);
+}
+async function doCheckIn(){
+  if(!currentUser?.empId){ toast('Account not linked to employee record — contact admin','err'); return; }
+  if(getActiveRecord(currentUser.empId)){ toast('Already checked in','info'); return; }
+  const rec={id:'ci_'+Date.now()+'_'+currentUser.empId, empId:currentUser.empId,
+    empName:currentUser.name, date:getTodayKey(), checkIn:new Date().toISOString(), checkOut:null, totalMs:0};
+  checkInRecords.unshift(rec);
+  await saveCheckInRecords();
+  renderCheckInBar();
+  logActivity('checkin','','',currentUser.name+' checked in');
+  toast('Checked in','ok');
+}
+async function doCheckOut(){
+  if(!currentUser?.empId) return;
+  const rec=getActiveRecord(currentUser.empId);
+  if(!rec){ toast('Not currently checked in','info'); return; }
+  rec.checkOut=new Date().toISOString();
+  rec.totalMs=(rec.totalMs||0)+(new Date(rec.checkOut)-new Date(rec.checkIn));
+  await saveCheckInRecords();
+  stopCiTimers();
+  renderCheckInBar();
+  logActivity('checkin','','',currentUser.name+' checked out — '+fmtDuration(rec.totalMs)+' today');
+  toast('Checked out — '+fmtDuration(rec.totalMs)+' today','ok');
+}
+function stopCiTimers(){
+  if(_checkInTimer){ clearInterval(_checkInTimer); _checkInTimer=null; }
+  if(_ciAdminTimer){ clearInterval(_ciAdminTimer); _ciAdminTimer=null; }
+}
+function renderCheckInBar(){
+  const bar=document.getElementById('checkInBar');
+  if(!bar) return;
+  if(!features.checkIn||currentUser?.role==='admin'||currentUser?.role==='stakeholder'){
+    bar.style.display='none';
+    document.body.classList.remove('ci-bar-visible');
+    return;
+  }
+  bar.style.display='flex';
+  document.body.classList.add('ci-bar-visible');
+  if(!currentUser?.empId){
+    bar.innerHTML='<span class="ci-label">Check-In</span>'
+      +'<span style="font-size:.8rem;color:var(--tx3);"><i class="fas fa-exclamation-circle"></i> Account not linked to employee record</span>';
+    return;
+  }
+  const rec=getActiveRecord(currentUser.empId);
+  const totalMs=totalMsToday(currentUser.empId);
+  if(rec){
+    bar.innerHTML='<span class="ci-label">Attendance</span>'
+      +'<div class="ci-divider"></div>'
+      +'<div class="ci-status ci-in"><span class="ci-dot-live"></span> Checked In</div>'
+      +'<div class="ci-time" id="ci-bar-timer">'+fmtDuration(totalMs)+'</div>'
+      +'<div class="ci-divider"></div>'
+      +'<button class="ci-btn ci-btn-out" onclick="doCheckOut()"><i class="fas fa-sign-out-alt"></i> Check Out</button>';
+    if(_checkInTimer) clearInterval(_checkInTimer);
+    _checkInTimer=setInterval(()=>{
+      const el=document.getElementById('ci-bar-timer');
+      if(el&&currentUser?.empId) el.textContent=fmtDuration(totalMsToday(currentUser.empId));
+    },1000);
+  } else {
+    if(_checkInTimer){ clearInterval(_checkInTimer); _checkInTimer=null; }
+    // Always allow re-check-in (supports breaks, multiple sessions per day)
+    const sessions = checkInRecords.filter(r=>r.empId===currentUser.empId&&r.date===getTodayKey());
+    const sessionCount = sessions.length;
+    bar.innerHTML='<span class="ci-label">Attendance</span>'
+      +'<div class="ci-divider"></div>'
+      +'<div class="ci-status ci-idle"><i class="fas fa-circle" style="font-size:.5rem;opacity:.4;"></i> '
+      +(sessionCount>0?'On break':'Not checked in')+'</div>'
+      +(totalMs>0?'<div class="ci-time" style="font-size:.9rem;">'+fmtDuration(totalMs)+' today</div>':'')
+      +'<div class="ci-divider"></div>'
+      +'<button class="ci-btn ci-btn-in" onclick="doCheckIn()"><i class="fas fa-sign-in-alt"></i> Check In</button>';
+  }
+}
+function ciGoToday(){
+  attGoThisMonth();
+}
+function renderCheckInAdmin(){
+  const cont=document.getElementById('checkInAdminList');
+  if(!cont) return;
+  // Stop old live timer
+  if(_ciAdminTimer){ clearInterval(_ciAdminTimer); _ciAdminTimer=null; }
+
+  // Determine which date to show
+  const picker=document.getElementById('ci-date-picker');
+  if(!picker) return;
+  if(!picker.value) picker.value=getTodayKey();
+  const viewDate=picker.value; // 'YYYY-MM-DD'
+  const isToday=(viewDate===getTodayKey());
+
+  // Build per-employee map for this date
+  const byEmp={};
+  checkInRecords.filter(r=>r.date===viewDate).forEach(r=>{
+    if(!byEmp[r.empId]) byEmp[r.empId]={empId:r.empId,empName:r.empName,sessions:[],active:false};
+    byEmp[r.empId].sessions.push(r);
+    if(!r.checkOut&&isToday) byEmp[r.empId].active=true;
+  });
+  // Show all employees (not just those with records)
+  employees.forEach(e=>{
+    if(!byEmp[e.id]) byEmp[e.id]={empId:e.id,empName:e.name,sessions:[],active:false};
+  });
+  const rows=Object.values(byEmp);
+  const activeCount=isToday?rows.filter(r=>r.active).length:0;
+  const doneCount=rows.filter(r=>!r.active&&r.sessions.length>0).length;
+  const notInCount=rows.filter(r=>r.sessions.length===0).length;
+
+  // Date label
+  const dateLabel=isToday?'Today — '+new Date().toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'})
+    :new Date(viewDate+'T12:00:00').toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+  // Summary
+  const summary='<div style="margin-bottom:6px;font-size:.78rem;color:var(--tx3);font-weight:600;">'+dateLabel+'</div>'
+    +'<div class="ci-summary">'
+    +(isToday?'<div class="ci-summary-card green"><div class="val">'+activeCount+'</div><div class="lbl">Active Now</div></div>':'')
+    +'<div class="ci-summary-card"><div class="val">'+doneCount+'</div><div class="lbl">'+(isToday?'Checked Out':'Worked')+'</div></div>'
+    +'<div class="ci-summary-card red"><div class="val">'+notInCount+'</div><div class="lbl">Not In</div></div>'
+    +'<div class="ci-summary-card"><div class="val">'+rows.length+'</div><div class="lbl">Total Staff</div></div>'
+    +'</div>';
+
+  // Sort: active first (today), then by total time desc, then name
+  const sorted=[
+    ...rows.filter(r=>r.active),
+    ...rows.filter(r=>!r.active&&r.sessions.length>0).sort((a,b)=>totalMsOnDate(b.empId,viewDate)-totalMsOnDate(a.empId,viewDate)),
+    ...rows.filter(r=>r.sessions.length===0)
+  ];
+
+  const cards=sorted.map(function(row){
+    const totalMs=isToday?totalMsToday(row.empId):totalMsOnDate(row.empId,viewDate);
+    // Show all sessions for the day (multiple check-in/out cycles)
+    const sessionRows=row.sessions.map(function(s){
+      const inT=new Date(s.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      const outT=s.checkOut?new Date(s.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—';
+      const dur=s.checkOut?(s.totalMs||0):(isToday?(Date.now()-new Date(s.checkIn).getTime()):0);
+      return '<div class="ci-card-row" style="font-size:.73rem;">'
+        +'<span>'+inT+' → '+outT+'</span>'
+        +'<span style="color:var(--tx3);">'+( dur>0?fmtDuration(dur):'' )+'</span></div>';
+    }).join('');
+    const statusDot=row.active
+      ?'<span class="ci-dot-live" style="width:7px;height:7px;flex-shrink:0;"></span><span style="color:var(--green);font-weight:600;font-size:.78rem;">Active</span>'
+      :row.sessions.length
+        ?'<i class="fas fa-check-circle" style="color:var(--blue);font-size:.72rem;"></i><span style="color:var(--tx2);font-size:.78rem;">'+( isToday?'Checked Out':'Worked' )+'</span>'
+        :'<i class="fas fa-minus-circle" style="color:var(--tx3);font-size:.72rem;opacity:.5;"></i><span style="color:var(--tx3);font-size:.78rem;">Not In</span>';
+    return '<div class="ci-card'+(row.active?' active':'')+'">'+
+      '<div class="ci-card-name">'+esc(row.empName)+'</div>'+
+      '<div class="ci-card-status">'+statusDot+'</div>'+
+      ( row.sessions.length ? sessionRows : '<div style="font-size:.73rem;color:var(--tx3);">No attendance</div>' )+
+      '<div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">'+
+      '<div class="'+(totalMs>0?'ci-total'+(row.active?'':' inactive'):'ci-total inactive')+'" id="ci-total-'+row.empId+'">'+(totalMs>0?fmtDuration(totalMs):'—')+'</div>'+
+      attendanceBadge(isToday?totalMsToday(row.empId):totalMs, row.active)+
+      '</div>'+
+      ( (role==='admin'||role==='manager')&&row.sessions.length
+        ? '<button class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;font-size:.7rem;" onclick="openCiEdit(this.dataset.id)" data-id="'+row.sessions[row.sessions.length-1].id+'"><i class="fas fa-edit"></i> Edit</button>'
+        : '' )+
+      '</div>';
+  }).join('');
+
+  cont.innerHTML=summary+'<div class="ci-admin-grid">'+cards+'</div>';
+
+  // Live timers only for today
+  if(isToday&&activeCount>0){
+    _ciAdminTimer=setInterval(function(){
+      rows.filter(function(r){return r.active;}).forEach(function(r){
+        const el=document.getElementById('ci-total-'+r.empId);
+        if(el) el.textContent=fmtDuration(totalMsToday(r.empId));
+      });
+    },1000);
+  }
+}
+function totalMsOnDate(empId, date){
+  return checkInRecords.filter(r=>r.empId===empId&&r.date===date)
+    .reduce(function(sum,r){ return sum+(r.totalMs||0); },0);
+}
+
+// ══════════════════════════════════
+// PUBLIC HOLIDAYS
+// ══════════════════════════════════
+let publicHolidays = []; // [{date:'YYYY-MM-DD', name:'...'}]
+function saveHolidays(){
+  try{ localStorage.setItem('cc_holidays', JSON.stringify(publicHolidays)); }catch(e){}
+  sb.from('app_settings').upsert({key:'public_holidays', value:JSON.stringify(publicHolidays)},{onConflict:'key'}).catch(()=>{});
+}
+function loadHolidaysLocal(){
+  try{ const s=localStorage.getItem('cc_holidays'); if(s) publicHolidays=JSON.parse(s); }catch(e){}
+}
+async function loadHolidaysFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','public_holidays').single();
+    if(data?.value){ publicHolidays=JSON.parse(data.value); try{localStorage.setItem('cc_holidays',JSON.stringify(publicHolidays));}catch(e){} }
+    else loadHolidaysLocal();
+  }catch(e){ loadHolidaysLocal(); }
+}
+function isHoliday(date){ return publicHolidays.some(h=>h.date===date); }
+function getHolidayName(date){ return (publicHolidays.find(h=>h.date===date)||{}).name||''; }
+function openHolidayMgr(){
+  renderHolidayList();
+  document.getElementById('holidayOvl').classList.add('open');
+}
+function closeHolidayMgr(){ document.getElementById('holidayOvl').classList.remove('open'); }
+function renderHolidayList(){
+  const cont = document.getElementById('holidayList');
+  if(!cont) return;
+  if(!publicHolidays.length){
+    cont.innerHTML = '<div style="text-align:center;padding:16px;color:var(--tx3);font-size:.8rem;">No holidays added yet.</div>';
+    return;
+  }
+  const sorted = [...publicHolidays].sort((a,b)=>a.date.localeCompare(b.date));
+  cont.innerHTML = '<div style="display:flex;flex-direction:column;gap:6px;">'
+    + sorted.map(h=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--sur2);border-radius:var(--rsm);font-size:.8rem;">'
+        +'<span><strong>'+new Date(h.date+'T12:00:00').toLocaleDateString([],{weekday:'short',day:'numeric',month:'short',year:'numeric'})+'</strong> &nbsp; '+esc(h.name)+'</span>'
+        +'<button data-date="'+h.date+'" onclick="deleteHoliday(this.dataset.date)" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.8rem;padding:2px 6px;" title="Remove"><i class="fas fa-trash"></i></button>'
+        +'</div>').join('')
+    + '</div>';
+}
+function addHoliday(){
+  const d = document.getElementById('hol-date').value;
+  const n = document.getElementById('hol-name').value.trim();
+  if(!d){ toast('Select a date','err'); return; }
+  if(!n){ toast('Enter holiday name','err'); return; }
+  if(publicHolidays.some(h=>h.date===d)){ toast('Holiday already exists for this date','info'); return; }
+  publicHolidays.push({date:d, name:n});
+  saveHolidays();
+  renderHolidayList();
+  if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+  document.getElementById('hol-date').value='';
+  document.getElementById('hol-name').value='';
+  toast('Holiday added: '+n,'ok');
+}
+function deleteHoliday(date){
+  publicHolidays = publicHolidays.filter(h=>h.date!==date);
+  saveHolidays();
+  renderHolidayList();
+  if(document.getElementById('page-checkin')?.classList.contains('active')) renderAttendance();
+  toast('Holiday removed','ok');
+}
+
+// ══════════════════════════════════
+// ATTENDANCE CLASSIFICATION
+// ══════════════════════════════════
+// 9h+ = full; 8-9h = full + alert; <8h = half; 0 = absent
+function classifyDaySpec(empId, date){
+  const ms = totalMsOnDate(empId, date);
+  if(!ms) return {type:'absent', ms:0, alert:false};
+  const hrs = ms / 3600000;
+  if(hrs >= 9) return {type:'full',  ms, alert:false};
+  if(hrs >= 8) return {type:'short', ms, alert:true};
+  return           {type:'half',  ms, alert:false};
+}
+
+// ══════════════════════════════════
+// UNIFIED ATTENDANCE RENDER
+// ══════════════════════════════════
+function attGoThisMonth(){
+  const p = document.getElementById('att-month');
+  if(p){ p.value = getTodayKey().slice(0,7); renderAttendance(); }
+}
+function renderAttendanceTodayDash(){
+  const dash = document.getElementById('att-today-dash');
+  if(!dash||!features.checkIn) return;
+  const today = getTodayKey();
+  const activeNow  = employees.filter(e=>!!getActiveRecord(e.id)).length;
+  const doneIds    = new Set(checkInRecords.filter(r=>r.date===today&&r.checkOut).map(r=>r.empId));
+  const anyToday   = new Set(checkInRecords.filter(r=>r.date===today).map(r=>r.empId));
+  const checkedOut = [...doneIds].filter(id=>!getActiveRecord(id)).length;
+  const notIn      = employees.length - anyToday.size;
+  const todayFmt   = new Date().toLocaleDateString([],{weekday:'long',day:'numeric',month:'long'});
+  const totalHrsToday = employees.reduce((s,e)=>s+totalMsToday(e.id),0);
+  dash.innerHTML = '<div style="font-size:.78rem;font-weight:700;color:var(--tx3);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;">Today &nbsp;·&nbsp; '+todayFmt+'</div>'
+    + '<div class="ci-summary">'
+    + '<div class="ci-summary-card green"><div class="val">'+activeNow+'</div><div class="lbl">Active Now</div></div>'
+    + '<div class="ci-summary-card"><div class="val">'+checkedOut+'</div><div class="lbl">Checked Out</div></div>'
+    + '<div class="ci-summary-card red"><div class="val">'+notIn+'</div><div class="lbl">Not In</div></div>'
+    + '<div class="ci-summary-card"><div class="val">'+employees.length+'</div><div class="lbl">Total Staff</div></div>'
+    + '</div>';
+}
+function renderAttendance(){
+  renderAttendanceTodayDash();
+  const cont = document.getElementById('attendList');
+  if(!cont) return;
+  const mEl = document.getElementById('att-month');
+  const eEl = document.getElementById('att-emp');
+  if(!mEl) return;
+  if(!mEl.value){ const n=new Date(); mEl.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+
+  // Populate employee dropdown
+  if(eEl){
+    const cur = eEl.value||'all';
+    eEl.innerHTML = '<option value="all">All Employees</option>'
+      + employees.map(e=>'<option value="'+e.id+'" '+(e.id===cur?'selected':'')+'>'+esc(e.name)+'</option>').join('');
+    eEl.value = cur;
+  }
+
+  const ym = mEl.value;
+  const yr = parseInt(ym.slice(0,4)), mo = parseInt(ym.slice(5,7));
+  const daysInMonth = new Date(yr, mo, 0).getDate();
+  const today = getTodayKey();
+  const monthLabel = new Date(yr, mo-1, 1).toLocaleDateString([], {month:'long', year:'numeric'});
+
+  // Build date list (all calendar days in month up to today)
+  const allDates = [];
+  for(let d=1; d<=daysInMonth; d++){
+    const ds = yr+'-'+String(mo).padStart(2,'0')+'-'+String(d).padStart(2,'0');
+    if(ds > today) break;
+    allDates.push(ds);
+  }
+  if(!allDates.length){
+    cont.innerHTML='<div style="text-align:center;padding:40px;color:var(--tx3);">No data for this period.</div>';
+    return;
+  }
+
+  const isAdmin = currentUser&&(currentUser.role==='admin'||currentUser.role==='manager');
+  const empFilter = eEl ? eEl.value : 'all';
+  const empList = empFilter==='all' ? employees : employees.filter(e=>e.id===empFilter);
+
+  // Build calendar grid header
+  let html = '<div style="overflow-x:auto;">'
+    + '<table style="width:100%;border-collapse:collapse;font-size:.76rem;">'
+    + '<thead><tr style="background:var(--sur2);">'
+    + '<th style="padding:9px 14px;text-align:left;font-weight:600;white-space:nowrap;position:sticky;left:0;background:var(--sur2);z-index:2;min-width:140px;">Employee</th>';
+
+  allDates.forEach(function(d){
+    const day = new Date(d+'T12:00:00');
+    const dow = day.getDay();
+    const isWE = dow===0||dow===6;
+    const isHol = isHoliday(d);
+    const isToday = d===today;
+    let bg = isHol?'rgba(139,92,246,.15)':isWE?'rgba(249,115,22,.1)':'';
+    if(isToday) bg='var(--red-l)';
+    html += '<th style="padding:5px 4px;text-align:center;min-width:36px;'
+      + (bg?'background:'+bg+';':'')
+      + (isToday?'color:var(--red);':'')
+      + '">'
+      + '<div style="font-size:.6rem;color:'+(isHol?'rgba(139,92,246,.9)':isWE?'#f97316':'var(--tx3)')+';">'
+        + (isHol ? '●' : day.toLocaleDateString([],{weekday:'short'}))
+      + '</div>'
+      + '<div style="font-weight:'+(isToday?'800':'500')+';">'+(isHol?'<span title="'+esc(getHolidayName(d))+'">'+day.getDate()+'</span>':day.getDate())+'</div>'
+      + '</th>';
+  });
+  html += '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:var(--green);">F</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:var(--yellow);">H</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:#f97316;">⚡</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:700;color:var(--red);">A</th>'
+    + '<th style="padding:9px 8px;text-align:center;white-space:nowrap;font-weight:600;">Hrs</th>'
+    + '</tr></thead><tbody>';
+
+  let totals = {full:0, half:0, short:0, absent:0};
+
+  empList.forEach(function(emp, ei){
+    let full=0, half=0, short=0, absent=0, totalMs=0;
+    html += '<tr style="border-top:1px solid var(--brd);' + (ei%2===1?'background:var(--sur2);':'') + '">'
+      + '<td style="padding:8px 14px;font-weight:600;white-space:nowrap;position:sticky;left:0;'+(ei%2===1?'background:var(--sur2);':'background:var(--sur);')+'z-index:1;">'
+        + esc(emp.name)
+      + '</td>';
+
+    allDates.forEach(function(d){
+      const dow = new Date(d+'T12:00:00').getDay();
+      const isWE = dow===0||dow===6;
+      const isHol = isHoliday(d);
+      const isToday = d===today;
+      // Worked on weekend/holiday is fine — still show their actual attendance
+      const cls = classifyDaySpec(emp.id, d);
+      const active = isToday && !!getActiveRecord(emp.id) && d===today;
+      totalMs += cls.ms;
+      // Count only workdays (non-weekend, non-holiday) for absent
+      const isWorkDay = !isWE && !isHol;
+      if(!active){
+        if(cls.type==='full')        { full++; }
+        else if(cls.type==='short')  { full++; short++; }
+        else if(cls.type==='half')   { half++; }
+        else if(isWorkDay)           { absent++; }
+      }
+      // Cell coloring
+      let bg = isHol?'rgba(139,92,246,.08)':isWE?'rgba(249,115,22,.06)':'';
+      let cellHtml = '';
+      if(active){
+        bg = 'rgba(22,163,74,.12)';
+        cellHtml = '<span style="color:var(--green);font-size:.85rem;" title="Active now">●</span>';
+      } else if(cls.type==='full'){
+        cellHtml = '<span style="color:var(--green);font-size:.8rem;" title="'+fmtDuration(cls.ms)+'">✔</span>';
+        if(cls.alert) cellHtml += '<sup style="color:#f97316;font-size:.55rem;">!</sup>';
+      } else if(cls.type==='half'){
+        cellHtml = '<span style="color:var(--blue);font-size:.68rem;font-weight:700;" title="'+fmtDuration(cls.ms)+'">H</span>';
+      } else if(cls.type==='short'){
+        cellHtml = '<span style="color:#f97316;font-size:.7rem;font-weight:700;" title="'+fmtDuration(cls.ms)+'">⚠</span>';
+      } else {
+        cellHtml = isHol ? '<span style="color:rgba(139,92,246,.6);font-size:.7rem;" title="'+esc(getHolidayName(d))+'">🎉</span>'
+          : isWE ? '<span style="color:var(--tx3);opacity:.3;font-size:.7rem;">—</span>'
+          : '<span style="color:var(--tx3);opacity:.4;font-size:.7rem;">–</span>';
+      }
+      html += '<td style="padding:4px 2px;text-align:center;'+(bg?'background:'+bg+';':'')+'cursor:'+(isAdmin?'pointer':'default')+';" '
+        + (isAdmin?'data-empid="'+emp.id+'" data-empname="'+esc(emp.name)+'" data-date="'+d+'" onclick="openCiEdit(this.dataset.empid,this.dataset.empname,this.dataset.date)" title="Click to edit"':'')+'>'
+        + cellHtml + '</td>';
+    });
+
+    totals.full+=full; totals.half+=half; totals.short+=short; totals.absent+=absent;
+    html += '<td style="padding:8px 6px;text-align:center;font-weight:700;color:var(--green);font-size:.8rem;">'+full+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;font-weight:700;color:var(--blue);font-size:.8rem;">'+half+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;font-weight:700;color:#f97316;font-size:.8rem;">'+(short||'')+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;font-weight:700;color:var(--red);font-size:.8rem;">'+absent+'</td>'
+      + '<td style="padding:8px 6px;text-align:center;color:var(--tx2);font-size:.73rem;">'+fmtDuration(totalMs)+'</td>'
+      + '</tr>';
+  });
+
+  html += '</tbody></table></div>';
+  html += '<div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:.74rem;color:var(--tx2);">'
+    + '<span>F=Full Days: <strong style="color:var(--green);">'+totals.full+'</strong></span>'
+    + '<span>H=Half Days: <strong style="color:var(--blue);">'+totals.half+'</strong></span>'
+    + '<span>⚡=Short (8-9h): <strong style="color:#f97316;">'+totals.short+'</strong></span>'
+    + '<span>A=Absent: <strong style="color:var(--red);">'+totals.absent+'</strong></span>'
+    + '</div>'
+    + (isAdmin?'<div style="font-size:.72rem;color:var(--tx3);margin-top:6px;"><i class="fas fa-mouse-pointer"></i> Click any cell to edit attendance</div>':'');
+  cont.innerHTML = '<div style="font-size:.82rem;font-weight:700;color:var(--tx2);margin-bottom:10px;">'+monthLabel+'</div>' + html;
+}
+
+// ══════════════════════════════════
+// EDIT ATTENDANCE RECORD (Admin/Manager)
+// ══════════════════════════════════
+let _ciEditState = null;
+function openCiEdit(empId, empName, date){
+  _ciEditState = {empId, empName, date};
+  const ovl = document.getElementById('ciEditOvl');
+  if(!ovl) return;
+  const nameEl = document.getElementById('ciEditEmpName');
+  const dateLbl = document.getElementById('ciEditDateLbl');
+  const noteEl  = document.getElementById('ciEditNote');
+  const inEl    = document.getElementById('ciEdit-in');
+  const outEl   = document.getElementById('ciEdit-out');
+  const hidId   = document.getElementById('ciEdit-empId');
+  const hidDate = document.getElementById('ciEdit-date');
+  if(nameEl) nameEl.textContent = empName;
+  if(dateLbl) dateLbl.textContent = new Date(date+'T12:00:00').toLocaleDateString([],{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  if(hidId)   hidId.value   = empId;
+  if(hidDate) hidDate.value = date;
+  // Pre-fill from existing records for this employee+date
+  const sessions = checkInRecords.filter(function(r){ return r.empId===empId && r.date===date; });
+  if(sessions.length){
+    const first = sessions[0];
+    const dIn = new Date(first.checkIn);
+    if(inEl) inEl.value = String(dIn.getHours()).padStart(2,'0')+':'+String(dIn.getMinutes()).padStart(2,'0');
+    const last = sessions[sessions.length-1];
+    if(last.checkOut){
+      const dOut = new Date(last.checkOut);
+      if(outEl) outEl.value = String(dOut.getHours()).padStart(2,'0')+':'+String(dOut.getMinutes()).padStart(2,'0');
+    } else {
+      if(outEl) outEl.value = '';
+    }
+    if(noteEl) noteEl.textContent = sessions.length>1
+      ? sessions.length+' sessions on this day — saving will merge into one record.'
+      : 'Editing existing record: '+new Date(first.checkIn).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+          +(first.checkOut?' → '+new Date(first.checkOut).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'  (still active)');
+  } else {
+    if(inEl)  inEl.value  = '';
+    if(outEl) outEl.value = '';
+    if(noteEl) noteEl.textContent = 'No record for this date — a new entry will be created.';
+  }
+  ovl.classList.add('open');
+}
+function closeCiEdit(){
+  const ovl = document.getElementById('ciEditOvl');
+  if(ovl) ovl.classList.remove('open');
+  _ciEditState = null;
+}
+async function saveCiEdit(){
+  const empId   = document.getElementById('ciEdit-empId')?.value;
+  const date    = document.getElementById('ciEdit-date')?.value;
+  const inVal   = document.getElementById('ciEdit-in')?.value;
+  const outVal  = document.getElementById('ciEdit-out')?.value;
+  if(!empId||!date){ toast('Missing employee or date','err'); return; }
+  if(!inVal){ toast('Check-in time is required','err'); return; }
+  const emp = employees.find(e=>e.id===empId);
+  const empName = emp ? emp.name : (_ciEditState?.empName||empId);
+  const checkInDt  = new Date(date+'T'+inVal+':00');
+  const checkOutDt = outVal ? new Date(date+'T'+outVal+':00') : null;
+  if(checkOutDt && checkOutDt.getTime()<=checkInDt.getTime()){ toast('Check-out must be after check-in','err'); return; }
+  const totalMs = checkOutDt ? (checkOutDt.getTime()-checkInDt.getTime()) : 0;
+  // Remove all sessions for this emp+date, insert single corrected record
+  checkInRecords = checkInRecords.filter(function(r){ return !(r.empId===empId && r.date===date); });
+  checkInRecords.unshift({
+    id:'ci_edit_'+Date.now()+'_'+empId,
+    empId, empName, date,
+    checkIn:  checkInDt.toISOString(),
+    checkOut: checkOutDt ? checkOutDt.toISOString() : null,
+    totalMs
+  });
+  await saveCheckInRecords();
+  logActivity('ci_edit','','',currentUser.name+' corrected attendance for '+empName+' on '+date);
+  toast('Attendance updated for '+empName,'ok');
+  closeCiEdit();
+  renderAttendance();
+  renderStats();
+}
+
+
 let currentFilter='all', searchQ='', openProjId=null, editEmpId=null, editProjId=null;
 let projDocs={};
 let chartInstances={};
@@ -1623,10 +2462,28 @@ let dragSrcId=null;
 // ══════════════════════════════════
 // INIT
 // ══════════════════════════════════
-function appInit(){
-  loadFeaturesLocal(); loadEmpsLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
+async function appInit(){
+  // Load local cache first (instant UI)
+  loadFeaturesLocal(); loadDocsLocal(); loadVisConfig(); loadActLog();
+  loadThreadedComments(); loadNotifications();
+  // Load ALL shared state from Supabase (full cross-browser sync)
+  await Promise.all([
+    loadUsersFromDB(),
+    loadEmpsFromDB(),
+    loadActLogFromDB(),
+    loadFeaturesFromDB(),
+    loadDocsFromDB(),
+    loadNotificationsFromDB(),
+    loadCheckInFromDB(),
+    loadHolidaysFromDB()
+  ]);
+  // Re-render check-in bar NOW that DB data is loaded (fixes post-refresh state)
+  renderCheckInBar();
   loadProjects();
   if(can('canManageFeatures'))renderSettings();
+  startRealtime();
+  startVisConfigPoll();
+  updateNbDot();
 }
 
 // ══════════════════════════════════
@@ -1654,6 +2511,13 @@ async function loadProjects(){
 }
 
 async function saveProjDB(p){
+  if(_saveProjDBRunning.has(p.id))return;
+  _saveProjDBRunning.add(p.id);
+  _lastSave=Date.now();
+  _ownSaves.set(p.id,Date.now());
+  // Auto-expire echo suppression after 1200ms so other users' changes aren't blocked
+  setTimeout(()=>_ownSaves.delete(p.id),1300);
+  try{
   // ── FULL row with all v5+ columns ──
   const fullRow={
     id:p.id, name:p.name, client:p.client||'', labellink:p.labellink||'',
@@ -1688,16 +2552,53 @@ async function saveProjDB(p){
       console.error(error);
     }
   }
+  }finally{_saveProjDBRunning.delete(p.id);}
 }
 
 async function delProjDB(id){const{error}=await sb.from('projects').delete().eq('id',id);if(error)toast('Delete: '+error.message,'err');}
 
-function saveEmpsLocal(){localStorage.setItem('cc_emps',JSON.stringify(employees));}
+function saveEmpsLocal(){try{localStorage.setItem('cc_emps',JSON.stringify(employees));}catch(e){}} // keep for fallback
+async function saveEmpsToDB(){
+  saveEmpsLocal(); // local backup
+  try{
+    await sb.from('app_settings').upsert({key:'app_emps',value:JSON.stringify(employees)},{onConflict:'key'});
+  }catch(e){console.warn('saveEmpsToDB failed:',e);}
+}
 function loadEmpsLocal(){try{const s=localStorage.getItem('cc_emps');if(s){const a=JSON.parse(s);if(a.length)employees=a;}}catch(e){}}
+async function loadEmpsFromDB(){
+  try{
+    const{data,error}=await sb.from('app_settings').select('value').eq('key','app_emps').single();
+    if(error||!data?.value){await saveEmpsToDB();return;}
+    const remote=JSON.parse(data.value);
+    if(remote&&remote.length){employees=remote;saveEmpsLocal();}
+  }catch(e){console.warn('loadEmpsFromDB failed, using local:',e);loadEmpsLocal();}
+}
 function saveDocsLocal(){try{localStorage.setItem('cc_docs',JSON.stringify(projDocs));}catch(e){}}
+async function saveDocs(){
+  saveDocsLocal();
+  try{await sb.from('app_settings').upsert({key:'proj_docs',value:JSON.stringify(projDocs)},{onConflict:'key'});}catch(e){}
+}
 function loadDocsLocal(){try{const s=localStorage.getItem('cc_docs');if(s)projDocs=JSON.parse(s);}catch(e){}}
-function saveFeaturesLocal(){localStorage.setItem('cc_features',JSON.stringify(features));}
+async function loadDocsFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','proj_docs').single();
+    if(data?.value){projDocs=JSON.parse(data.value);saveDocsLocal();}
+    else{loadDocsLocal();}
+  }catch(e){loadDocsLocal();}
+}
+function saveFeaturesLocal(){try{localStorage.setItem('cc_features',JSON.stringify(features));}catch(e){}}
+async function saveFeatures(){
+  saveFeaturesLocal();
+  try{await sb.from('app_settings').upsert({key:'app_features',value:JSON.stringify(features)},{onConflict:'key'});}catch(e){}
+}
 function loadFeaturesLocal(){try{const s=localStorage.getItem('cc_features');if(s)Object.assign(features,JSON.parse(s));}catch(e){}}
+async function loadFeaturesFromDB(){
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','app_features').single();
+    if(data?.value){Object.assign(features,JSON.parse(data.value));saveFeaturesLocal();}
+    else{await saveFeatures();}
+  }catch(e){loadFeaturesLocal();}
+}
 
 // ═══════════════════════
 // HELPERS
@@ -1705,6 +2606,21 @@ function loadFeaturesLocal(){try{const s=localStorage.getItem('cc_features');if(
 function uid(){return crypto.randomUUID?crypto.randomUUID():'id_'+Date.now()+'_'+Math.random().toString(36).substr(2,6);}
 function esc(s){return(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pct(a,b){return b>0?Math.round((a/b)*100):0;}
+function fillDemoLabels(){
+  if(document.getElementById('dlbl-admin'))document.getElementById('dlbl-admin').textContent='admin'+AT+'camcom.ai / admin123';
+  if(document.getElementById('dlbl-manager'))document.getElementById('dlbl-manager').textContent='manager'+AT+'camcom.ai / mgr123';
+  if(document.getElementById('dlbl-reviewer'))document.getElementById('dlbl-reviewer').textContent='reviewer'+AT+'camcom.ai / rev123';
+}
+function fmtAgo(ts){
+  if(!ts)return'';
+  const diff=Date.now()-new Date(ts).getTime();
+  const s=Math.floor(diff/1000),m=Math.floor(s/60),h=Math.floor(m/60),d=Math.floor(h/24);
+  if(s<60)return'just now';
+  if(m<60)return m+'m ago';
+  if(h<24)return h+'h ago';
+  if(d<7)return d+'d ago';
+  return new Date(ts).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+}
 function fmtD(d){if(!d)return'—';return new Date(d+'T00:00:00').toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}
 function dlMeta(d){if(!d)return null;const dt=new Date(d+'T00:00:00'),diff=Math.ceil((dt-new Date())/86400000);return{label:fmtD(d),diff};}
 function initials(n){return(n||'?').split(' ').map(w=>w[0]||'').join('').substr(0,2).toUpperCase();}
@@ -1746,12 +2662,24 @@ function switchPage(p){
   if(p==='analytics'){renderCharts();renderGantt();populateBurndownSel();}
   if(p==='settings')renderSettings();
   if(p==='users')renderUsers();
+  if(p==='checkin'){
+    const picker=document.getElementById('att-month');
+    if(picker&&!picker.value){ const n=new Date(); picker.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); }
+    renderAttendance();
+  }
+
+
   if(p==='actlog')renderActivityLog();
   if(p==='stakeholder')renderStakeholderDashboard();
   if(p==='access')renderAccessControl();
-  if(p==='leave'){renderLeaveTable();updateLeavePendingBadge();}
 }
-function renderAll(){renderProjects();renderStats();}
+function renderAll(){
+  renderProjects();   // updates #projGrid (home/dashboard cards)
+  renderProjFull();   // updates #projGridFull (projects page — where employees land)
+  renderStats();
+  if(document.getElementById('page-analytics')?.classList.contains('active'))renderCharts();
+  if(document.getElementById('page-kanban')?.classList.contains('active'))renderKanban();
+}
 
 // ═══════════════════════
 // STATS
@@ -1768,7 +2696,7 @@ function renderStats(){
     {l:'Total Images',v:tI.toLocaleString(),s:`${pct(tA,tI)}% annotated`,c:'b',i:'fa-images'},
     {l:'Annotated',v:tA.toLocaleString(),s:`${pct(tA,tI)}% done`,c:'g',i:'fa-check-circle'},
     {l:'Reviewed',v:tR.toLocaleString(),s:`${pct(tR,tI)}% done`,c:'y',i:'fa-eye'},
-    {l:'Employees',v:employees.length,s:`${asd} assigned`,c:'p',i:'fa-users'},
+    {l:'Employees',v:can('seeAll')?employees.length:visibleProjects().reduce((s,p)=>{(p.assignedEmployees||[]).forEach(id=>s.add(id));(p.reviewEmployees||[]).forEach(id=>s.add(id));return s;},new Set()).size,s:can('seeAll')?`${asd} assigned`:'in your projects',c:'p',i:'fa-users'},
     {l:'Conflicts',v:cc.length,s:cc.length>0?`${[...multiAnnotators()].length} overloaded, ${[...dualRoleIds()].length} dual-role`:'All clear ✓',c:cc.length>0?'r':'g',i:'fa-exclamation-triangle'},
   ].map(x=>`<div class="sc ${x.c}"><div class="sc-l">${x.l}</div><div class="sc-v">${x.v}</div><div class="sc-s">${x.s}</div></div>`).join('');
   document.getElementById('nb-p').textContent=projects.length;
@@ -2058,18 +2986,39 @@ function renderDPBody(p){
       ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.notes||'—')}</div>`
       :`<textarea class="cmt-ta" oninput="dpUpd('${p.id}','notes',this.value)">${esc(p.notes||'')}</textarea>`}
   </div>
-  <div class="dp-sec">
-    <div class="ds-hdr"><i class="fas fa-comments"></i> Comments</div>
-    ${isRO
-      ?`<div style="font-size:.83rem;color:var(--tx2);line-height:1.6;white-space:pre-wrap;">${esc(p.comments||'—')}</div>`
-      :`<textarea class="cmt-ta" id="cmt-${p.id}" oninput="dpUpd('${p.id}','comments',this.value)">${esc(p.comments||'')}</textarea>`}
-    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;">
-      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:``}
-      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:``}
-      ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:``}
+  <div class="dp-sec" style="padding:0;">
+    <div class="ds-hdr" style="padding:10px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--brd);margin:0;">
+      <span><i class="fas fa-comments" style="color:var(--blue);margin-right:6px;"></i>Comments <span id="tc-count-${p.id}" style="font-size:.72rem;color:var(--tx3);font-weight:400;">(${(threadedComments[p.id]||[]).filter(c=>!c.parentId).length})</span></span>
+      ${notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===p.id).length?`<span class="nbadge" style="font-size:.68rem;">${notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===p.id).length} new</span>`:''}
+    </div>
+    <div class="tc-list" id="tc-list-${p.id}" style="max-height:340px;overflow-y:auto;"></div>
+    <div class="tc-compose">
+      <div class="tc-compose-av" style="background:${ROLE_COLORS[currentUser?.role]||'#64748b'};">${avInit(currentUser?.name||'?')}</div>
+      <div class="tc-compose-right">
+        <div id="tc-reply-banner-${p.id}" class="tc-reply-banner" style="display:none;">
+          <span id="tc-reply-label-${p.id}">Replying to …</span>
+          <button style="background:none;border:none;cursor:pointer;color:var(--blue);font-size:.75rem;" onclick="cancelReply('${p.id}')"><i class="fas fa-times"></i></button>
+        </div>
+        <textarea class="tc-textarea" id="tc-inp-${p.id}"
+          placeholder="Write a comment… type @ to mention someone"
+          oninput="onCmtInput(event,'${p.id}')"
+          onkeydown="onCmtKey(event,'${p.id}')"
+          onblur="setTimeout(hideMentionPop,160)"></textarea>
+        <div class="tc-compose-foot">
+          <span class="tc-hint">Enter&nbsp;=&nbsp;send &nbsp;·&nbsp; Shift+Enter&nbsp;=&nbsp;new line &nbsp;·&nbsp; @Name&nbsp;=&nbsp;mention</span>
+          <button class="tc-send" onclick="postComment('${p.id}')"><i class="fas fa-paper-plane"></i> Send</button>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;padding:10px 16px;border-top:1px solid var(--brd);flex-wrap:wrap;">
+      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="saveNow('${p.id}')"><i class="fas fa-save"></i> Save</button>`:''}
+      ${can('canEdit')?`<button class="btn btn-ghost btn-sm" onclick="openEditProj('${p.id}')"><i class="fas fa-pen"></i> Edit</button>`:''}
+      ${can('canDelete')?`<button class="btn btn-sm" style="background:var(--red-l);color:var(--red);" onclick="deleteProj('${p.id}')"><i class="fas fa-trash"></i> Delete</button>`:''}
     </div>
   </div>`;
   if(can('canAssign')){renderES(p.id);renderESRev(p.id);}
+  // Render threaded comments (DOM must exist first)
+  setTimeout(()=>{renderThreadList(p.id);loadCommentsFromDB(p.id);},0);
 }
 function renderES(projId){
   const q=(document.getElementById(`esrch-${projId}`)?.value||'').toLowerCase();
@@ -2210,7 +3159,7 @@ async function dpUpd(id,field,val){
   _dpSaveTimers[id+'_'+field]=setTimeout(async()=>{
     await saveProjDB(p);
     logActivity('edit',id,(projects.find(x=>x.id===id)||{name:'?'}).name,field+' updated to '+val);
-  },1000);
+  },400);
 }
 async function saveNow(id){const p=projects.find(x=>x.id===id);if(!p)return;await saveProjDB(p);toast('Saved ✓','ok');}
 
@@ -2226,12 +3175,12 @@ function handleUpload(projId,input){
   let loaded=0;
   files.forEach(f=>{
     const rdr=new FileReader();
-    rdr.onload=e=>{projDocs[projId].push({name:f.name,size:fmtSize(f.size),dataUrl:e.target.result});loaded++;if(loaded===files.length){saveDocsLocal();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();}};
+    rdr.onload=e=>{projDocs[projId].push({name:f.name,size:fmtSize(f.size),dataUrl:e.target.result});loaded++;if(loaded===files.length){saveDocs();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();}};
     rdr.readAsDataURL(f);
   });
   toast(`${files.length} file(s) uploaded`,'ok');
 }
-function rmDoc(projId,idx){if(!projDocs[projId])return;projDocs[projId].splice(idx,1);saveDocsLocal();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();toast('File removed','info');}
+function rmDoc(projId,idx){if(!projDocs[projId])return;projDocs[projId].splice(idx,1);saveDocs();const p=projects.find(x=>x.id===projId);if(p&&openProjId===projId)renderDPBody(p);renderProjects();toast('File removed','info');}
 
 // ═══════════════════════
 // DELETE / MODALS
@@ -2241,13 +3190,14 @@ async function deleteProj(id){
   const p=projects.find(x=>x.id===id);
   const pName=p?p.name:'project';
   logActivity('delete',id,pName,'Project deleted');
-  projects=projects.filter(x=>x.id!==id);delete projDocs[id];saveDocsLocal();
+  projects=projects.filter(x=>x.id!==id);delete projDocs[id];saveDocs();
   closeDP();toast('Deleted','info');renderProjects();await delProjDB(id);
 }
 
 function tglTgtField(prefix){document.getElementById(`${prefix}-tgtFw`).classList.toggle('show',document.getElementById(`${prefix}-tgtOn`).checked);}
 
 function openNewProj(){
+  if(!can('canCreate')){toast('You do not have permission to create projects','err');return;}
   editProjId=null;document.getElementById('pMTtl').textContent='New Project';
   ['name','by','client','link'].forEach(f=>document.getElementById(`np-${f}`).value='');
   ['start','dead'].forEach(f=>document.getElementById(`np-${f}`).value='');
@@ -2320,11 +3270,16 @@ function saveEmployee(){
   else{employees.push({id:'e_'+Date.now(),name,email,gender});toast('Added ✓','ok');}
   saveEmpsLocal();closeEmpModal();renderEmps();renderStats();
 }
-function delEmp(id){
-  if(!confirm('Remove employee?'))return;
+async function delEmp(id){
+  const emp=employees.find(e=>e.id===id);
+  const name=emp?.name||'this employee';
+  if(!confirm('Remove '+name+'? They will be unassigned from all projects.'))return;
   employees=employees.filter(e=>e.id!==id);
-  projects.forEach(p=>{p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id);});
-  saveEmpsLocal();renderEmps();renderProjects();renderStats();toast('Removed','info');
+  projects.forEach(p=>{
+    p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==id);
+    p.reviewEmployees=(p.reviewEmployees||[]).filter(e=>e!==id);
+  });
+  await saveEmpsToDB();renderEmps();renderProjects();renderStats();toast(name+' removed','info');
 }
 
 // ═══════════════════════
@@ -2364,7 +3319,7 @@ function renderEmps(){
       <td><span class="${sc}">${st}</span></td>
       <td style="font-size:.73rem;color:var(--tx2);">${projs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
       <td style="font-size:.73rem;color:var(--yellow);">${revProjs.map(p=>esc(p.name)).join(', ')||'<span style="color:var(--tx3);">—</span>'}</td>
-      <td><button class="iBtn" onclick="openEmpModal('${e.id}')"><i class="fas fa-pen"></i></button><button class="iBtn del" onclick="delEmp('${e.id}')"><i class="fas fa-trash"></i></button></td></tr>`;
+      <td><button class="iBtn del" onclick="delEmp('${e.id}')" title="Remove employee and unassign from all projects"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -2960,7 +3915,7 @@ function exportWorkloadPDF(mode='both'){
 // ═══════════════════════
 function renderKanban(){
   const cols={todo:[],inprog:[],review:[],done:[]};
-  projects.forEach(p=>{const s=p.kanbanStatus||'todo';if(cols[s])cols[s].push(p);});
+  visibleProjects().forEach(p=>{const s=p.kanbanStatus||'todo';if(cols[s])cols[s].push(p);});
   const colDefs=[
     {id:'todo',title:'📋 To Do',cls:'col-todo'},
     {id:'inprog',title:'⚡ In Progress',cls:'col-inprog'},
@@ -3046,28 +4001,32 @@ function destroyChart(id){if(chartInstances[id]){chartInstances[id].destroy();de
 
 function renderCharts(){
   if(!projects.length)return;
-  // Priority pie
-  destroyChart('pri');
-  const h=projects.filter(p=>p.priority==='high').length;
-  const m=projects.filter(p=>p.priority==='medium').length;
-  const l=projects.filter(p=>p.priority==='low').length;
-  chartInstances.pri=new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[h,m,l],backgroundColor:['#dc2626','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:getComputedStyle(document.body).getPropertyValue('--tx')||'#0f172a'}}}}});
-
-  // Progress bar
-  destroyChart('prog');
+  const active=projects.filter(p=>(p.kanbanStatus||'todo')!=='done');
   const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   const tx=isDark?'#8b949e':'#475569';
-  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:projects.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:projects.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:projects.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+  const txMain=getComputedStyle(document.body).getPropertyValue('--tx')||'#0f172a';
+  const subtitle=active.length<projects.length?`Active only (${active.length}/${projects.length})`:'';
 
-  // Status donut
+  // Priority pie — active only
+  destroyChart('pri');
+  const h=active.filter(p=>p.priority==='high').length;
+  const m=active.filter(p=>p.priority==='medium').length;
+  const l=active.filter(p=>p.priority==='low').length;
+  chartInstances.pri=new Chart(document.getElementById('priChart'),{type:'doughnut',data:{labels:['High','Medium','Low'],datasets:[{data:[h,m,l],backgroundColor:['#dc2626','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:!!subtitle,text:subtitle,font:{size:9},color:tx},legend:{position:'bottom',labels:{font:{size:11},color:txMain}}}}});
+
+  // Annotation progress — active only
+  destroyChart('prog');
+  chartInstances.prog=new Chart(document.getElementById('progChart'),{type:'bar',data:{labels:active.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Annotated %',data:active.map(p=>pct(p.annotated,p.total)),backgroundColor:'#3b82f6',borderRadius:4},{label:'Reviewed %',data:active.map(p=>pct(p.reviewed,p.total)),backgroundColor:'#16a34a',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{title:{display:!!subtitle,text:subtitle,font:{size:9},color:tx},legend:{labels:{font:{size:10},color:tx}}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{min:0,max:100,ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+
+  // Status donut — all projects
   destroyChart('status');
-  const statCounts={todo:0,inprog:0,review:0,done:0};
-  projects.forEach(p=>{statCounts[p.kanbanStatus||'todo']++;});
-  chartInstances.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:['To Do','In Progress','Review','Done'],datasets:[{data:[statCounts.todo,statCounts.inprog,statCounts.review,statCounts.done],backgroundColor:['#94a3b8','#3b82f6','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:tx}}}}});
+  const sc={todo:0,inprog:0,review:0,done:0};
+  projects.forEach(p=>{sc[p.kanbanStatus||'todo']++;});
+  chartInstances.status=new Chart(document.getElementById('statusChart'),{type:'doughnut',data:{labels:['To Do','In Progress','Review','Done'],datasets:[{data:[sc.todo,sc.inprog,sc.review,sc.done],backgroundColor:['#94a3b8','#3b82f6','#d97706','#16a34a'],borderWidth:2,borderColor:'var(--sur)'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},color:tx}}}}});
 
-  // Employees per project
+  // Employees per project — active only
   destroyChart('emp');
-  chartInstances.emp=new Chart(document.getElementById('empChart'),{type:'bar',data:{labels:projects.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Employees',data:projects.map(p=>(p.assignedEmployees||[]).length),backgroundColor:'#7c3aed',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
+  chartInstances.emp=new Chart(document.getElementById('empChart'),{type:'bar',data:{labels:active.map(p=>p.name.length>14?p.name.substr(0,14)+'…':p.name),datasets:[{label:'Employees',data:active.map(p=>(p.assignedEmployees||[]).length),backgroundColor:'#7c3aed',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tx,font:{size:9}},grid:{display:false}},y:{ticks:{color:tx,font:{size:10}},grid:{color:isDark?'#30363d':'#e2e8f0'}}}}});
 }
 
 // ═══════════════════════
@@ -3347,6 +4306,7 @@ const FEATURE_DEFS=[
   {key:'workload',label:'Workload Overview',desc:'See which employees are assigned to how many projects'},
   {key:'dailyTarget',label:'Daily Image Target',desc:'Set a daily completion target per project'},
   {key:'fileUpload',label:'File Uploads',desc:'Attach documents and files to each project'},
+  {key:'checkIn',label:'Employee Check-In / Check-Out',desc:'Allow employees to clock in and out. Admins and managers can view total hours worked per employee.'},
 ];
 function renderSettings(){
   document.getElementById('settingsGrid').innerHTML=FEATURE_DEFS.map(f=>`
@@ -3362,7 +4322,7 @@ function renderSettings(){
   });
 }
 function toggleFeature(key,val){
-  features[key]=val;saveFeaturesLocal();renderSettings();
+  features[key]=val;saveFeatures();renderSettings();
   toast(`${val?'Enabled':'Disabled'}: ${FEATURE_DEFS.find(f=>f.key===key)?.label}`,'ok');
 }
 
@@ -3882,14 +4842,17 @@ function openUserModal(id=null){
 function closeUserModal(){document.getElementById('userOvl').classList.remove('open');}
 function onRoleChange(){
   const role=document.getElementById('fu-role').value;
-  document.getElementById('empLinkWrap').style.display=role==='employee'?'':'none';
+  const showLink=['employee','reviewer','manager'].includes(role);
+  document.getElementById('empLinkWrap').style.display=showLink?'':'none';
+  const note=document.getElementById('emp-auto-note');
+  if(note)note.style.display=showLink?'':'none';
 }
 function populateEmpSelect(){
   const sel=document.getElementById('fu-empId');
   sel.innerHTML='<option value="">— Select employee record —</option>'+
     employees.map(e=>`<option value="${e.id}">${esc(e.name)} (${e.gender==='male'?'♂':'♀'})</option>`).join('');
 }
-function saveUser(){
+async function saveUser(){
   const name=document.getElementById('fu-name').value.trim();
   const email=document.getElementById('fu-email').value.trim().toLowerCase();
   const pwd=document.getElementById('fu-pwd').value.trim();
@@ -3901,20 +4864,49 @@ function saveUser(){
   // Check email uniqueness
   const dup=appUsers.find(u=>u.email===email&&u.id!==editUserId);
   if(dup){toast('Email already in use by another user','err');return;}
+  const uid = editUserId || ('u_'+Date.now());
   if(editUserId){
     const idx=appUsers.findIndex(u=>u.id===editUserId);
     if(idx>-1){appUsers[idx]={...appUsers[idx],name,email,pwd,role,empId};toast('User updated ✓','ok');}
   } else {
-    appUsers.push({id:'u_'+Date.now(),name,email,pwd,role,empId});
+    appUsers.push({id:uid,name,email,pwd,role,empId});
     toast('User added ✓','ok');
   }
-  saveUsersLocal();closeUserModal();renderUsers();
+  // ── Auto-sync to employees array so they appear in workload/assignment ──
+  const empRole = ['employee','reviewer','manager'].includes(role);
+  if(empRole){
+    // Use empId if linked, otherwise use uid as emp id
+    const eid = empId || uid;
+    const existing = employees.find(e=>e.id===eid || e.email===email);
+    if(existing){
+      // Update name/email if changed
+      existing.name = name;
+      existing.email = email;
+    } else {
+      // Add new employee record
+      employees.push({id:eid, name, email, gender:'male'});
+    }
+    // Ensure the user's empId is linked
+    const uIdx = appUsers.findIndex(u=>u.id===uid||u.id===editUserId);
+    if(uIdx>-1) appUsers[uIdx].empId = eid;
+  }
+  await Promise.all([saveUsersToDB(),saveEmpsToDB()]);closeUserModal();renderUsers();renderEmps();renderStats();
 }
-function deleteUser(id){
+async function deleteUser(id){
   if(id===currentUser?.id){toast("You can't delete your own account",'err');return;}
   if(!confirm('Delete this user? They will no longer be able to sign in.'))return;
+  const u=appUsers.find(x=>x.id===id);
   appUsers=appUsers.filter(u=>u.id!==id);
-  saveUsersLocal();renderUsers();toast('User removed','info');
+  // Also remove from employees if linked
+  if(u?.empId){
+    employees=employees.filter(e=>e.id!==u.empId);
+    projects.forEach(p=>{
+      p.assignedEmployees=(p.assignedEmployees||[]).filter(e=>e!==u.empId);
+      p.reviewEmployees=(p.reviewEmployees||[]).filter(e=>e!==u.empId);
+    });
+  }
+  await Promise.all([saveUsersToDB(),saveEmpsToDB()]);
+  renderUsers();renderEmps();renderProjects();renderStats();toast('User removed','info');
 }
 
 // START — restore session or show login
@@ -3937,79 +4929,556 @@ function loadTheme(){
 }
 loadTheme();
 
-// ═══════════ LEAVE MANAGEMENT ═══════════
-let leaveRequests = [
-  { id:1, empName:'Riya Sharma', empInitials:'RS', empColor:'#dc2626', type:'Sick Leave', start:'2026-03-10', end:'2026-03-12', days:3, status:'pending' },
-  { id:2, empName:'Liam Chen', empInitials:'LC', empColor:'#2563eb', type:'Annual Leave', start:'2026-03-15', end:'2026-03-22', days:8, status:'pending' },
-  { id:3, empName:'Priya Nair', empInitials:'PN', empColor:'#16a34a', type:'Casual Leave', start:'2026-03-11', end:'2026-03-11', days:1, status:'pending' },
-  { id:4, empName:'Daniel Brooks', empInitials:'DB', empColor:'#7c3aed', type:'Annual Leave', start:'2026-02-20', end:'2026-02-25', days:6, status:'approved' },
-  { id:5, empName:'Fatima Al-Sayed', empInitials:'FA', empColor:'#d97706', type:'Sick Leave', start:'2026-02-15', end:'2026-02-16', days:2, status:'rejected' },
-  { id:6, empName:'James Okafor', empInitials:'JO', empColor:'#0891b2', type:'Casual Leave', start:'2026-03-05', end:'2026-03-05', days:1, status:'approved' },
-];
-let leaveCurrentTab = 'pending';
-const lvTypeBadge = {
-  'Sick Leave':'background:#ede9ff;color:#5b21b6;',
-  'Annual Leave':'background:#fef3c7;color:#92400e;',
-  'Casual Leave':'background:#dbeafe;color:#1d4ed8;',
-  'Compensatory Leave':'background:#dcfce7;color:#15803d;',
-};
-function fmtLeaveDate(d){return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
-function renderLeaveTable(){
-  const tbody=document.getElementById('lv-tbody');if(!tbody)return;
-  const filtered=leaveCurrentTab==='all'?leaveRequests:leaveRequests.filter(r=>r.status===leaveCurrentTab);
-  if(!filtered.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--tx3);"><i class="fas fa-calendar-times" style="font-size:1.5rem;display:block;margin-bottom:8px;"></i>No '+leaveCurrentTab+' requests</td></tr>';return;}
-  tbody.innerHTML=filtered.map(r=>{
-    const stBadge=r.status==='approved'?'<span style="background:var(--green-l);color:var(--green);padding:2px 10px;border-radius:99px;font-size:.7rem;font-weight:700;">Approved</span>':r.status==='rejected'?'<span style="background:var(--red-l);color:var(--red);padding:2px 10px;border-radius:99px;font-size:.7rem;font-weight:700;">Rejected</span>':'<span style="background:var(--yel-l);color:var(--yellow);padding:2px 10px;border-radius:99px;font-size:.7rem;font-weight:700;">Pending</span>';
-    const typeSt=lvTypeBadge[r.type]||'';
-    const actions=r.status==='pending'?`<div style="display:flex;gap:5px;"><button class="iBtn" title="Approve" onclick="updateLeaveStatus(${r.id},'approved')" style="color:var(--green);" onmouseover="this.style.background='var(--green-l)'" onmouseout="this.style.background='none'"><i class="fas fa-check"></i></button><button class="iBtn" title="Reject" onclick="updateLeaveStatus(${r.id},'rejected')" style="color:var(--red);" onmouseover="this.style.background='var(--red-l)'" onmouseout="this.style.background='none'"><i class="fas fa-times"></i></button></div>`:'<span style="color:var(--tx3);font-size:.74rem;">—</span>';
-    return `<tr><td><div style="display:flex;align-items:center;gap:9px;"><div style="width:28px;height:28px;border-radius:50%;background:${r.empColor}22;color:${r.empColor};font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid ${r.empColor}44;flex-shrink:0;">${r.empInitials}</div><span style="font-weight:600;font-size:.82rem;">${r.empName}</span></div></td><td><span style="${typeSt}padding:2px 9px;border-radius:99px;font-size:.68rem;font-weight:700;">${r.type}</span></td><td style="font-size:.8rem;">${fmtLeaveDate(r.start)}</td><td style="font-size:.8rem;">${fmtLeaveDate(r.end)}</td><td><strong>${r.days}</strong> <span style="font-size:.72rem;color:var(--tx3);">day${r.days>1?'s':''}</span></td><td>${stBadge}</td><td>${actions}</td></tr>`;
-  }).join('');
-}
-function updateLeaveStatus(id,status){
-  leaveRequests=leaveRequests.map(r=>r.id===id?{...r,status}:r);
-  renderLeaveTable();updateLeavePendingBadge();
-  toast(status==='approved'?'Leave request approved':'Leave request rejected',status==='approved'?'success':'error');
-}
-function switchLeaveTab(tab,el){
-  leaveCurrentTab=tab;
-  document.querySelectorAll('#page-leave .stab').forEach(b=>b.classList.remove('on'));
-  el.classList.add('on');
-  renderLeaveTable();
-}
-function updateLeavePendingBadge(){
-  const count=leaveRequests.filter(r=>r.status==='pending').length;
-  const nb=document.getElementById('lv-nb-pending');if(nb)nb.textContent=count;
-  const sideNb=document.getElementById('nb-leave');if(sideNb){sideNb.textContent=count;sideNb.style.display=count>0?'':'none';}
-}
-function openLeaveModal(){
-  const today=new Date().toISOString().split('T')[0];
-  document.getElementById('lv-start').value=today;
-  document.getElementById('lv-end').value=today;
-  document.getElementById('lv-type').value='';
-  document.getElementById('lv-reason').value='';
-  document.getElementById('leaveOvl').classList.add('open');
-}
-function closeLeaveModal(){document.getElementById('leaveOvl').classList.remove('open');}
-function submitLeaveRequest(){
-  const type=document.getElementById('lv-type').value;
-  const start=document.getElementById('lv-start').value;
-  const end=document.getElementById('lv-end').value;
-  if(!type||!start||!end){toast('Please fill all required fields','warn');return;}
-  const days=Math.max(1,Math.round((new Date(end)-new Date(start))/86400000)+1);
-  const cu=typeof currentUser!=='undefined'&&currentUser?currentUser:{name:'You'};
-  const initials=cu.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  leaveRequests.unshift({id:Date.now(),empName:cu.name,empInitials:initials,empColor:'#dc2626',type,start,end,days,status:'pending'});
-  closeLeaveModal();updateLeavePendingBadge();
-  if(leaveCurrentTab==='pending'||leaveCurrentTab==='all')renderLeaveTable();
-  toast('Leave request submitted successfully','success');
+// ══════════════════════════════════════════════════════════════
+// VIS-CONFIG REALTIME SYNC
+// ══════════════════════════════════════════════════════════════
+async function saveVisConfigDB(){
+  saveVisConfig(); // always save locally first
+  try{
+    await sb.from('app_settings').upsert({key:'vis_config',value:JSON.stringify(visConfig)},{onConflict:'key'});
+  }catch(e){ /* table may not exist yet — fallback is localStorage */ }
 }
 
+// Poll every 5s as fallback for environments where WebSocket is blocked
+function startVisConfigPoll(){
+  // Fast poll (5s) - access control (vis_config) only
+  setInterval(async()=>{
+    if(!currentUser)return;
+    try{
+      const{data}=await sb.from('app_settings').select('value').eq('key','vis_config').single();
+      if(data?.value){
+        const remote=JSON.parse(data.value);
+        if(JSON.stringify(remote)!==JSON.stringify(visConfig)){
+          Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();
+          if(currentUser.role!=='admin')toast('⚙️ Access settings updated','info');
+        }
+      }
+    }catch(e){}
+  },5000);
+  // Slower poll (15s) - catch any missed Realtime events for other shared state
+  setInterval(async()=>{
+    if(!currentUser)return;
+    try{
+      const{data}=await sb.from('app_settings').select('key,value').in('key',['app_users','app_emps','act_log','app_features','proj_docs']);
+      (data||[]).forEach(row=>{
+        try{
+          if(row.key==='app_users'){const r=JSON.parse(row.value);if(r?.length){const ids=new Set(r.map(u=>u.id));const m=[...r];DEFAULT_USERS.forEach(du=>{if(!ids.has(du.id))m.push(du);});if(JSON.stringify(m)!==JSON.stringify(appUsers)){appUsers=m;saveUsersLocal();renderStats();}}}
+          else if(row.key==='app_emps'){const r=JSON.parse(row.value);if(r?.length&&JSON.stringify(r)!==JSON.stringify(employees)){employees=r;saveEmpsLocal();renderEmps();renderProjects();renderProjFull();renderStats();}}
+          else if(row.key==='act_log'){const r=JSON.parse(row.value);if(r?.length&&r[0]?.id!==actLog[0]?.id){actLog=r;try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}const nb=document.getElementById('nb-act');if(nb)nb.textContent=actLog.length;}}
+          else if(row.key==='app_features'){const r=JSON.parse(row.value);if(JSON.stringify(r)!==JSON.stringify(features)){Object.assign(features,r);saveFeaturesLocal();if(document.getElementById('page-settings')?.classList.contains('active'))renderSettings();}}
+          else if(row.key==='proj_docs'){const r=JSON.parse(row.value);if(JSON.stringify(r)!==JSON.stringify(projDocs)){projDocs=r;saveDocsLocal();if(openProjId){const p=projects.find(x=>x.id===openProjId);if(p)renderDPBody(p);}}}
+        }catch(e){}
+      });
+    }catch(e){}
+  },15000);
+  // Auto-refresh check-in admin badge every 30s (live timers handle the rest)
+  setInterval(()=>{
+    if(currentUser&&(currentUser.role==='admin'||currentUser.role==='manager')&&features.checkIn){
+      const active=checkInRecords.filter(r=>r.date===getTodayKey()&&!r.checkOut).length;
+      const nb=document.getElementById('nb-ci');if(nb)nb.textContent=active||'';
+    }
+  },30000);
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUPABASE REALTIME — project changes + access control sync
+// ══════════════════════════════════════════════════════════════
+let _rtChannel=null, _lastSave=0;
+const _ownSaves=new Map();        // projId → timestamp of last OUR save (echo suppression)
+const _saveProjDBRunning=new Set(); // projId → currently saving (recursion guard)
+
+function startRealtime(){
+  if(_rtChannel)return;
+  try{
+    _rtChannel=sb.channel('cc-realtime')
+      .on('postgres_changes',{event:'*',schema:'public',table:'projects'},(pl)=>{
+        const {eventType,new:nr,old:or}=pl;
+        if(nr&&_ownSaves.has(nr.id)&&Date.now()-(_ownSaves.get(nr.id)||0)<1200)return;
+        const mapped={
+          id:nr.id,name:nr.name,client:nr.client||'',labellink:nr.labellink||'',
+          total:nr.total||0,annotated:nr.annotated||0,reviewed:nr.reviewed||0,
+          priority:nr.priority||'medium',startdate:nr.startdate||'',deadline:nr.deadline||'',
+          assignedby:nr.assignedby||'',notes:nr.notes||'',comments:nr.comments||'',
+          hasTarget:nr.has_target||false,dailyTarget:nr.daily_target||null,
+          kanbanStatus:nr.kanban_status||'todo',
+          assignedEmployees:nr.assigned_employees?nr.assigned_employees.split(',').filter(Boolean):[],
+          reviewEmployees:nr.review_employees?nr.review_employees.split(',').filter(Boolean):[],
+          tags:nr.tags?nr.tags.split(',').filter(Boolean):[]
+        };
+        if(eventType==='INSERT'){
+          if(!projects.find(p=>p.id===mapped.id)){
+            projects.unshift(mapped);
+            renderAll();
+            const eid=currentUser?.empId;
+            if(eid&&((mapped.assignedEmployees||[]).includes(eid)||(mapped.reviewEmployees||[]).includes(eid)))
+              toast(`📋 You were assigned to new project: "${mapped.name}"`,'ok');
+            else if(can('seeAll'))
+              toast(`New project added: "${mapped.name}"`,'ok');
+          }
+        }
+        else if(eventType==='UPDATE'){
+          const i=projects.findIndex(p=>p.id===mapped.id);
+          // If project not found locally, reload all projects (race condition on first load)
+          if(i<0){loadProjects();return;}
+          if(i>=0){
+            const prev=projects[i];
+            projects[i]=mapped;
+            renderAll(); // re-renders project list, stats, badges
+            // Re-render open detail panel
+            if(openProjId===mapped.id)renderDPBody(mapped);
+            // Notify user of changes relevant to them
+            const eid=currentUser?.empId;
+            const wasAssigned=(prev.assignedEmployees||[]).includes(eid)||(prev.reviewEmployees||[]).includes(eid);
+            const nowAssigned=(mapped.assignedEmployees||[]).includes(eid)||(mapped.reviewEmployees||[]).includes(eid);
+            const isAnnotator=(mapped.assignedEmployees||[]).includes(eid);
+            const isReviewer=(mapped.reviewEmployees||[]).includes(eid);
+            // Newly assigned — prominent notification
+            if(!wasAssigned&&nowAssigned){
+              const roleLabel=isReviewer&&!isAnnotator?' (reviewer)':isAnnotator&&isReviewer?' (annotator+reviewer)':'';
+              toast(`📋 Assigned to: "${mapped.name}"${roleLabel}`,'ok');
+              // Push into notification panel so they don't miss it
+              notifications.unshift({
+                id:'assign_'+Date.now(), userId:currentUser.id,
+                projId:mapped.id, projName:mapped.name, cmtId:'',
+                author:'System', text:`You were assigned to "${mapped.name}"${roleLabel}`,
+                ts:new Date().toISOString(), read:false
+              });
+              saveNotifications(); updateNbDot();
+            }
+            // Removed from project
+            else if(wasAssigned&&!nowAssigned){
+              toast(`Removed from: "${mapped.name}"`,'info');
+            }
+            // Status change on a project you're on
+            else if(nowAssigned&&prev.kanbanStatus!==mapped.kanbanStatus){
+              toast(`"${mapped.name}" → ${KB_LABELS[mapped.kanbanStatus]||mapped.kanbanStatus}`,'info');
+            }
+          } // end if i>=0
+        }
+        else if(eventType==='DELETE'){
+          projects=projects.filter(p=>p.id!==(or.id||or?.id));
+          renderAll();
+          if(can('seeAll'))toast('A project was deleted','info');
+          return;
+        }
+      })
+      .on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(pl)=>{
+        const row=pl.new;
+        if(!row)return;
+        try{
+          if(row.key==='vis_config'){
+            const remote=JSON.parse(row.value);
+            if(JSON.stringify(remote)!==JSON.stringify(visConfig)){Object.assign(visConfig,remote);saveVisConfig();applyRoleToUI();if(currentUser?.role!=='admin')toast('Access settings updated','info');}
+          } else if(row.key==='app_users'){
+            const remote=JSON.parse(row.value);
+            if(remote&&remote.length){
+              const savedIds=new Set(remote.map(u=>u.id));
+              const merged=[...remote];
+              DEFAULT_USERS.forEach(du=>{if(!savedIds.has(du.id))merged.push(du);});
+              appUsers=merged;saveUsersLocal();
+              renderStats();
+              if(document.getElementById('usersPage')?.style.display!=='none')renderUsers();
+            }
+          } else if(row.key==='app_emps'){
+            const remote=JSON.parse(row.value);
+            if(remote&&remote.length){employees=remote;saveEmpsLocal();renderStats();renderEmps();renderProjects();}
+          } else if(row.key==='act_log'){
+            const remote=JSON.parse(row.value);
+            if(remote?.length&&remote[0]?.id!==actLog[0]?.id){
+              actLog=remote;try{localStorage.setItem('cc_actlog',JSON.stringify(actLog));}catch(e){}
+              const nb=document.getElementById('nb-act');if(nb)nb.textContent=actLog.length;
+              if(document.getElementById('page-actlog')?.classList.contains('active'))renderActivityLog();
+            }
+          } else if(row.key==='app_features'){
+            const remote=JSON.parse(row.value);
+            if(JSON.stringify(remote)!==JSON.stringify(features)){
+              Object.assign(features,remote);saveFeaturesLocal();
+              if(document.getElementById('page-settings')?.classList.contains('active'))renderSettings();
+            }
+          } else if(row.key==='proj_docs'){
+            const remote=JSON.parse(row.value);
+            if(JSON.stringify(remote)!==JSON.stringify(projDocs)){
+              projDocs=remote;saveDocsLocal();
+              if(openProjId){const p=projects.find(x=>x.id===openProjId);if(p)renderDPBody(p);}
+            }
+          } else if(row.key==='check_in_records'){
+            const remote=JSON.parse(row.value);
+            if(remote&&JSON.stringify(remote)!==JSON.stringify(checkInRecords)){
+              checkInRecords=remote;
+              try{localStorage.setItem('cc_checkins',JSON.stringify(checkInRecords));}catch(e){}
+              renderCheckInBar();
+              if(document.getElementById('page-checkin')?.classList.contains('active'))renderCheckInAdmin();
+              if(document.getElementById('page-attend')?.classList.contains('active'))renderMonthlyAttendance();
+              // Update admin badge with active count
+              const active=checkInRecords.filter(r=>r.date===getTodayKey()&&!r.checkOut).length;
+              const nb=document.getElementById('nb-ci');if(nb)nb.textContent=active||'';
+            }
+          } else if(currentUser&&row.key==='notifs_'+currentUser.id){
+            const remote=JSON.parse(row.value);
+            notifications=[...notifications.filter(n=>n.userId!==currentUser.id),...remote];
+            try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
+            updateNbDot();if(document.getElementById('notifPanel')?.classList.contains('open'))renderNotifList();
+          }
+        }catch(e){}
+      })
+      .on('postgres_changes',{event:'INSERT',schema:'public',table:'project_comments'},(pl)=>{
+        const nr=pl.new;if(!nr)return;
+        const cmt={id:nr.id,parentId:nr.parent_id||null,authorId:nr.author_id,author:nr.author,role:nr.role,text:nr.text,ts:nr.ts,mentions:nr.mentions?JSON.parse(nr.mentions):[]};
+        if(!threadedComments[nr.proj_id])threadedComments[nr.proj_id]=[];
+        if(!threadedComments[nr.proj_id].find(c=>c.id===cmt.id)){
+          threadedComments[nr.proj_id].push(cmt);saveThreadedComments();
+          if(openProjId===nr.proj_id){renderThreadList(nr.proj_id);const cnt=document.getElementById('tc-count-'+nr.proj_id);if(cnt)cnt.textContent='('+(threadedComments[nr.proj_id]||[]).filter(c=>!c.parentId).length+')';}
+        }
+      })
+      .on('postgres_changes',{event:'DELETE',schema:'public',table:'project_comments'},(pl)=>{
+        const or=pl.old;if(!or||!threadedComments[or.proj_id])return;
+        threadedComments[or.proj_id]=threadedComments[or.proj_id].filter(c=>c.id!==or.id&&c.parentId!==or.id);
+        saveThreadedComments();if(openProjId===or.proj_id)renderThreadList(or.proj_id);
+      })
+      .subscribe(status=>{
+        const dot=document.getElementById('rt-dot');
+        const badge=document.getElementById('rt-badge');
+        const on=status==='SUBSCRIBED';
+        if(dot)dot.style.display=on?'inline-block':'none';
+        if(badge)badge.style.display=on?'':'none';
+      });
+  }catch(e){console.warn('Realtime unavailable:',e);}
+}
+
+// saveProjDB already has _lastSave + _ownSaves tracking built in (recursion guard active)
+
+// ══════════════════════════════════════════════════════════════
+// THREADED COMMENTS + @MENTIONS + NOTIFICATIONS
+// ══════════════════════════════════════════════════════════════
+let threadedComments={};   // { projId: [{id,parentId,authorId,author,role,text,ts,mentions:[]}] }
+let notifications=[];      // [{id,userId,projId,projName,cmtId,author,text,ts,read}]
+let _replyTo=null;         // {projId,cmtId,authorName}
+let _mentionActive=false;
+
+const ROLE_COLORS={admin:'#dc2626',manager:'#2563eb',reviewer:'#d97706',employee:'#16a34a',stakeholder:'#7c3aed'};
+
+function loadThreadedComments(){try{const s=localStorage.getItem('cc_threads');if(s)threadedComments=JSON.parse(s);}catch(e){}}
+function saveThreadedComments(){try{localStorage.setItem('cc_threads',JSON.stringify(threadedComments));}catch(e){}}
+async function loadCommentsFromDB(projId){
+  try{
+    const{data,error}=await sb.from('project_comments').select('*').eq('proj_id',projId).order('ts',{ascending:true});
+    if(error||!data)return;
+    threadedComments[projId]=data.map(r=>({id:r.id,parentId:r.parent_id||null,authorId:r.author_id,author:r.author,role:r.role,text:r.text,ts:r.ts,mentions:r.mentions?JSON.parse(r.mentions):[]}));
+    saveThreadedComments();
+    renderThreadList(projId);
+    const cnt=document.getElementById('tc-count-'+projId);
+    if(cnt)cnt.textContent='('+(threadedComments[projId]||[]).filter(c=>!c.parentId).length+')';
+  }catch(e){}
+}
+async function saveCommentToDB(projId,cmt){
+  try{await sb.from('project_comments').upsert({id:cmt.id,proj_id:projId,parent_id:cmt.parentId||null,author_id:cmt.authorId,author:cmt.author,role:cmt.role,text:cmt.text,ts:cmt.ts,mentions:JSON.stringify(cmt.mentions||[])},{onConflict:'id'});}catch(e){}
+}
+async function deleteCommentFromDB(cmtId){
+  try{await sb.from('project_comments').delete().eq('id',cmtId);}catch(e){}
+}
+function loadNotifications(){try{const s=localStorage.getItem('cc_notifs');if(s)notifications=JSON.parse(s);}catch(e){}}
+async function saveNotifications(){
+  try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
+  if(!currentUser)return;
+  const mine=notifications.filter(n=>n.userId===currentUser.id);
+  try{await sb.from('app_settings').upsert({key:'notifs_'+currentUser.id,value:JSON.stringify(mine)},{onConflict:'key'});}catch(e){}
+}
+async function loadNotificationsFromDB(){
+  if(!currentUser)return;
+  try{
+    const{data}=await sb.from('app_settings').select('value').eq('key','notifs_'+currentUser.id).single();
+    if(data?.value){
+      const remote=JSON.parse(data.value);
+      // Keep other users' notifs in memory, replace mine with DB version
+      notifications=[...notifications.filter(n=>n.userId!==currentUser.id),...remote];
+      try{localStorage.setItem('cc_notifs',JSON.stringify(notifications));}catch(e){}
+    }
+  }catch(e){loadNotifications();}
+}
+
+function avInit(name){return(name||'?').split(' ').filter(Boolean).map(w=>w[0]).join('').substr(0,2).toUpperCase();}
+
+function renderCommentText(text){
+  // highlight @mentions
+  return esc(text).replace(/@([\w][\w\s]*[\w])/g,(match,name)=>{
+    const e=employees.find(e=>e.name.toLowerCase()===name.toLowerCase());
+    return e?`<span class="tc-mention">@${esc(name)}</span>`:match;
+  });
+}
+
+function parseMentions(text){
+  const re=/@([\w][\w\s]{0,40}[\w])/g;
+  const found=[];let m;
+  while((m=re.exec(text))!==null){
+    const emp=employees.find(e=>e.name.toLowerCase()===m[1].trim().toLowerCase());
+    if(emp&&!found.includes(emp.id))found.push(emp.id);
+  }
+  return found;
+}
+
+// ── Render the thread list into #tc-list-{projId} ──
+function renderThreadList(projId){
+  const wrap=document.getElementById('tc-list-'+projId);
+  if(!wrap)return;
+  const cmts=threadedComments[projId]||[];
+  const roots=cmts.filter(c=>!c.parentId);
+  const unreadIds=new Set(notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===projId).map(n=>n.cmtId));
+
+  if(!roots.length){wrap.innerHTML='<div style="padding:20px 16px;font-size:.8rem;color:var(--tx3);text-align:center;"><i class="fas fa-comments" style="display:block;font-size:1.4rem;margin-bottom:7px;opacity:.35;"></i>No comments yet. Be the first!</div>';return;}
+
+  function build(cmt,depth){
+    const isMe=cmt.authorId===currentUser?.id;
+    const replies=cmts.filter(c=>c.parentId===cmt.id);
+    const rc=ROLE_COLORS[cmt.role]||'#64748b';
+    const unread=unreadIds.has(cmt.id);
+    const canDel=isMe||currentUser?.role==='admin';
+    return `<div class="tc-item${isMe?' tc-mine':''}${unread?' tc-unread':''}">
+      <div class="tc-hdr">
+        <div class="tc-av" style="background:${rc}">${avInit(cmt.author)}</div>
+        <div class="tc-meta">
+          <span class="tc-name">${esc(cmt.author)}</span>
+          <span class="tc-role" style="background:${rc}22;color:${rc}">${cmt.role}</span>
+        </div>
+        <span class="tc-time">${fmtAgo(cmt.ts)}</span>
+      </div>
+      <div class="tc-body">${renderCommentText(cmt.text)}</div>
+      <div class="tc-actions">
+        <button class="tc-btn" onclick="startReply('${projId}','${cmt.id}','${esc(cmt.author)}')"><i class="fas fa-reply"></i> Reply</button>
+        ${canDel?`<button class="tc-btn del" onclick="deleteComment('${projId}','${cmt.id}')"><i class="fas fa-trash"></i></button>`:''}
+      </div>
+      ${replies.length?`<div class="tc-replies">${replies.map(r=>build(r,depth+1)).join('')}</div>`:''}
+    </div>`;
+  }
+
+  wrap.innerHTML=roots.map(c=>build(c,0)).join('');
+
+  // Mark as read when viewed
+  const toRead=notifications.filter(n=>n.userId===currentUser?.id&&!n.read&&n.projId===projId);
+  if(toRead.length){toRead.forEach(n=>n.read=true);saveNotifications();updateNbDot();renderNotifList();}
+
+  // Update count header
+  const cnt=document.getElementById('tc-count-'+projId);
+  if(cnt)cnt.textContent=`(${roots.length})`;
+}
+
+// ── Post a new comment ──
+async function postComment(projId){
+  if(!currentUser)return;
+  const inp=document.getElementById('tc-inp-'+projId);
+  if(!inp)return;
+  const text=inp.value.trim();
+  if(!text)return;
+  const p=projects.find(x=>x.id===projId);if(!p)return;
+
+  const mentions=parseMentions(text);
+  const cmt={
+    id:'c'+Date.now()+Math.random().toString(36).substr(2,4),
+    parentId:_replyTo?.projId===projId?_replyTo.cmtId:null,
+    authorId:currentUser.id, author:currentUser.name, role:currentUser.role,
+    text, ts:new Date().toISOString(), mentions
+  };
+  if(!threadedComments[projId])threadedComments[projId]=[];
+  threadedComments[projId].push(cmt);
+  saveThreadedComments();
+
+  // Create notifications for mentioned employees
+  mentions.forEach(empId=>{
+    const u=appUsers.find(u=>u.empId===empId);
+    if(!u)return;
+    notifications.push({
+      id:'n'+Date.now()+Math.random().toString(36).substr(2,3),
+      userId:u.id, projId, projName:p.name, cmtId:cmt.id, author:currentUser.name,
+      text:`${currentUser.name} mentioned you in "${p.name}": ${text.substr(0,70)}${text.length>70?'…':''}`,
+      ts:new Date().toISOString(), read:false
+    });
+  });
+  // Notify project assignor if someone else comments
+  if(p.assignedby&&currentUser.name!==p.assignedby){
+    const mgr=appUsers.find(u=>u.name===p.assignedby);
+    if(mgr&&!mentions.includes(mgr.empId||'')){
+      notifications.push({
+        id:'n'+Date.now()+'m',
+        userId:mgr.id, projId, projName:p.name, cmtId:cmt.id, author:currentUser.name,
+        text:`${currentUser.name} commented on "${p.name}": ${text.substr(0,70)}${text.length>70?'…':''}`,
+        ts:new Date().toISOString(), read:false
+      });
+    }
+  }
+  saveNotifications();
+  updateNbDot();
+  inp.value='';
+  inp.style.height='';
+  cancelReply(projId);
+  renderThreadList(projId);
+  saveCommentToDB(projId,cmt);
+}
+
+function deleteComment(projId,cmtId){
+  const cmts=threadedComments[projId]||[];
+  const cmt=cmts.find(c=>c.id===cmtId);
+  if(!cmt)return;
+  if(cmt.authorId!==currentUser?.id&&currentUser?.role!=='admin'){toast('Can only delete your own comments','err');return;}
+  threadedComments[projId]=cmts.filter(c=>c.id!==cmtId&&c.parentId!==cmtId);
+  saveThreadedComments();
+  renderThreadList(projId);
+  deleteCommentFromDB(cmtId);
+}
+
+function startReply(projId,cmtId,authorName){
+  _replyTo={projId,cmtId,authorName};
+  const banner=document.getElementById('tc-reply-banner-'+projId);
+  const label=document.getElementById('tc-reply-label-'+projId);
+  if(banner)banner.style.display='flex';
+  if(label)label.textContent='Replying to '+authorName;
+  const inp=document.getElementById('tc-inp-'+projId);
+  if(inp)inp.focus();
+}
+
+function cancelReply(projId){
+  _replyTo=null;
+  const banner=document.getElementById('tc-reply-banner-'+projId);
+  if(banner)banner.style.display='none';
+}
+
+// ── @Mention autocomplete ──
+function onCmtInput(e,projId){
+  const inp=e.target;
+  const val=inp.value,pos=inp.selectionStart;
+  const before=val.substring(0,pos);
+  const atIdx=before.lastIndexOf('@');
+  if(atIdx>=0){
+    const q=before.substring(atIdx+1);
+    if(!q.includes('  ')&&q.length<32){showMentionPop(inp,q,projId);return;}
+  }
+  hideMentionPop();
+}
+
+function onCmtKey(e,projId){
+  if(e.key==='Escape'){hideMentionPop();return;}
+  if(e.key==='Enter'&&!e.shiftKey&&!_mentionActive){e.preventDefault();postComment(projId);}
+}
+
+function showMentionPop(inp,query,projId){
+  let pop=document.getElementById('_mentionPop');
+  if(!pop){pop=document.createElement('div');pop.id='_mentionPop';pop.className='mention-pop';document.body.appendChild(pop);}
+  const list=employees.filter(e=>e.name.toLowerCase().includes(query.toLowerCase())).slice(0,8);
+  if(!list.length){hideMentionPop();return;}
+  const rect=inp.getBoundingClientRect();
+  const above=window.innerHeight-rect.bottom<200&&rect.top>200;
+  pop.style.cssText=`display:block;left:${Math.max(8,Math.min(rect.left,window.innerWidth-220))}px;${above?'bottom:'+(window.innerHeight-rect.top+4)+'px;':'top:'+(rect.bottom+4)+'px;'}`;
+  pop.innerHTML=list.map(e=>`<div class="mention-row" onmousedown="event.preventDefault();insertMention('${projId}','${e.name.replace(/'/g,"\'")}')">
+    <div class="m-av">${avInit(e.name)}</div>
+    <div class="m-info"><div class="m-name">${esc(e.name)}</div><div class="m-email">${esc(e.email||'')}</div></div>
+  </div>`).join('');
+  _mentionActive=true;
+}
+
+function hideMentionPop(){
+  const pop=document.getElementById('_mentionPop');
+  if(pop)pop.style.display='none';
+  _mentionActive=false;
+}
+
+function insertMention(projId,name){
+  const inp=document.getElementById('tc-inp-'+projId);
+  if(!inp)return;
+  const val=inp.value,pos=inp.selectionStart;
+  const before=val.substring(0,pos);
+  const atIdx=before.lastIndexOf('@');
+  inp.value=val.substring(0,atIdx)+'@'+name+' '+val.substring(pos);
+  inp.focus();
+  hideMentionPop();
+}
+
+// ── Notification panel ──
+function toggleNotifPanel(){
+  const p=document.getElementById('notifPanel');
+  if(p){p.classList.toggle('open');if(p.classList.contains('open'))renderNotifList();}
+}
+
+function renderNotifList(){
+  const list=document.getElementById('np-list');
+  if(!list||!currentUser)return;
+  const mine=notifications.filter(n=>n.userId===currentUser.id).sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  if(!mine.length){list.innerHTML='<div class="np-empty"><i class="fas fa-check-circle" style="font-size:1.5rem;color:var(--green);display:block;margin-bottom:8px;"></i>All caught up!</div>';return;}
+  list.innerHTML=mine.map(n=>`<div class="np-item${n.read?'':' unread'}" onclick="openNotif('${n.projId}','${n.id}')">
+    <div class="${n.read?'np-read-dot':'np-unread-dot'}"></div>
+    <div class="np-body">
+      <div class="np-proj"><i class="fas fa-folder" style="margin-right:4px;"></i>${esc(n.projName)}</div>
+      <div class="np-text">${esc(n.text)}</div>
+      <div class="np-time">${fmtAgo(n.ts)}</div>
+    </div>
+  </div>`).join('');
+}
+
+function openNotif(projId,notifId){
+  const n=notifications.find(x=>x.id===notifId);
+  if(n)n.read=true;
+  saveNotifications();updateNbDot();renderNotifList();
+  toggleNotifPanel();
+  const p=projects.find(x=>x.id===projId);if(p)openDP(p);
+}
+
+function markAllNotifsRead(){
+  if(!currentUser)return;
+  notifications.filter(n=>n.userId===currentUser.id).forEach(n=>n.read=true);
+  saveNotifications();updateNbDot();renderNotifList();
+}
+
+function clearNotifs(){
+  if(!currentUser)return;
+  notifications=notifications.filter(n=>n.userId!==currentUser.id);
+  saveNotifications();updateNbDot();renderNotifList();
+  toast('Notifications cleared','info');
+}
+
+function updateNbDot(){
+  if(!currentUser)return;
+  const count=notifications.filter(n=>n.userId===currentUser.id&&!n.read).length;
+  const dot=document.getElementById('nbDot');
+  if(dot)dot.classList.toggle('on',count>0);
+}
+
+fillDemoLabels();
+window._appReady = true; // main script fully parsed + executed — login is safe
 tryRestoreSession();
-updateLeavePendingBadge();
 </script>
 
+<!-- ═══ LAYER 2: Parse-error detector ═══
+  This script block runs AFTER the main block.
+  If the main block had a SyntaxError, it was silently skipped by the browser.
+  _appReady will still be false, so we show the error banner here.
+  This is the ONLY reliable way to detect JS parse failures. -->
+<script>
+(function() {
+  // Give the main script 0ms to complete (it's synchronous, so it already ran or didn't)
+  if (!window._appReady) {
+    window._showScriptError('Main script block did not execute — likely a SyntaxError from a recent code edit.');
+  }
+})();
+</script>
+
+
+<!-- HOLIDAY MANAGER MODAL -->
+<div class="overlay" id="holidayOvl" onclick="if(event.target===this)closeHolidayMgr()">
+<div class="modal" style="width:520px;max-height:80vh;overflow-y:auto;">
+  <div class="modal-title"><i class="fas fa-umbrella-beach" style="color:var(--red)"></i><span>Public Holidays</span></div>
+  <div style="font-size:.78rem;color:var(--tx3);margin-bottom:12px;">Mark public holidays — they will appear highlighted in the attendance calendar.</div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+    <input type="date" id="hol-date" style="flex:1;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;">
+    <input type="text" id="hol-name" placeholder="Holiday name (e.g. Diwali)" style="flex:2;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur);color:var(--tx);font-family:'Inter',sans-serif;font-size:.82rem;outline:none;">
+    <button class="btn btn-red btn-sm" onclick="addHoliday()"><i class="fas fa-plus"></i> Add</button>
+  </div>
+  <div id="holidayList" style="min-height:40px;"></div>
+  <div class="modal-foot">
+    <button class="btn btn-ghost" onclick="closeHolidayMgr()">Close</button>
+  </div>
+</div></div>
 <!-- ═══ MODAL: DAILY REPORT ═══ -->
-<div class="overlay" id="reportOvl" onclick="if(event.target===this)closeReport()">
+<!-- ADMIN CHECK-IN EDIT MODAL -->
+
+
+<div class="overlay" id="reportOvl"  onclick="if(event.target===this)closeReport()">
 <div class="modal" style="width:640px;">
   <div class="modal-title"><i class="fas fa-paper-plane" style="color:var(--blue)"></i><span>Daily Project Report</span></div>
   <div class="fgrid">
@@ -4040,7 +5509,7 @@ updateLeavePendingBadge();
   <div class="modal-title"><i class="fas fa-user-shield" style="color:var(--red)"></i><span id="uMTtl">Add User</span></div>
   <div class="fgrid">
     <div class="ff full"><label>Full Name *</label><input type="text" id="fu-name" placeholder="e.g. Priya Sharma"></div>
-    <div class="ff full"><label>Email *</label><input type="email" id="fu-email" placeholder="priya@camcom.ai"></div>
+    <div class="ff full"><label>Email *</label><input type="email" id="fu-email" placeholder="priya at camcom.ai"></div>
     <div class="ff"><label>Password *</label><input type="password" id="fu-pwd" placeholder="Set password"></div>
     <div class="ff"><label>Role</label>
       <select id="fu-role" onchange="onRoleChange()">
@@ -4052,3 +5521,13 @@ updateLeavePendingBadge();
       </select>
     </div>
     <div class="ff full" id="empLinkWrap" style="display:none;">
+      <label>Link to Existing Employee Record <span style="font-weight:400;color:var(--tx3);font-size:.75rem;">(optional — leave blank to auto-create)</span></label>
+      <select id="fu-empId" style="width:100%;padding:7px 10px;border:1px solid var(--brd);border-radius:var(--rsm);background:var(--sur2);color:var(--tx);font-size:.83rem;"><option value="">— Auto-create new employee record —</option></select>
+      <p id="emp-auto-note" style="font-size:.73rem;color:var(--blue);margin:4px 0 0;"><i class="fas fa-info-circle"></i> This user will automatically appear in the Employees list and can be assigned to projects.</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;padding:16px 20px 20px;border-top:1px solid var(--brd);margin-top:8px;">
+    <button class="btn" onclick="closeUserModal()" style="background:var(--sur2);color:var(--tx);border:1px solid var(--brd);">Cancel</button>
+    <button class="btn btn-red" onclick="saveUser()"><i class="fas fa-check"></i> Save User</button>
+  </div>
+</div>
